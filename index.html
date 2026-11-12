@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>代码之下</title>
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ 0. 邮件 ============ -->
+  <section class="screen" id="screen-mail" data-screen="mail">
+    <div class="mailapp">
+      <div class="mailapp-titlebar">
+        <span class="mailapp-icon">✉</span>
+        <span class="mailapp-title">收件箱 - Outlook Express</span>
+        <span class="wb-btns"><i>_</i><i>□</i><i class="x">×</i></span>
+      </div>
+      <div class="mailapp-menu">
+        <span>文件</span><span>编辑</span><span>查看</span><span>工具</span><span>邮件</span><span>帮助</span>
+      </div>
+      <div class="mailapp-toolbar">
+        <button class="tb">撰写</button><button class="tb">回复</button><button class="tb">转发</button>
+        <button class="tb">删除</button><button class="tb tb-ghost">发送/接收</button>
+      </div>
+      <div class="mailapp-body">
+        <aside class="mail-folders">
+          <div class="folder-head">文件夹</div>
+          <div class="folder active">▣ 收件箱 <b>(1)</b></div>
+          <div class="folder">▢ 发件箱</div>
+          <div class="folder">▢ 已发送邮件</div>
+          <div class="folder">▢ 已删除邮件</div>
+          <div class="folder">▢ 草稿</div>
+          <div class="folder-gap"></div>
+          <div class="folder-head">联系人</div>
+          <div class="folder">▢ ？</div>
+        </aside>
+        <div class="mail-list">
+          <div class="mlist-head">
+            <span class="col-from">发件人</span><span class="col-sub">主题</span><span class="col-date">日期</span>
+          </div>
+          <div class="mlist-row unread" id="mail-row">
+            <span class="col-from">？？？</span>
+            <span class="col-sub">您的《代码之下》已发布</span>
+            <span class="col-date">11-12</span>
+          </div>
+        </div>
+        <div class="mail-read">
+          <div class="read-head">
+            <div class="read-line"><label>发件人：</label><span class="suspect" id="mail-from">？</span></div>
+            <div class="read-line"><label>收件人：</label><span id="mail-to">你</span></div>
+            <div class="read-line"><label>主题：</label><span class="read-subject">您预购的游戏《代码之下》现在已经发布</span></div>
+          </div>
+          <hr class="read-hr">
+          <div class="read-body" id="read-body">
+            <p>您好。</p>
+            <p>您预购的游戏《<b>代码之下</b>》现在已经发布。感谢您在最开始就相信它。</p>
+            <p>请点击下方链接下载：</p>
+            <p class="dl-link-line"><a href="#" id="download-link" class="fake-link">game</a></p>
+            <p class="read-dim">— 无署名</p>
+            <p class="read-dim read-warn">（发件人一栏是空的。不是"隐藏发件人"，是真的空的。光标在上面停了两秒，像有什么东西在下面呼吸。）</p>
+          </div>
+        </div>
+      </div>
+      <div class="mailapp-status"><span>1 封未读邮件</span><span>连接：已断开</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 1. 下载页 ============ -->
+  <section class="screen" id="screen-download" data-screen="download">
+    <div class="dl-page">
+      <div class="dl-topbar">
+        <span class="dl-logo">◤ PATCHTOWER</span>
+        <span class="dl-nav">首页　游戏库　论坛　<span class="dl-dead">登录</span></span>
+      </div>
+      <div class="dl-wrap">
+        <div class="dl-cover">
+          <div class="dl-cover-inner">
+            <div class="dl-cover-title">代码<br>之下</div>
+            <div class="dl-cover-sub">UNDER THE CODE</div>
+            <div class="dl-cover-tag">v1.0.0 · 独立 · 叙事 · 单人</div>
+          </div>
+          <div class="dl-cover-glitch" aria-hidden="true"></div>
+        </div>
+        <div class="dl-info">
+          <h1>《代码之下》</h1>
+          <div class="dl-meta">
+            <span>发行日期：<b>今天</b></span>
+            <span>文件大小：<b>3.61 GB</b></span>
+            <span>版本：<b>1.0.0 (build 36)</b></span>
+          </div>
+          <p class="dl-desc">
+            一款关于记忆、归档与"被记录"的叙事解谜游戏。<br>
+            你的每一个选择都会被写下来。<br>
+            <span class="dl-dim">本作不提供存档。也不需要。</span>
+          </p>
+          <div class="dl-actions" id="dl-actions">
+            <button class="btn-dl" id="btn-dl">下载</button>
+            <button class="btn-dl btn-dl-ghost" id="btn-dl-mirror">备用镜像</button>
+          </div>
+          <div class="dl-progress" id="dl-progress">
+            <div class="dlp-row"><span id="dlp-name">代码之下_v1.0.0.zip</span><span id="dlp-pct">0%</span></div>
+            <div class="dlp-bar"><div class="dlp-fill" id="dlp-fill"></div></div>
+            <div class="dlp-row dlp-small"><span id="dlp-speed">— 等待中 —</span><span id="dlp-eta"></span></div>
+          </div>
+          <div class="dl-run" id="dl-run">
+            <button class="btn-run" id="btn-run">安装并运行</button>
+            <span class="dl-run-hint">游戏将请求管理员权限</span>
+          </div>
+        </div>
+      </div>
+      <div class="dl-footer">PATCHTOWER © 1998—2026　|　本页由第三方镜像提供，与发行方无关</div>
+    </div>
+  </section>
+
+  <!-- ============ 2. 记忆殿 ============ -->
+  <section class="screen" id="screen-hall" data-screen="hall">
+    <div class="hall">
+      <canvas id="code-rain" class="code-rain"></canvas>
+      <div class="hall-glow" id="hall-glow"></div>
+      <div class="hall-inner">
+        <h1 class="hall-title" id="hall-title" data-text="代码之下">代码之下</h1>
+        <div class="hall-sub">UNDER&nbsp;THE&nbsp;CODE</div>
+        <div class="hall-letter">
+          <p class="hall-line" id="hall-line1">欢迎来到记忆殿。</p>
+          <p class="hall-line" id="hall-line2">您是第 <span class="num">36</span> 个来到这里的人。</p>
+          <p class="hall-line hall-dim" id="hall-line3">前三十五个，都已经归档了。</p>
+        </div>
+        <div class="hall-choices" id="hall-choices">
+          <button class="hall-btn hall-btn-leave" id="btn-leave">离开</button>
+          <button class="hall-btn hall-btn-go" id="btn-go">前往</button>
+        </div>
+        <div class="hall-note" id="hall-note"></div>
+      </div>
+      <div class="hall-vignette"></div>
+    </div>
+  </section>
+
+  <!-- ============ 3. 合同 / 记忆殿内部 ============ -->
+  <section class="screen" id="screen-contract" data-screen="contract">
+    <div class="ct-scene">
+      <canvas id="ct-rain" class="ct-rain"></canvas>
+
+      <!-- 3a. 机械化欢迎 -->
+      <div class="ct-voice" id="ct-voice">
+        <div class="voice-line" id="voice-line"></div>
+      </div>
+
+      <!-- 3b. 桌子与合同 -->
+      <div class="ct-room" id="ct-room">
+        <div class="ct-farwall"></div>
+        <div class="ct-desk" id="ct-desk">
+          <div class="desk-top"></div>
+          <div class="desk-front"></div>
+          <div class="contract-paper" id="contract-paper">
+            <div class="cp-head">记 忆 殿 · 顾 客 登 记</div>
+            <div class="cp-lines">
+              <div class="cp-line"><span>名称</span><i></i></div>
+              <div class="cp-line"><span>性别</span><i></i></div>
+              <div class="cp-line"><span>职业</span><i></i></div>
+              <div class="cp-line"><span>指纹</span><i class="cp-print"></i></div>
+            </div>
+            <div class="cp-foot">签字即视为同意被记录</div>
+          </div>
+          <div class="desk-lamp"></div>
+        </div>
+        <div class="ct-figure" id="ct-figure">
+          <div class="fig-head"></div>
+          <div class="fig-body"></div>
+        </div>
+        <div class="ct-figure-near" id="ct-figure-near">
+          <div class="fig-near-head" id="fig-near-head"></div>
+          <div class="fig-near-body"></div>
+        </div>
+        <div class="ct-hint" id="ct-hint"></div>
+      </div>
+
+      <!-- 3c. 合同表单 -->
+      <div class="form-wrap" id="form-wrap">
+        <div class="contract-doc" id="contract-doc">
+          <div class="doc-title">记 忆 殿 · 顾 客 登 记 表</div>
+          <div class="doc-sub">第 36 号</div>
+          <table class="doc-table">
+            <tr class="row-name">
+              <th>名称</th>
+              <td class="cell-val">
+                <input id="in-name" class="doc-input" maxlength="12" autocomplete="off" placeholder="请写下你的称呼">
+                <span class="redline" id="redline"></span>
+                <span class="red-36" id="red-36">三十六</span>
+              </td>
+            </tr>
+            <tr class="row-sex" id="row-sex">
+              <th>性别</th>
+              <td class="cell-val">
+                <label class="sex-pick"><input type="radio" name="sex" value="男"><span>男</span></label>
+                <label class="sex-pick"><input type="radio" name="sex" value="女"><span>女</span></label>
+                <span class="erase-mark" id="erase-mark"></span>
+              </td>
+            </tr>
+            <tr class="row-job">
+              <th>职业</th>
+              <td class="cell-val">
+                <input id="in-job" class="doc-input" maxlength="16" autocomplete="off" placeholder="请写下你的职业">
+                <span class="job-flag" id="job-flag">难度已提升</span>
+              </td>
+            </tr>
+            <tr class="row-fp">
+              <th>指纹</th>
+              <td class="cell-val">
+                <div class="fp-box" id="fp-box">
+                  <div class="fp-ring" id="fp-ring"></div>
+                  <svg class="fp-icon" id="fp-icon" viewBox="0 0 60 72" fill="none"
+                       stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+                    <path d="M30 7c-12.5 0-21 9.5-21 22.5 0 8 1.6 14.5 4.6 20.5"/>
+                    <path d="M30 14c-9.2 0-15.5 7-15.5 16.5 0 7.5 1.5 13.5 4 18.5"/>
+                    <path d="M30 21c-5.6 0-9.6 4.6-9.6 10.4 0 7 1.6 12 3.8 16.6"/>
+                    <path d="M30 28c-2.4 0-4 2-4 4.6 0 6 1 10.6 3 14.4"/>
+                    <path d="M30 34.5c-.8 0-1.4.9-1.4 2.2 0 4.6.6 8.4 2 12"/>
+                    <path d="M37 9.5c9.6 3.4 15.4 12 15.4 22.5 0 8.4-1.8 15.4-4.6 21"/>
+                    <path d="M44 18c3.4 3.6 5 8.4 5 14.2 0 7-1.4 12.8-3.8 17.6"/>
+                  </svg>
+                  <div class="fp-tip" id="fp-tip">长按</div>
+                </div>
+                <div class="fp-code" id="fp-code"></div>
+              </td>
+            </tr>
+          </table>
+          <div class="doc-agree">本人自愿登记，并同意上述信息被永久记录。</div>
+          <button class="doc-submit" id="doc-submit" disabled>交 给 他</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4. 20 秒黑暗 ============ -->
+  <section class="screen" id="screen-dark" data-screen="dark">
+    <div class="dark-room" id="dark-room">
+      <div class="dark-hint" id="dark-hint">……</div>
+    </div>
+  </section>
+
+  <!-- ============ 5. 突脸 ============ -->
+  <section class="screen" id="screen-doll" data-screen="doll">
+    <div class="doll-stage" id="doll-stage">
+      <img class="doll-img" id="doll-img" src="assets/doll.png" alt="">
+      <div class="doll-noise"></div>
+    </div>
+  </section>
+
+  <!-- ============ 6. 柜台 / 大厅 ============ -->
+  <section class="screen" id="screen-counter" data-screen="counter">
+    <div class="counter-scene" id="counter-scene">
+      <div class="cs-wall"></div>
+
+      <!-- 长椅椅背 + 老爷爷 -->
+      <div class="cs-bench" id="cs-bench"></div>
+      <div class="cs-oldman" id="oldman">
+        <img src="assets/oldman.png" alt="" id="oldman-img">
+        <div class="cs-oldman-shadow"></div>
+      </div>
+
+      <!-- 左：柜子 -->
+      <div class="hotspot hs-cabinet" id="hs-cabinet" data-hs="cabinet">
+        <div class="hs-mark"></div>
+        <div class="cabinet-body">
+          <div class="cab-door"></div>
+          <div class="cab-door"></div>
+          <div class="cab-knob"></div>
+        </div>
+      </div>
+
+      <!-- 右：电脑桌 -->
+      <div class="hotspot hs-pc" id="hs-pc" data-hs="pc">
+        <div class="hs-mark"></div>
+        <div class="pc-monitor" id="pc-monitor">
+          <div class="pc-screen" id="pc-screen"></div>
+          <div class="pc-stand"></div>
+        </div>
+        <div class="pc-case" id="pc-case">
+          <div class="case-vent"></div>
+          <div class="case-led" id="case-led"></div>
+        </div>
+        <div class="pc-keyboard" id="pc-keyboard">
+          <div class="kb-rows" id="kb-rows"></div>
+        </div>
+        <div class="pc-desk-top"></div>
+        <div class="pc-crowbar" id="pc-crowbar" title="撬棍">
+          <span class="cb-shaft"></span>
+          <span class="cb-hook"></span>
+        </div>
+      </div>
+
+      <!-- 前景柜台 -->
+      <div class="cs-counter">
+        <div class="cs-counter-top"></div>
+        <div class="cs-counter-face"></div>
+      </div>
+
+      <div class="cs-dialogue" id="cs-dialogue"></div>
+      <div class="cs-hint" id="cs-hint">点击画面中的物件</div>
+    </div>
+  </section>
+
+  <!-- ============ 7. 修电脑 · 节奏 ============ -->
+  <section class="screen" id="screen-rhythm" data-screen="rhythm">
+    <div class="rh-wrap">
+      <div class="rh-head">
+        <div class="rh-title">BIOS 自检 · 键盘响应</div>
+        <div class="rh-sub" id="rh-sub">跟着重音敲。别抢拍。</div>
+      </div>
+      <div class="rh-track" id="rh-track">
+        <div class="rh-line"></div>
+        <div class="rh-hits" id="rh-hits"></div>
+        <div class="rh-cursor" id="rh-cursor"></div>
+      </div>
+      <div class="rh-meter">
+        <div class="rh-combo" id="rh-combo">0 / 0</div>
+        <div class="rh-feedback" id="rh-feedback"></div>
+      </div>
+      <div class="rh-tip">按 <kbd>空格</kbd> 或点击重音</div>
+      <div class="rh-escape" id="rh-escape">太难了，回柜台找点工具</div>
+    </div>
+  </section>
+
+  <!-- ============ 7b. 修电脑 · 撬机箱 ============ -->
+  <section class="screen" id="screen-pry" data-screen="pry">
+    <div class="pry-wrap">
+      <div class="pry-head">
+        <div class="pry-title">撬 开 机 箱 盖</div>
+        <div class="pry-sub" id="pry-sub">四个角，一个一个来。</div>
+      </div>
+      <div class="pry-case" id="pry-case">
+        <div class="pry-plate"></div>
+        <div class="corner c-tl" data-corner="0"><span class="corner-hole"></span><span class="corner-num"></span></div>
+        <div class="corner c-tr" data-corner="1"><span class="corner-hole"></span><span class="corner-num"></span></div>
+        <div class="corner c-br" data-corner="2"><span class="corner-hole"></span><span class="corner-num"></span></div>
+        <div class="corner c-bl" data-corner="3"><span class="corner-hole"></span><span class="corner-num"></span></div>
+        <div class="pry-scratch" id="pry-scratch"></div>
+        <div class="hidden-spot" id="hidden-spot"></div>
+      </div>
+      <div class="pry-foot">
+        <span id="pry-hint">用撬棍抵住螺丝孔，反复撬动</span>
+        <span class="pry-count" id="pry-count"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 7c. 密码 ============ -->
+  <section class="screen" id="screen-lock" data-screen="lock">
+    <div class="lock-wrap">
+      <div class="lock-case">
+        <div class="lock-title">MEMORY&nbsp;VAULT&nbsp;·&nbsp;INPUT&nbsp;PASSCODE</div>
+        <div class="lock-display" id="lock-display">_____</div>
+        <div class="lock-keys" id="lock-keys"></div>
+        <div class="lock-hint" id="lock-hint">便签上写着：？ 位</div>
+      </div>
+      <div class="lock-side">
+        <div class="uv-lamp" id="uv-lamp" title="紫光灯">
+          <div class="uv-beam" id="uv-beam"></div>
+          <div class="uv-body">UV</div>
+        </div>
+        <div class="uv-note" id="uv-note">柜台上有一支紫光灯。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 8. Windows 98 ============ -->
+  <section class="screen" id="screen-win98" data-screen="win98">
+    <div class="w98" id="w98">
+      <div class="w98-desktop" id="w98-desktop">
+        <div class="w98-icons" id="w98-icons">
+          <div class="w98-icon" id="icon-folder">
+            <div class="ico-folder"></div>
+            <div class="ico-label" id="ico-label">新建文件夹</div>
+          </div>
+          <div class="w98-icon" id="icon-bin">
+            <div class="ico-bin"></div>
+            <div class="ico-label">回收站</div>
+          </div>
+        </div>
+
+        <div class="w98-win" id="w98-win">
+          <div class="w98-titlebar" id="w98-titlebar">
+            <span class="w98-ticon" id="w98-ticon">▤</span>
+            <span class="w98-ttitle" id="w98-ttitle">我的电脑</span>
+            <span class="w98-tbtns"><i>_</i><i>□</i><i class="x" id="w98-close">×</i></span>
+          </div>
+          <div class="w98-menu" id="w98-menu"><span>文件</span><span>编辑</span><span>查看</span><span>帮助</span></div>
+          <div class="w98-addr" id="w98-addr">地址：我的电脑</div>
+          <div class="w98-content" id="w98-content"></div>
+          <div class="w98-status" id="w98-status">1 个对象</div>
+        </div>
+
+        <div class="w98-taskbar">
+          <button class="w98-start">开始</button>
+          <div class="w98-tasks" id="w98-tasks"></div>
+          <div class="w98-tray">🔊 23:5<span id="w98-clock">9</span></div>
+        </div>
+      </div>
+      <div class="ctx-menu" id="ctx-menu">
+        <div class="ctx-item" data-act="open">打开</div>
+        <div class="ctx-item" data-act="print">打印</div>
+        <div class="ctx-sep"></div>
+        <div class="ctx-item ctx-dis" data-act="copy">复制</div>
+        <div class="ctx-item ctx-dis" data-act="prop">属性</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 9. 打印机 ============ -->
+  <section class="screen" id="screen-print" data-screen="print">
+    <div class="pr-wrap">
+      <div class="pr-printer" id="pr-printer">
+        <div class="pr-body"></div>
+        <div class="pr-slot"></div>
+        <div class="pr-paper" id="pr-paper">
+          <div class="pr-paper-inner" id="pr-paper-inner">
+            <div class="pp-title">记 忆 档 案 · 第 36 号</div>
+            <div class="pp-body" id="pp-body"></div>
+          </div>
+        </div>
+        <div class="pr-led" id="pr-led"></div>
+      </div>
+      <div class="pr-status" id="pr-status">打印队列：空</div>
+      <div class="pr-hint" id="pr-hint"></div>
+    </div>
+  </section>
+
+  <!-- ============ 10. 结束 ============ -->
+  <section class="screen" id="screen-end" data-screen="end">
+    <div class="end-wrap">
+      <div class="end-text" id="end-text"></div>
+      <button class="end-restart" id="end-restart">重 开</button>
+    </div>
+  </section>
+
+  <!-- ============ 全局覆盖层 ============ -->
+  <div class="overlay" id="ov-alert">
+    <div class="win-alert" id="win-alert">
+      <div class="wa-titlebar">
+        <span class="wa-shield">⚠</span>
+        <span>Windows 安全</span>
+        <span class="wa-x">×</span>
+      </div>
+      <div class="wa-body">
+        <div class="wa-icon">⚠</div>
+        <div class="wa-text">
+          <b>你的组织已阻止此应用</b>
+          <p>此应用已被组策略禁止运行。如果你知道此应用的来源，可以请求管理员解除限制。</p>
+          <p class="wa-sub">发布者：未知　|　文件：代码之下.exe</p>
+        </div>
+      </div>
+      <div class="wa-btns"><button>确定</button><button>更多信息</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-notresp">
+    <div class="win-alert nr">
+      <div class="wa-titlebar"><span>代码之下</span><span class="wa-x">×</span></div>
+      <div class="wa-body">
+        <div class="wa-icon">⏳</div>
+        <div class="wa-text"><b>程序未响应</b><p>如果继续等待，此程序可能会响应。<br>若要关闭此程序，请单击"结束"。</p></div>
+      </div>
+      <div class="wa-btns"><button id="nr-wait">等待</button><button id="nr-kill">结束</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-reboot">
+    <div class="reboot">
+      <div class="rb-logo">◤</div>
+      <div class="rb-text" id="rb-text">正在重新启动，请稍候……</div>
+      <div class="rb-bar"><div class="rb-fill" id="rb-fill"></div></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-ach">
+    <div class="ach-card" id="ach-card">
+      <div class="ach-badge">🏆</div>
+      <div class="ach-body">
+        <div class="ach-label">成就达成</div>
+        <div class="ach-name" id="ach-name">急也没用</div>
+        <div class="ach-desc" id="ach-desc">在黑暗里按了两百下。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-scare">
+    <div class="scare-box" id="scare-box">
+      <div class="scare-eyes" id="scare-eyes"></div>
+      <div class="scare-text" id="scare-text">你是不小心的吧？</div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-break">
+    <div class="break-screen" id="break-screen"></div>
+  </div>
+
+  <!-- 背包 -->
+  <div class="inventory" id="inventory">
+    <div class="inv-title">持有</div>
+    <div class="inv-items" id="inv-items"></div>
+  </div>
+
+  <div class="fade" id="fade"></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="js/audio.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/data.js"></script>
+<script src="js/scene-mail.js"></script>
+<script src="js/scene-hall.js"></script>
+<script src="js/scene-contract.js"></script>
+<script src="js/scene-counter.js"></script>
+<script src="js/scene-repair.js"></script>
+<script src="js/scene-win98.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
