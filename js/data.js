@@ -30,6 +30,16 @@
     seq: '',                 // 玩家最终确认的密码
     printed: false,
     gavePaper: false,
+
+    /* ---------- 第二章：抵押 ---------- */
+    ch2: 0,                  // 0 未开始 / 1 抽屉 / 2 胶片 / 3 钥匙已得 / 4 可开门 / 5 结束
+    ledgerSolved: false,
+    filmSolved: false,
+    detail: 0,               // 记忆细节数（3~8）
+    keyQ: '',                // 钥匙品级 broken|plain|fine|perfect
+    wish: null,              // 押掉的愿望 id
+    ateFood: false,
+    doorOpened: false,
   };
 
   /* ---------------- 密码谜题 ----------------
@@ -112,6 +122,13 @@
     oldman5: '（他指了指键盘）\n你仔细看看。有些东西，肉眼看不见。',
 
     darkHint: '……',
+
+    ch2DrawerLocked: '（抽屉锁着。锁面上没有数字，只有三个小孔。）',
+    ch2DrawerTooEarly: '（抽屉锁着。他还没有让你开。）',
+    ch2FilmTaken: '（木匣里是一卷被剪断的胶片。）',
+    ch2DoorLocked: '（柜台后面有一扇门。门缝里没有光。）',
+    ch2DoorNoKey: '（门上有锁孔。你手里还没有能插进去的东西。）',
+    ch2DoorDone: '（门在你身后合上了。）',
 
     end: '你把那张纸放在柜台上。\n\n老人拿起来，凑到灯下看了很久。\n\n然后他抬起头，笑了。\n\n"第 36 个。"\n\n"你比前面那三十五个，都要快。"\n\n他把纸折好，放进抽屉。\n抽屉里已经叠了很多张纸。\n\n每一张上面，都写着一个名字。\n每一张的名字，都被划掉了。\n\n—— 第一章 · 完 ——',
   };

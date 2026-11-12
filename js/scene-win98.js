@@ -205,9 +205,17 @@
 
       Counter.say('（他终于伸手，把纸拿了过去。）', 0);
       Snd.noise(0.4, { type: 'bandpass', freq: 900, q: 1.2, gain: 0.07 });
-      await wait(2800);
+      await wait(2600);
 
-      End.show();
+      // —— 第二章开始：登记之后，才是抵押 ——
+      State.gavePaper = true;
+      State.ch2 = Math.max(State.ch2, 1);
+      const dr = $('#cs-drawer');
+      if (dr) dr.classList.add('on');
+      Counter.refreshHud();
+      $('#cs-dialogue').classList.remove('on');
+      await Dlg.open('afterPaper');
+      Counter.updateHint();
     },
   };
 
@@ -223,16 +231,33 @@
         $('#end-restart').classList.remove('on');
       }, true);
 
-      const text = TEXT.end;
+      const text = (typeof global.endText === 'function')
+        ? global.endText(State.keyQ, State.wish)
+        : TEXT.end;
       const el = $('#end-text');
       let i = 0;
       await new Promise((res) => {
+        let done = false;
+        const finish = () => {
+          if (done) return;
+          done = true;
+          clearInterval(t);
+          el.textContent = text;
+          $('#screen-end').removeEventListener('click', skip);
+          document.removeEventListener('keydown', skipKey);
+          res();
+        };
+        const skip = () => finish();
+        const skipKey = (e) => { if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); finish(); } };
         const t = setInterval(() => {
-          if (i >= text.length) { clearInterval(t); res(); return; }
+          if (i >= text.length) { finish(); return; }
           const ch = text[i++];
           el.textContent += ch;
-          if (ch !== '\n' && i % 4 === 0) Snd.tone(1600, 0.015, { type: 'sine', gain: 0.008 });
-        }, 42);
+          if (ch !== '\n' && i % 3 === 0) Snd.tone(1600, 0.015, { type: 'sine', gain: 0.008 });
+        }, 30);
+        // 结局长文，点一下就看全
+        $('#screen-end').addEventListener('click', skip);
+        document.addEventListener('keydown', skipKey);
       });
 
       Snd.tone(70, 6, { type: 'sine', gain: 0.06, attack: 2 });

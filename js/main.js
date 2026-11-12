@@ -50,6 +50,34 @@
     run('Lock', () => { App.show('lock'); Lock.start(); });
     run('Win98', () => { App.show('win98'); Win98.start(); });
     run('Print', () => { App.show('print'); Print.init(); });
+    run('Ledger', () => { App.show('ledger'); Ledger.start(); });
+    run('Film', () => { App.show('film'); Film.start(); });
+    run('Scale', () => { App.show('scale'); Scale.start(); });
+    run('DlgTree', () => {
+      const ids = Object.keys(DLG);
+      const missing = [];
+      ids.forEach((id) => {
+        const n = DLG[id];
+        const nxt = typeof n.next === 'function' ? n.next() : n.next;
+        if (nxt && !DLG[nxt]) missing.push(id + '->' + nxt);
+        (n.choices || []).forEach((c) => { if (c.to && !DLG[c.to]) missing.push(id + '=>' + c.to); });
+      });
+      if (missing.length) throw new Error('dead link: ' + missing.join(','));
+      log.push('dlg nodes=' + ids.length);
+    });
+    run('Wishes', () => {
+      const bad = WISHES.filter((w) => {
+        // 1/2/4/8/16 五块砝码能不能凑出这个重量
+        for (let m = 0; m < 32; m++) {
+          let s = 0;
+          for (let i = 0; i < 5; i++) if (m & (1 << i)) s += [1, 2, 4, 8, 16][i];
+          if (s === w.weight) return false;
+        }
+        return true;
+      });
+      if (bad.length) throw new Error('unweighable: ' + bad.map((w) => w.id).join(','));
+      log.push('wishes=' + WISHES.length);
+    });
     run('hwFp', () => { log.push('hw=' + G.hwFingerprint()); });
 
     setTimeout(() => {
@@ -91,6 +119,9 @@
           case 'counter':
             App.show('counter');
             State.hasUV = State.hasUV || qs.get('uv') === '1';
+            if (qs.get('ch2')) State.ch2 = +qs.get('ch2');
+            if (qs.get('key')) State.keyQ = qs.get('key');
+            if (State.ch2 >= 1) State.gavePaper = true;
             Counter.init();
             break;
           case 'rhythm':
@@ -110,7 +141,21 @@
             if (qs.get('pdf') === '1') setTimeout(() => Win98.openPDF(), 200);
             break;
           case 'print': App.show('print'); Print.start(); break;
-          case 'end': App.show('end'); End.show(); break;
+          case 'ledger': App.show('ledger'); Ledger.start(); break;
+          case 'film': App.show('film'); Film.start(); break;
+          case 'scale': App.show('scale'); Scale.start(); break;
+          case 'dlg':
+            App.show('counter');
+            State.ch2 = 1;
+            Counter.init();
+            Dlg.open(qs.get('id') || 'intro');
+            break;
+          case 'end':
+            App.show('end');
+            if (qs.get('key')) State.keyQ = qs.get('key');
+            if (qs.get('wish')) State.wish = qs.get('wish');
+            End.show();
+            break;
         }
       }, 60);
     }

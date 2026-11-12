@@ -261,6 +261,21 @@
         <div class="cs-oldman-shadow"></div>
       </div>
 
+      <!-- 掌柜 · 艾（可交谈） -->
+      <div class="cs-npc" id="cs-npc" title="掌柜 · 艾">
+        <span class="npc-ring"></span>
+        <span class="npc-tip">艾 · 掌柜</span>
+      </div>
+
+      <!-- 柜台后面的门（第二章才显形） -->
+      <div class="cs-door" id="cs-door" title="门">
+        <div class="dr-frame"></div>
+        <div class="dr-panel"></div>
+        <div class="dr-seam"></div>
+        <div class="dr-hole"></div>
+        <span class="dr-tip">门</span>
+      </div>
+
       <!-- 左：柜子 -->
       <div class="hotspot hs-cabinet" id="hs-cabinet" data-hs="cabinet">
         <div class="hs-mark"></div>
@@ -298,8 +313,100 @@
         <div class="cs-counter-face"></div>
       </div>
 
+      <!-- 柜台下的抽屉（第二章开启） -->
+      <div class="cs-drawer" id="cs-drawer" title="抽屉">
+        <div class="dw-face"><div class="dw-handle"></div><div class="dw-label">36</div></div>
+        <div class="dw-gap"></div>
+      </div>
+
+      <!-- 记忆细节 / 钥匙 状态 -->
+      <div class="cs-hud" id="cs-hud">
+        <div class="hud-row"><span class="hud-k">记忆细节</span><span class="hud-v" id="hud-detail">—</span></div>
+        <div class="hud-row"><span class="hud-k">钥匙</span><span class="hud-v" id="hud-key">—</span></div>
+      </div>
+
       <div class="cs-dialogue" id="cs-dialogue"></div>
       <div class="cs-hint" id="cs-hint">点击画面中的物件</div>
+
+      <!-- 对话面板 -->
+      <div class="cs-dlg" id="cs-dlg">
+        <div class="dlg-panel">
+          <div class="dlg-name npc" id="dlg-name">艾</div>
+          <div class="dlg-text" id="dlg-text"></div>
+          <div class="dlg-choices" id="dlg-choices"></div>
+          <div class="dlg-foot"><span id="dlg-tip">点击继续</span><span class="dlg-caret">▾</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6b. 账本 · 抽屉锁 ============ -->
+  <section class="screen" id="screen-ledger" data-screen="ledger">
+    <div class="lg-wrap">
+      <div class="lg-book">
+        <div class="lg-spine"></div>
+        <div class="lg-page">
+          <div class="lg-title">抵 押 账</div>
+          <div class="lg-sub">第三十一号 — 第三十三号　·　共三十五页，缺三页</div>
+          <div class="lg-rule" id="lg-rule"></div>
+          <div class="lg-rows" id="lg-rows"></div>
+          <div class="lg-clues">
+            <div class="lg-clues-h">页脚，另一种笔迹：</div>
+            <div id="lg-clue-list"></div>
+          </div>
+        </div>
+      </div>
+      <div class="lg-lock">
+        <div class="lg-lock-h">抽 屉 锁</div>
+        <div class="lg-slots" id="lg-slots"></div>
+        <div class="lg-lock-tip">每一格，对应上面一行账。<br>点账上的「钥匙」那一格改品级。</div>
+        <div class="lg-msg" id="lg-msg"></div>
+        <button class="lg-btn" id="lg-check">合 上 账 本</button>
+        <button class="lg-btn lg-btn-ghost" id="lg-back">退回柜台</button>
+        <div class="lg-hint" id="lg-hint"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6c. 记忆胶片 ============ -->
+  <section class="screen" id="screen-film" data-screen="film">
+    <div class="fm-wrap">
+      <div class="fm-head">
+        <div class="fm-title">第 36 号 · 已 剪</div>
+        <div class="fm-sub">八段胶片，被剪散了。点两段，交换位置，把它们接回去。</div>
+      </div>
+      <div class="fm-strips" id="fm-strips"></div>
+      <div class="fm-foot">
+        <div class="fm-detail" id="fm-detail">已经接对：0 / 8</div>
+        <div class="fm-msg" id="fm-msg"></div>
+        <div class="fm-btns">
+          <button class="fm-btn fm-btn-ghost" id="fm-hint">让他念一遍</button>
+          <button class="fm-btn" id="fm-check">接 上</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6d. 愿望天平 ============ -->
+  <section class="screen" id="screen-scale" data-screen="scale">
+    <div class="sc-wrap">
+      <div class="sc-head">
+        <div class="sc-title">愿 望 · 抵 押</div>
+        <div class="sc-sub" id="sc-sub">选一个愿望。选完了，就不能反悔。</div>
+      </div>
+      <div class="sc-wishes" id="sc-wishes"></div>
+      <div class="sc-stage" id="sc-stage">
+        <div class="sc-beam" id="sc-beam">
+          <div class="sc-arm sc-arm-l"><div class="sc-cord"></div><div class="sc-pan"><span id="sc-left-txt">愿</span></div></div>
+          <div class="sc-arm sc-arm-r"><div class="sc-cord"></div><div class="sc-pan"><span id="sc-right-txt">0</span></div></div>
+          <div class="sc-rod"></div>
+          <div class="sc-pivot"></div>
+        </div>
+        <div class="sc-base"></div>
+        <div class="sc-poise" id="sc-poise">左：空　右：0 两</div>
+        <div class="sc-stones" id="sc-stones"></div>
+        <div class="sc-stones-tip">砝码只有这五块，每块只能用一次。</div>
+      </div>
     </div>
   </section>
 
@@ -355,6 +462,7 @@
         <div class="lock-display" id="lock-display">_____</div>
         <div class="lock-keys" id="lock-keys"></div>
         <div class="lock-hint" id="lock-hint">便签上写着：？ 位</div>
+        <div class="lk-prog" id="lk-prog"></div>
       </div>
       <div class="lock-side">
         <div class="uv-lamp" id="uv-lamp" title="紫光灯">
@@ -510,11 +618,14 @@
 <script src="js/audio.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/data.js"></script>
+<script src="js/story.js"></script>
+<script src="js/dialogue.js"></script>
 <script src="js/scene-mail.js"></script>
 <script src="js/scene-hall.js"></script>
 <script src="js/scene-contract.js"></script>
 <script src="js/scene-counter.js"></script>
 <script src="js/scene-repair.js"></script>
+<script src="js/scene-ch2.js"></script>
 <script src="js/scene-win98.js"></script>
 <script src="js/main.js"></script>
 </body>

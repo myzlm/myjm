@@ -1,5 +1,5 @@
 /* ============================================================
-   scene-counter.js — 柜台：老人 / 柜子 / 撬棍 / 电脑
+   scene-counter.js — 柜台：艾 / 柜子 / 抽屉 / 电脑 / 门
    ============================================================ */
 (function (global) {
   'use strict';
@@ -8,7 +8,8 @@
   const Counter = {
     inited: false,
     busy: false,
-    talked: false,
+    talked: false,      // 是否已经走过开场对话
+    introPlayed: false,
 
     init() {
       if (!this.inited) {
@@ -22,17 +23,28 @@
       if (State.pcFixed) {
         $('#pc-screen').classList.add('on');
         $('#case-led').classList.add('on');
-        this.say('（电脑亮着。屏幕上是一个很旧的桌面。）', 0);
       } else {
         $('#pc-screen').classList.remove('on');
         $('#case-led').classList.remove('on');
       }
 
+      // 第二章的可交互物
+      $('#cs-drawer').classList.toggle('on', State.ch2 >= 1);
+      $('#cs-door').classList.toggle('on', State.ch2 >= 3);
+      $('#cs-door').classList.toggle('open', State.ch2 >= 4);
+      this.refreshHud();
       this.updateHint();
-      if (!this.talked) this.intro();
+
+      if (!this.introPlayed) {
+        this.introPlayed = true;
+        this.intro();
+      }
     },
 
     bind() {
+      // 掌柜
+      $('#cs-npc').addEventListener('click', (e) => { e.stopPropagation(); this.talk(); });
+
       // 柜子
       $('#hs-cabinet').addEventListener('click', () => this.clickCabinet());
 
@@ -44,60 +56,17 @@
       $('#pc-case').addEventListener('click', (e) => { e.stopPropagation(); this.clickCase(); });
       $('#pc-monitor').addEventListener('click', (e) => { e.stopPropagation(); this.clickPC(); });
 
-      // 点击空白推进
+      // 抽屉 / 门
+      $('#cs-drawer').addEventListener('click', (e) => { e.stopPropagation(); this.clickDrawer(); });
+      $('#cs-door').addEventListener('click', (e) => { e.stopPropagation(); this.clickDoor(); });
+
+      // 空白处：跳过独白
       $('#counter-scene').addEventListener('click', () => {
-        if (this.dlgQueue.length) this.advanceDialogue();
+        if (Dlg.active) return;
       });
     },
 
-    /* ---------------- 对话 ---------------- */
-    dlgQueue: [],
-    dlgTimer: null,
-
-    async intro() {
-      this.talked = true;
-      this.lockHotspots(true);
-      this.dlgQueue = [TEXT.oldman1, TEXT.oldman2, TEXT.oldman3];
-      await this.playDialogue();
-      this.lockHotspots(false);
-      this.updateHint();
-    },
-
-    async playDialogue() {
-      while (this.dlgQueue.length) {
-        const text = this.dlgQueue[0];
-        await this.typeText(text);
-        await wait(1900);
-        if (this.dlgQueue.length) {
-          this.dlgQueue.shift();
-          if (this.dlgQueue.length) $('#cs-dialogue').classList.remove('on');
-          await wait(360);
-        }
-      }
-      $('#cs-dialogue').classList.remove('on');
-    },
-
-    advanceDialogue() {
-      this.dlgQueue.shift();
-      $('#cs-dialogue').classList.remove('on');
-    },
-
-    typeText(text) {
-      return new Promise((resolve) => {
-        const el = $('#cs-dialogue');
-        el.classList.add('on');
-        el.textContent = '';
-        let i = 0;
-        clearInterval(this.dlgTimer);
-        this.dlgTimer = setInterval(() => {
-          if (i >= text.length) { clearInterval(this.dlgTimer); resolve(); return; }
-          const ch = text[i++];
-          el.textContent += ch;
-          if (ch !== '\n' && (i % 3 === 0)) Snd.tone(1400, 0.02, { type: 'square', gain: 0.012 });
-        }, 62);
-      });
-    },
-
+    /* ---------------- 独白 ---------------- */
     say(text, dur) {
       const el = $('#cs-dialogue');
       el.textContent = text;
@@ -105,14 +74,59 @@
       if (dur !== 0) setTimeout(() => el.classList.remove('on'), dur || 3200);
     },
 
-    lockHotspots(on) {
-      $$('.hotspot').forEach((h) => { h.style.pointerEvents = on ? 'none' : ''; });
-      const cb = $('#pc-crowbar');
-      if (cb) cb.style.pointerEvents = on ? 'none' : '';
+    /* ---------------- 开场 ---------------- */
+    async intro() {
+      await wait(700);
+      this.say('（柜台后面坐着一个人。他没有抬头，但你知道他在看你。）', 4200);
+      await wait(4600);
+      this.say('（你可以点他说话。）', 3000);
+    },
+
+    /* ---------------- 与艾交谈 ---------------- */
+    async talk() {
+      if (Dlg.active) return;
+      Snd.init();
+      this.hideNarration();
+      const id = this.talked ? 'menu' : 'intro';
+      this.talked = true;
+      await Dlg.open(id);
+      this.updateHint();
+    },
+
+    hideNarration() {
+      $('#cs-dialogue').classList.remove('on');
+    },
+
+    /* ---------------- 状态 ---------------- */
+    refreshHud() {
+      const d = $('#hud-detail');
+      const k = $('#hud-key');
+      if (d) d.textContent = State.detail ? State.detail + ' / 8' : '—';
+      if (k) {
+        const t = KEY_TIERS[State.keyQ];
+        k.textContent = t ? t.name : '—';
+        k.style.color = t ? t.color : '';
+      }
+      $('#cs-hud').classList.toggle('on', State.ch2 >= 1);
+      if (this.inited) this.renderInv();
+    },
+
+    updateHint() {
+      const h = $('#cs-hint');
+      if (State.ch2 >= 4) { h.textContent = '钥匙在手上 —— 去开那扇门'; return; }
+      if (State.ch2 === 3) { h.textContent = '还差一顿饭 —— 点他，问愿望'; return; }
+      if (State.ch2 === 2) { h.textContent = '木匣里那卷胶片，接回去'; return; }
+      if (State.ch2 === 1) { h.textContent = '打开柜台下面的抽屉'; return; }
+      if (State.pcFixed) { h.textContent = '电脑亮着 —— 点屏幕'; return; }
+      if (State.selectedItem === 'crowbar') { h.textContent = '撬棍已拿起 —— 去点机箱'; return; }
+      if (State.hasUV && !State.hasCrowbar) { h.textContent = '试试那台电脑'; return; }
+      if (!State.hasUV) { h.textContent = '房间里还有别的东西'; return; }
+      h.textContent = '点击画面中的物件';
     },
 
     /* ---------------- 柜子 ---------------- */
     async clickCabinet() {
+      if (Dlg.active) return;
       Snd.init();
       const cab = $('#hs-cabinet');
       if (State.hasUV) {
@@ -133,6 +147,7 @@
 
     /* ---------------- 撬棍 ---------------- */
     takeCrowbar() {
+      if (Dlg.active) return;
       if (State.hasCrowbar) return;
       Snd.init();
       State.hasCrowbar = true;
@@ -142,6 +157,62 @@
       Snd.tone(420, 0.12, { type: 'square', gain: 0.05 });
       this.say('（一根撬棍。冰凉，握柄上有一圈一圈的旧手印。）', 3000);
       this.updateHint();
+    },
+
+    /* ---------------- 抽屉 ---------------- */
+    async clickDrawer() {
+      if (Dlg.active) return;
+      if (State.ch2 <= 0) {
+        Snd.deny();
+        this.say(TEXT.ch2DrawerTooEarly);
+        return;
+      }
+      if (State.ch2 >= 2) {
+        this.say('（抽屉开着。里面只有一个空木匣。）');
+        return;
+      }
+      Snd.noise(0.28, { type: 'bandpass', freq: 420, q: 1.2, gain: 0.06 });
+      await Fade.through(() => { App.show('ledger'); Ledger.start(); });
+    },
+
+    /* ---------------- 门 ---------------- */
+    async clickDoor() {
+      if (Dlg.active) return;
+      if (State.ch2 < 3) {
+        Snd.deny();
+        this.say(State.ch2 >= 1 ? TEXT.ch2DoorNoKey : TEXT.ch2DoorLocked);
+        return;
+      }
+      if (State.ch2 < 4) {
+        Snd.deny();
+        this.say('（锁孔在等你。可你还没吃东西——手抖得插不进去。）');
+        return;
+      }
+      if (State.doorOpened) return;
+      State.doorOpened = true;
+      State.ch2 = 5;
+
+      this.hideNarration();
+      Snd.noise(0.2, { type: 'highpass', freq: 2200, gain: 0.07 });
+      await wait(260);
+      Snd.tone(150, 2.2, { type: 'sine', gain: 0.09, attack: .2 });
+      Snd.glitch(0.35);
+      $('#cs-door').classList.add('opening');
+      this.say('（钥匙插进去，只转了半圈就不动了。锁里有什么东西咬住了它。）', 0);
+      await wait(2600);
+      $('#cs-door').classList.add('light');
+
+      const q = State.keyQ || 'plain';
+      const lines = {
+        broken: '（门后有人用指甲刮木头。）',
+        plain: '（门缝里出来一点风。是热的。）',
+        fine: '（门缝外面是白的。白得没有远近。）',
+        perfect: '（门开了。外面有一条走廊。）',
+      };
+      this.say(lines[q], 0);
+      Snd.tone(70, 3.2, { type: 'sine', gain: 0.07, attack: .8 });
+      await wait(3200);
+      End.show();
     },
 
     /* ---------------- 背包 ---------------- */
@@ -158,6 +229,10 @@
     renderInv() {
       const box = $('#inv-items');
       box.innerHTML = '';
+      // 钥匙是动态的（品级会变），直接同步，避免 addItem 递归
+      if (State.keyQ && KEY_TIERS[State.keyQ]) {
+        this.items.key = '钥匙 · ' + KEY_TIERS[State.keyQ].name;
+      }
       Object.keys(this.items).forEach((id) => {
         const d = document.createElement('div');
         d.className = 'inv-item';
@@ -165,6 +240,7 @@
         d.dataset.id = id;
         d.addEventListener('click', (e) => {
           e.stopPropagation();
+          if (Dlg.active) return;
           const was = State.selectedItem === id;
           State.selectedItem = was ? null : id;
           $$('.inv-item').forEach((n) => n.classList.toggle('sel', n.dataset.id === State.selectedItem));
@@ -178,25 +254,9 @@
       }
     },
 
-    updateHint() {
-      const h = $('#cs-hint');
-      if (State.pcFixed) {
-        h.textContent = '点击电脑';
-        return;
-      }
-      if (State.selectedItem === 'crowbar') {
-        h.textContent = '撬棍已拿起 —— 去点机箱';
-      } else if (State.hasUV && !State.hasCrowbar) {
-        h.textContent = '试试那台电脑';
-      } else if (!State.hasUV) {
-        h.textContent = '房间里还有别的东西';
-      } else {
-        h.textContent = '点击画面中的物件';
-      }
-    },
-
     /* ---------------- 电脑 ---------------- */
     clickPC() {
+      if (Dlg.active) return;
       Snd.init();
       if (State.pcFixed) {
         Snd.ok();
@@ -208,6 +268,7 @@
     },
 
     async clickCase() {
+      if (Dlg.active) return;
       Snd.init();
       if (State.pcFixed) { this.clickPC(); return; }
       if (this.busy) return;

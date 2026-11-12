@@ -663,6 +663,8 @@
     renderMine() {
       const mine = fingerprintOf(this.input);
       const showTarget = this.uvOn;          // 没照紫光就看不到目标，对照也就无从谈起
+      let okKeys = 0;
+      let shortKeys = 0;
       $$('.lk-key').forEach((k) => {
         const ch = k.dataset.k;
         if (!ch) return;
@@ -672,7 +674,23 @@
         if (el) el.textContent = cur ? String(cur) : '';
         k.classList.toggle('over', showTarget && cur > target);
         k.classList.toggle('ok', showTarget && target > 0 && cur === target);
+        if (showTarget && target > 0 && cur === target) okKeys++;
+        if (showTarget && target > 0 && cur < target) shortKeys++;
       });
+
+      // 进度条：告诉你还差几个键、还差几位（26 位时最有用）
+      const prog = $('#lk-prog');
+      if (prog) {
+        const total = Object.keys(PUZZLE.prints).length;
+        if (showTarget) {
+          prog.textContent = '已按 ' + this.input.length + ' / ' + PUZZLE.length + ' 位　·　'
+            + (shortKeys ? '还有 ' + shortKeys + ' 个键没按够' : '每个键都够了');
+          prog.className = 'lk-prog' + (okKeys === total && this.input.length === PUZZLE.length ? ' done' : '');
+        } else {
+          prog.textContent = '紫光照键盘，才看得见每个键上的数';
+          prog.className = 'lk-prog';
+        }
+      }
     },
 
     check() {
