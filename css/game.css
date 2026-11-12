@@ -1861,3 +1861,7 @@ body.dlging .cs-hint { opacity: 0; }
   letter-spacing: .12em; color: #4e4234;
   border: 1px dashed #33251a;
 }
+
+/* 抽屉挪开背包，别被压住 */
+.cs-drawer { left: 20%; }
+@media (max-width: 900px) { .cs-drawer { left: 38%; width: 16%; height: 11%; } }
