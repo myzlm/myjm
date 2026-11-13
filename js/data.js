@@ -50,6 +50,21 @@
     soulRight: 0,            // 叫魂中对了几声
     soulWrong: 0,
     soulAnswered: false,     // 最后一声母亲，应了没有
+
+    /* ---------- 第四章：渲染层 ---------- */
+    ch4: 0,                  // 1 走廊 / 2 墙 / 3 断点 / 4 门 / 5 通了
+    wallZ: 9,                // 检查器里那面墙的层级
+    figureSeen: false,       // 墙后面那个东西看见了
+    runDone: false,          // 断点跑过去了
+    devMode: false,          // 开发者模式（open 权限）
+
+    /* ---------- 第五章：根目录 ---------- */
+    ch5: 0,
+    recordFound: false,      // 36 号记录已读到
+    nameTries: 0,            // 名字输错过几次
+    clues: {},               // 找到的代码线索
+    devOpened: 0,            // 开发者模式打开次数
+    finalChoice: '',         // overwrite | delete | logout | unbind
   };
 
   /* ---------------- 密码谜题 ----------------

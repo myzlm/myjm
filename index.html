@@ -8,6 +8,21 @@
 <link rel="stylesheet" href="css/game.css">
 </head>
 <body>
+<!--
+  ============================================================
+  build 0.9.36 · 记忆殿 / 前端外壳
+  ------------------------------------------------------------
+  这一页上面的一切都是渲染出来的：柜台、灯、人、门。
+  真正的东西不在这一页里，在 /var/records（挂载进来的，见 mount.conf）。
+
+  别删下面这段备注。上一层的人会看。
+  也别给客人看 inspector —— 0.9.36 已经把面板关掉了。
+  （关掉了也会被点开。0.9.34 就出过一次。）
+
+  TODO(艾): 把「离开」这一项加回去。已经第 12 次了。
+  delete this.line
+  ============================================================
+-->
 <div id="app">
 
   <!-- ============ 0. 邮件 ============ -->
@@ -598,6 +613,90 @@
   </section>
 
   <!-- ============ 10. 结束 ============ -->
+  <!-- ============ 8. 第四章 · 渲染层 ============ -->
+  <section class="screen" id="screen-layer" data-screen="layer">
+    <div class="ly-wrap" id="ly-wrap" data-stage="room">
+
+      <div class="ly-room">
+        <div class="ly-backwall" id="ly-backwall"></div>
+        <div class="ly-figure" id="ly-figure">
+          <span class="fg-front"></span><span class="fg-edge"></span>
+        </div>
+        <div class="ly-floor" id="ly-floor"></div>
+        <div class="ly-wall" id="ly-wall"><span class="ly-wall-line"></span></div>
+        <!-- 人是 #npc.艾，墙是 #wall。墙的 z-index 比人高，所以你看不见人。 -->
+      </div>
+
+      <div class="ly-ins" id="ly-ins">
+        <div class="ly-ins-h">检查器 · elements</div>
+        <div class="ly-ins-list" id="ly-ins-list"></div>
+        <div class="ly-ins-f">↑↓ 改 z-index　·　Tab 收起</div>
+      </div>
+
+      <div class="ly-nar" id="ly-nar"></div>
+
+      <div class="ly-run" id="ly-run">
+        <div class="ly-lane" id="ly-lane">
+          <div class="ly-frame" id="ly-frame">帧 0000</div>
+          <div class="ly-me" id="ly-me"></div>
+          <div class="ly-it" id="ly-it"></div>
+          <div class="ly-door2" id="ly-door2"></div>
+        </div>
+        <div class="ly-hud">
+          <span id="ly-left">断点 3 次</span>
+          <button class="ly-btn" id="ly-frz">打 断 点 · P</button>
+          <button class="ly-btn ly-btn-go" id="ly-step">前 进</button>
+        </div>
+      </div>
+
+      <div class="ly-doorwrap" id="ly-doorwrap">
+        <div class="ly-door3" id="ly-door3"><span class="ly-door-knob"></span></div>
+        <div class="ly-door-hint" id="ly-door-hint">没有把手。也没有 onclick。</div>
+        <div class="ly-badge" id="ly-badge">&lt;/&gt;&nbsp;&nbsp;F2</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ 9. 第五章 · 根目录 ============ -->
+  <section class="screen" id="screen-root" data-screen="root">
+    <div class="rt-wrap" id="rt-wrap" data-stage="list">
+
+      <div class="rt-head">
+        <div class="rt-title">/var/records</div>
+        <div class="rt-sub" id="rt-sub">— 记录库 · 37 行 —</div>
+      </div>
+
+
+      <div class="rt-list" id="rt-list"></div>
+      <div class="rt-list-hint">（F2 可以打开控制台。有些行，用 grep 找更快。）</div>
+      <div class="rt-nar" id="rt-nar"></div>
+
+      <div class="rt-detail" id="rt-detail">
+        <div class="rt-dh">record #036</div>
+        <pre class="rt-json" id="rt-json"></pre>
+      </div>
+
+      <div class="rt-confirm" id="rt-confirm">
+        <div class="rt-q">覆盖之前，写下你的名字。</div>
+        <div class="rt-in-row">
+          <input id="rt-name" autocomplete="off" spellcheck="false" maxlength="12" placeholder="第一章你写过的那个" />
+          <button id="rt-send">写 下</button>
+        </div>
+        <div class="rt-msg" id="rt-msg"></div>
+        <div class="rt-tries" id="rt-tries">还有 3 次</div>
+      </div>
+
+      <div class="rt-choice" id="rt-choice">
+        <button class="rt-c" data-c="overwrite">覆 盖</button>
+        <button class="rt-c" data-c="delete">删 除</button>
+        <button class="rt-c" data-c="logout">退 出</button>
+        <button class="rt-c rt-c-true" id="rt-unbind" data-c="unbind">（把那一行划掉）</button>
+      </div>
+
+    </div>
+  </section>
+
   <section class="screen" id="screen-end" data-screen="end">
     <div class="end-wrap">
       <div class="end-text" id="end-text"></div>
@@ -679,6 +778,7 @@
 <script src="js/audio.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/data.js"></script>
+<script src="js/devconsole.js"></script>
 <script src="js/folklore.js"></script>
 <script src="js/story.js"></script>
 <script src="js/dialogue.js"></script>
@@ -690,6 +790,8 @@
 <script src="js/scene-ch2.js"></script>
 <script src="js/scene-soul.js"></script>
 <script src="js/scene-stash.js"></script>
+<script src="js/scene-ch4.js"></script>
+<script src="js/scene-ch5.js"></script>
 <script src="js/scene-win98.js"></script>
 <script src="js/main.js"></script>
 </body>

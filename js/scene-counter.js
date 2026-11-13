@@ -322,7 +322,9 @@
       this.say(lines[q], 0);
       Snd.tone(70, 3.2, { type: 'sine', gain: 0.07, attack: .8 });
       await wait(3200);
-      End.show();
+      // 门后面还有一层。第四章。
+      Snd.stopDrone(1.2);
+      await Fade.through(() => { App.show('layer'); global.Layer.start(); });
     },
 
     /* ---------------- 背包 ---------------- */

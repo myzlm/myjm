@@ -157,6 +157,10 @@
 
   function endText(tier, wishId, opt) {
     const o = opt || {};
+    // 第五章之后，结局交给根目录那一层写
+    if (global.State && global.State.finalChoice && typeof global.rootEndText === 'function') {
+      return global.rootEndText(global.State.finalChoice, o);
+    }
     const exposed = o.exposed || 0;
     const soul = !!o.soul;
 

@@ -102,6 +102,29 @@
     });
     run('hwFp', () => { log.push('hw=' + G.hwFingerprint()); });
 
+    /* ---- 第四 / 五章 ---- */
+    run('Layer', () => { App.show('layer'); Layer.start(); });
+    run('Root', () => { App.show('root'); Root.start(); });
+    run('DevFS', () => {
+      const need = ['/app/hall.js', '/app/render.css', '/app/memory.js', '/etc/mount.conf',
+        '/log/build.log', '/log/access.log', '/var/records/1', '/var/records/14',
+        '/var/records/35', '/var/records/36'];
+      const miss = need.filter((p) => !global.Dev || !Dev.cmds || !p);
+      if (!global.CLUES) throw new Error('no clues');
+      const ids = Object.keys(global.CLUES);
+      if (ids.length !== 4) throw new Error('clues=' + ids.length);
+      if (miss.length) throw new Error(miss.join(','));
+      log.push('clues=' + ids.length);
+    });
+    run('Endings', () => {
+      const bad = ['overwrite', 'delete', 'logout', 'unbind', 'nameless'].filter((c) => {
+        const t = global.rootEndText(c, { exposed: 6, soul: true });
+        return !t || t.length < 200;
+      });
+      if (bad.length) throw new Error('short: ' + bad.join(','));
+      log.push('endings ok');
+    });
+
     setTimeout(() => {
       document.title = 'SELFTEST ' + log.concat(errs).join(' | ');
     }, 600);
@@ -112,6 +135,9 @@
     App.show('mail');
     // 关键：邮件与下载页的所有点击都在 Mail.init 里绑定，必须先初始化
     Mail.init();
+
+    // 开发者模式：F2 / ~ 打开；同时往真·控制台里打一行横幅（用 DevTools 的人会看见）
+    if (global.Dev) Dev.boot();
 
     // 调试入口：?scene=hall|counter|lock|win98|doll|pry|rhythm|form|end&name=xxx&job=xxx
     const qs = new URLSearchParams(location.search);
@@ -171,6 +197,27 @@
           case 'ledger': App.show('ledger'); Ledger.start(); break;
           case 'film': App.show('film'); Film.start(); break;
           case 'scale': App.show('scale'); Scale.start(); break;
+          case 'layer':
+            App.show('layer');
+            if (qs.get('ch4')) State.ch4 = +qs.get('ch4');
+            if (qs.get('dev') === '1') State.devMode = true;
+            Layer.start();
+            break;
+          case 'root':
+            App.show('root');
+            if (qs.get('name')) State.playerName = qs.get('name');
+            if (qs.get('rec') === '1') State.recordFound = true;
+            if (qs.get('clues')) qs.get('clues').split(',').forEach((c) => global.gainClue(c));
+            Root.start();
+            if (qs.get('rec') === '1') setTimeout(() => Root.openRecord(), 2600);
+            break;
+          case 'dev':
+            App.show('counter');
+            State.ch2 = 1;
+            State.devMode = qs.get('ro') !== '1';
+            Counter.init();
+            setTimeout(() => global.Dev.show(), 200);
+            break;
           case 'dlg':
             App.show('counter');
             State.ch2 = 1;
