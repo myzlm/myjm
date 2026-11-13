@@ -150,7 +150,8 @@
       Ach.show('账房先生', '没问人，自己把旧账算明白了。');
       await Fade.through(() => { App.show('counter'); Counter.init(); });
       await Dlg.open('afterLedger');
-      await wait(300);
+      Lies.gain('margin');
+      await wait(900);
       await Fade.through(() => { App.show('film'); Film.start(); });
     },
   };

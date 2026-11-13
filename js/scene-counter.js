@@ -32,6 +32,7 @@
       $('#cs-drawer').classList.toggle('on', State.ch2 >= 1);
       $('#cs-door').classList.toggle('on', State.ch2 >= 3);
       $('#cs-door').classList.toggle('open', State.ch2 >= 4);
+      if (State.ch2 >= 1) this.addItem('book', '证物 · 一本册子');
       this.refreshHud();
       this.updateHint();
 
@@ -60,6 +61,12 @@
       $('#cs-drawer').addEventListener('click', (e) => { e.stopPropagation(); this.clickDrawer(); });
       $('#cs-door').addEventListener('click', (e) => { e.stopPropagation(); this.clickDoor(); });
 
+      // 店里的器物
+      ['lamp', 'bowl', 'joss', 'cal', 'under'].forEach((k) => {
+        const el = $('#om-' + k);
+        if (el) el.addEventListener('click', (e) => { e.stopPropagation(); this.clickOmen(k); });
+      });
+
       // 空白处：跳过独白
       $('#counter-scene').addEventListener('click', () => {
         if (Dlg.active) return;
@@ -68,10 +75,12 @@
 
     /* ---------------- 独白 ---------------- */
     say(text, dur) {
+      if (Dlg.active) return;          // 说话的时候别把独白压在对话框上
       const el = $('#cs-dialogue');
+      clearTimeout(this._sayT);
       el.textContent = text;
       el.classList.add('on');
-      if (dur !== 0) setTimeout(() => el.classList.remove('on'), dur || 3200);
+      if (dur !== 0) this._sayT = setTimeout(() => el.classList.remove('on'), dur || 3200);
     },
 
     /* ---------------- 开场 ---------------- */
@@ -101,20 +110,38 @@
     refreshHud() {
       const d = $('#hud-detail');
       const k = $('#hud-key');
+      const lie = $('#hud-lie');
       if (d) d.textContent = State.detail ? State.detail + ' / 8' : '—';
       if (k) {
         const t = KEY_TIERS[State.keyQ];
         k.textContent = t ? t.name : '—';
         k.style.color = t ? t.color : '';
       }
+      if (lie) {
+        const got = Lies.list().length;
+        if (State.exposed > 0) {
+          lie.textContent = State.exposed + ' 处对不上';
+          lie.style.color = '#c08a6a';
+        } else if (got) {
+          lie.textContent = got + ' 件，还没问';
+          lie.style.color = '#b99a62';
+        } else {
+          lie.textContent = '—';
+          lie.style.color = '';
+        }
+      }
       $('#cs-hud').classList.toggle('on', State.ch2 >= 1);
+      if (State.ch2 >= 1) this.addItem('book', '证物 · 一本册子');
       if (this.inited) this.renderInv();
     },
 
     updateHint() {
       const h = $('#cs-hint');
+      if (State.ch2 >= 5) { h.textContent = '门在你身后合上了'; return; }
+      if (State.ch2 >= 4 && !State.soulDone) { h.textContent = '门缝里有声音 —— 先听清楚'; return; }
       if (State.ch2 >= 4) { h.textContent = '钥匙在手上 —— 去开那扇门'; return; }
       if (State.ch2 === 3) { h.textContent = '还差一顿饭 —— 点他，问愿望'; return; }
+      if (State.ch2 >= 1 && Lies.ready().length) { h.textContent = '手里有东西能问他 —— 点他，把东西摆出来'; return; }
       if (State.ch2 === 2) { h.textContent = '木匣里那卷胶片，接回去'; return; }
       if (State.ch2 === 1) { h.textContent = '打开柜台下面的抽屉'; return; }
       if (State.pcFixed) { h.textContent = '电脑亮着 —— 点屏幕'; return; }
@@ -159,6 +186,73 @@
       this.updateHint();
     },
 
+    /* ---------------- 店里的器物 ---------------- */
+    sayLong(lines, extra) {
+      const t = lines.join('\n');
+      this.say(t, Math.max(4200, t.length * 165) + (extra || 0));
+    },
+
+    async clickOmen(k) {
+      if (Dlg.active) return;
+      Snd.init();
+      const late = State.ch2 >= 1;
+      const F = global.FOLK;
+
+      if (k === 'lamp') {
+        Snd.tone(300, 0.5, { type: 'sine', gain: 0.03 });
+        this.sayLong(late ? F.lamp.late : F.lamp.early);
+        return;
+      }
+
+      if (k === 'bowl') {
+        Snd.tone(520, 0.9, { type: 'sine', gain: 0.028 });
+        this.sayLong(late ? F.bowl.late : F.bowl.early);
+        return;
+      }
+
+      if (k === 'cal') {
+        Snd.noise(0.2, { type: 'bandpass', freq: 1500, q: 1.2, gain: 0.06 });
+        if (!late) {
+          this.say('（墙上挂着一本黄历。纸边卷成了筒，停在一页上。）\n（那一页被红笔圈过很多次，圈到纸都破了。）\n（七月十五。）');
+          return;
+        }
+        this.sayLong(Lies.proofText('calendar'));
+        Lies.gain('calendar');
+        return;
+      }
+
+      if (k === 'joss') {
+        Snd.noise(0.18, { type: 'highpass', freq: 2400, gain: 0.06 });
+        if (!late) {
+          this.say('（柜台上压着一叠黄纸，剪成铜钱的样式。）\n（找零用的。纸很脆，一碰就掉渣。）');
+          return;
+        }
+        this.sayLong(Lies.proofText('joss'));
+        Lies.gain('joss');
+        return;
+      }
+
+      if (k === 'under') {
+        if (!late) {
+          Snd.noise(0.4, { type: 'bandpass', freq: 380, q: 1.1, gain: 0.07 });
+          this.say('（你蹲下去。柜台底下很暗，积着一层灰。）\n（灰上有两道拖痕。你伸手去摸，摸到一张硬纸片的边。）\n（——先办正事吧。）');
+          return;
+        }
+        State.openedUnder = (State.openedUnder || 0) + 1;
+        Snd.noise(0.4, { type: 'bandpass', freq: 380, q: 1.1, gain: 0.07 });
+        if (State.openedUnder === 1) {
+          this.sayLong(F.under.once.slice(0, 2).concat(Lies.proofText('ticket')));
+          Lies.gain('ticket');
+        } else if (State.openedUnder === 2) {
+          this.sayLong(F.under.twice.concat(Lies.proofText('carving').slice(2)));
+          Lies.gain('carving');
+        } else {
+          this.sayLong(F.under.after);
+        }
+        return;
+      }
+    },
+
     /* ---------------- 抽屉 ---------------- */
     async clickDrawer() {
       if (Dlg.active) return;
@@ -168,6 +262,11 @@
         return;
       }
       if (State.ch2 >= 2) {
+        if (!Lies.has('page34')) {
+          this.sayLong(Lies.proofText('page34'));
+          Lies.gain('page34');
+          return;
+        }
         this.say('（抽屉开着。里面只有一个空木匣。）');
         return;
       }
@@ -188,6 +287,17 @@
         this.say('（锁孔在等你。可你还没吃东西——手抖得插不进去。）');
         return;
       }
+
+      // 开门之前，门外会有人叫你
+      if (!State.soulDone) {
+        this.hideNarration();
+        Snd.tone(70, 2.4, { type: 'sine', gain: 0.06, attack: .6 });
+        this.say('（钥匙插进去，还没转。\n门缝里先出来一点声音——像有人在叫你的名字。）', 0);
+        await wait(2600);
+        await Soul.run();
+        return;
+      }
+
       if (State.doorOpened) return;
       State.doorOpened = true;
       State.ch2 = 5;
@@ -235,12 +345,13 @@
       }
       Object.keys(this.items).forEach((id) => {
         const d = document.createElement('div');
-        d.className = 'inv-item';
+        d.className = 'inv-item' + (id === 'book' ? ' inv-book' : '');
         d.textContent = this.items[id];
         d.dataset.id = id;
         d.addEventListener('click', (e) => {
           e.stopPropagation();
           if (Dlg.active) return;
+          if (id === 'book') { Press.open(); return; }
           const was = State.selectedItem === id;
           State.selectedItem = was ? null : id;
           $$('.inv-item').forEach((n) => n.classList.toggle('sel', n.dataset.id === State.selectedItem));

@@ -232,7 +232,7 @@
       }, true);
 
       const text = (typeof global.endText === 'function')
-        ? global.endText(State.keyQ, State.wish)
+        ? global.endText(State.keyQ, State.wish, { exposed: State.exposed, soul: State.soulAnswered })
         : TEXT.end;
       const el = $('#end-text');
       let i = 0;

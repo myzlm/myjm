@@ -40,6 +40,16 @@
     wish: null,              // 押掉的愿望 id
     ateFood: false,
     doorOpened: false,
+
+    /* ---------- 第三章：他说的话 ---------- */
+    proofs: {},              // 拿到的物证 id
+    pressed: {},             // 已对质过的谎
+    exposed: 0,              // 拆穿数
+    openedUnder: 0,          // 柜台底下看过几次
+    soulDone: false,         // 叫魂过了
+    soulRight: 0,            // 叫魂中对了几声
+    soulWrong: 0,
+    soulAnswered: false,     // 最后一声母亲，应了没有
   };
 
   /* ---------------- 密码谜题 ----------------

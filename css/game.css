@@ -1865,3 +1865,317 @@ body.dlging .cs-hint { opacity: 0; }
 /* 抽屉挪开背包，别被压住 */
 .cs-drawer { left: 20%; }
 @media (max-width: 900px) { .cs-drawer { left: 38%; width: 16%; height: 11%; } }
+
+/* ============================================================
+   第三章 · 店里的东西 / 证物册 / 叫魂
+   ============================================================ */
+
+/* ---------- 柜台上的器物 ---------- */
+.omen { position: absolute; z-index: 7; cursor: pointer; }
+.om-tip {
+  position: absolute; left: 50%; bottom: -15px; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: .2em;
+  color: #3d352b; transition: color .25s; pointer-events: none;
+}
+.omen:hover .om-tip { color: #c9a45c; }
+
+/* 长明灯 */
+.om-lamp { left: 18.5%; bottom: 35%; width: 36px; height: 54px; }
+.om-bowl-base {
+  position: absolute; left: 0; bottom: 0; width: 36px; height: 17px;
+  border-radius: 3px 3px 18px 18px / 3px 3px 13px 13px;
+  background: linear-gradient(180deg, #d8b878, #7a5f34 40%, #3f2d18);
+  box-shadow: inset 0 -4px 8px rgba(0, 0, 0, .65), 0 0 20px rgba(255, 180, 80, .22);
+}
+.om-flame {
+  position: absolute; left: 50%; bottom: 15px; width: 9px; height: 21px;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 42% 42% / 62% 62% 38% 38%;
+  background: radial-gradient(ellipse at 50% 72%, #fff6cc, #ffb340 46%, rgba(255, 120, 20, .12) 72%);
+  box-shadow: 0 0 24px rgba(255, 170, 60, .55);
+  animation: flameBob 2.1s ease-in-out infinite;
+}
+@keyframes flameBob {
+  0%, 100% { transform: translateX(-50%) scale(1, 1); }
+  50% { transform: translateX(-53%) scale(.94, 1.07); }
+}
+.omen:hover .om-flame { box-shadow: 0 0 38px rgba(255, 195, 95, .8); }
+
+/* 水碗立筷 */
+.om-bowl { left: 26%; bottom: 35.2%; width: 42px; height: 30px; }
+.om-water {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 21px;
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  background: linear-gradient(180deg, #2f4040, #0c1413);
+  border: 1px solid rgba(255, 220, 170, .16);
+  box-shadow: inset 0 4px 10px rgba(130, 190, 180, .12);
+}
+.om-stick {
+  position: absolute; left: 50%; bottom: 6px; width: 2px; height: 40px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #cbb28a, #6b5334);
+  box-shadow: 0 0 6px rgba(0, 0, 0, .9);
+}
+.omen:hover .om-stick { box-shadow: 0 0 10px rgba(255, 220, 170, .35); }
+
+/* 一叠纸钱 */
+.om-joss { left: 36.5%; bottom: 34.8%; width: 56px; height: 24px; }
+.om-paper {
+  position: absolute; width: 46px; height: 17px;
+  background: linear-gradient(160deg, #d3af68, #8d6f42);
+  border: 1px solid #6b5324; opacity: .82;
+}
+.om-paper::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px;
+  transform: translate(-50%, -50%);
+  background: #241a10; box-shadow: inset 0 0 3px #000;
+}
+.om-paper.p1 { left: 0; bottom: 0; transform: rotate(-3.5deg); }
+.om-paper.p2 { left: 4px; bottom: 4px; transform: rotate(2deg); }
+.om-paper.p3 { left: 8px; bottom: 8px; transform: rotate(-1deg); }
+.omen:hover .om-paper { opacity: 1; }
+
+/* 黄历 */
+.om-cal { left: 35%; bottom: 47.5%; width: 46px; height: 66px; }
+.om-cal-leaf {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, #e9ddc2, #c6b492);
+  border: 1px solid #a89474;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .85), inset 0 0 22px rgba(120, 90, 40, .28);
+  transform: rotate(-1.6deg);
+}
+.om-cal-leaf::before {
+  content: ""; position: absolute; left: 8px; right: 8px; top: 30px; height: 1px;
+  background: rgba(120, 90, 40, .45);
+}
+.om-cal-leaf::after {
+  content: ""; position: absolute; left: 6px; right: 6px; top: 12px; bottom: 8px;
+  border: 2px solid rgba(170, 45, 35, .55);
+  border-radius: 50% 46% 52% 48% / 44% 52% 46% 56%;
+  transform: rotate(-4deg);
+}
+.om-cal-num {
+  position: absolute; left: 50%; top: 11px; transform: translateX(-50%);
+  writing-mode: vertical-rl; font-family: var(--serif); font-size: 12.5px;
+  letter-spacing: .1em; color: #6d2a1e; z-index: 1; opacity: .9;
+}
+.om-cal .om-tip { bottom: -16px; }
+
+/* 柜台底下 */
+.om-under { left: 20.5%; bottom: 5%; width: 104px; height: 46px; z-index: 9; }
+.om-under-txt {
+  display: grid; place-items: center; width: 100%; height: 100%;
+  font-family: var(--mono); font-size: 9px; letter-spacing: .2em;
+  color: #453a2b; border: 1px dashed rgba(255, 220, 170, .1);
+  opacity: .45; transition: all .25s;
+}
+.omen.om-under:hover .om-under-txt { opacity: 1; color: #c9a45c; border-color: rgba(255, 220, 170, .38); }
+
+/* ---------- 状态条：多一行 ---------- */
+#hud-lie { }
+
+/* ============================================================
+   证物册
+   ============================================================ */
+#screen-stash { background: radial-gradient(ellipse 60% 56% at 50% 42%, #14110d, #050404 78%); }
+.ps-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 4vh 4vw; }
+.ps-head { text-align: center; margin-bottom: 18px; }
+.ps-title { font-family: var(--mono); font-size: 12px; letter-spacing: .44em; color: #907e60; }
+.ps-sub { margin-top: 10px; font-family: var(--serif); font-size: 11.5px; letter-spacing: .08em; color: #6d5c44; }
+.ps-count { margin-left: 14px; font-family: var(--mono); font-size: 10.5px; color: #a89070; }
+.ps-list { width: min(880px, 94vw); flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 6px; }
+.ps-item {
+  padding: 14px 18px; border: 1px solid #2f251b; border-left: 3px solid #3a2c1f;
+  background: linear-gradient(180deg, rgba(31, 25, 18, .94), rgba(14, 11, 8, .94));
+}
+.ps-item.done { border-left-color: #5b8f74; }
+.ps-line { display: flex; align-items: baseline; gap: 12px; }
+.ps-ic {
+  width: 22px; height: 22px; display: grid; place-items: center; flex: none;
+  font-family: var(--serif); font-size: 11px; color: #c9a45c; border: 1px solid #4a3624;
+}
+.ps-nm { font-family: var(--serif); font-size: 14px; letter-spacing: .14em; color: #e0cba4; }
+.ps-where { font-family: var(--mono); font-size: 9px; letter-spacing: .12em; color: #5c4c38; }
+.ps-tx { margin-top: 9px; font-family: var(--serif); font-size: 12.5px; line-height: 1.95; color: #ab9673; white-space: pre-line; }
+.ps-claim { margin-top: 10px; padding-top: 9px; border-top: 1px dashed #33251a; font-family: var(--serif); font-size: 12.5px; line-height: 1.9; color: #8d7a5e; }
+.ps-q { color: #a06a5a; margin-right: 7px; font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em; }
+.ps-st { margin-top: 7px; font-family: var(--serif); font-size: 11.5px; line-height: 1.85; color: #7d6d55; }
+.ps-st.ok { color: #7fc8a0; }
+.ps-empty { font-family: var(--serif); font-size: 12.5px; line-height: 2; color: #6d5c44; text-align: center; padding: 46px 10px; }
+.ps-foot { margin-top: 16px; display: flex; align-items: center; gap: 22px; }
+.ps-btn {
+  padding: 11px 34px; cursor: pointer;
+  background: #1c140c; border: 1px solid #4a3624; color: #d9c49a;
+  font-family: var(--serif); font-size: 12.5px; letter-spacing: .3em; text-indent: .3em;
+  transition: all .2s;
+}
+.ps-btn:hover { background: #241a10; border-color: #8d6f42; color: #f5e2bb; }
+.ps-note { font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em; color: #4e4234; }
+
+/* ============================================================
+   叫魂
+   ============================================================ */
+#screen-soul { background: #030303; }
+.sl-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4vh 5vw; }
+.sl-head { text-align: center; margin-bottom: 18px; }
+.sl-title { font-family: var(--mono); font-size: 12px; letter-spacing: .46em; color: #7a6a52; }
+.sl-sub { margin-top: 9px; font-family: var(--mono); font-size: 9.5px; letter-spacing: .2em; color: #4e4234; }
+.sl-door {
+  position: relative; width: min(210px, 46vw); height: 148px;
+  background: linear-gradient(180deg, #241a12, #0c0806);
+  border: 1px solid #2f251b;
+  box-shadow: inset 0 0 60px #000, 0 20px 50px rgba(0, 0, 0, .8);
+}
+.sl-gap {
+  position: absolute; left: 50%; top: 0; bottom: 0; width: 10px; transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(255, 240, 200, .04), rgba(255, 240, 200, .2) 50%, rgba(255, 240, 200, .04));
+  box-shadow: 0 0 34px rgba(255, 220, 160, .16);
+  transition: width 1.6s ease, background 1.6s, box-shadow 1.6s;
+}
+.sl-gap.wide { width: 24px; background: linear-gradient(180deg, rgba(255, 240, 200, .1), rgba(255, 240, 200, .34) 50%, rgba(255, 240, 200, .1)); }
+.sl-gap.wrong { animation: gapWrong .8s; }
+@keyframes gapWrong {
+  0% { box-shadow: 0 0 34px rgba(255, 220, 160, .16); }
+  40% { box-shadow: 0 0 46px rgba(190, 60, 40, .55); }
+  100% { box-shadow: 0 0 34px rgba(255, 220, 160, .16); }
+}
+.sl-shadow { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #000; transform: translateX(-50%); }
+.sl-text {
+  margin-top: 22px; max-width: min(720px, 88vw); min-height: 128px;
+  font-family: var(--serif); font-size: 15px; line-height: 2.15; letter-spacing: .1em;
+  color: #c9b79c; text-align: center; white-space: pre-line;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, .95);
+  opacity: 0; transition: opacity .4s;
+}
+.sl-text.on { opacity: 1; }
+.sl-acts { margin-top: 18px; display: flex; gap: 16px; opacity: 0; pointer-events: none; transition: opacity .32s; }
+.sl-acts.on { opacity: 1; pointer-events: auto; }
+.sl-btn {
+  padding: 12px 30px; cursor: pointer;
+  background: #1c140c; border: 1px solid #4a3624; color: #d9c49a;
+  font-family: var(--serif); font-size: 13px; letter-spacing: .26em; text-indent: .26em;
+  transition: all .2s;
+}
+.sl-btn:hover { background: #241a10; border-color: #8d6f42; color: #f5e2bb; }
+.sl-btn.sl-no { border-color: #2c2118; color: #8a7658; }
+.sl-btn.sl-no:hover { color: #d9c49a; }
+.sl-tip { margin-top: 24px; font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em; color: #3f372d; }
+
+/* ---------- 小屏 ---------- */
+@media (max-width: 900px) {
+  .om-lamp { left: 8%; bottom: 33%; transform: scale(.82); }
+  .om-bowl { left: 17%; bottom: 33%; transform: scale(.82); }
+  .om-joss { left: 28%; bottom: 33%; transform: scale(.82); }
+  .om-cal { left: 30%; bottom: 52%; transform: scale(.85); }
+  .om-under { left: 30%; bottom: 4%; width: 80px; height: 38px; }
+  .sl-text { font-size: 13.5px; line-height: 2; min-height: 140px; }
+  .sl-door { height: 118px; }
+  .ps-item { padding: 12px 13px; }
+  .ps-nm { font-size: 13px; }
+  .ps-tx { font-size: 12px; }
+}
+
+/* ---------- 对话面板：选项多的时候在面板内部滚动，别顶出屏幕 ---------- */
+.cs-dlg { display: flex; max-height: 92vh; }
+.dlg-panel { display: flex; flex-direction: column; width: 100%; max-height: 92vh; }
+.dlg-text { flex: 0 0 auto; }
+.dlg-choices { flex: 1 1 auto; min-height: 0; max-height: none; overflow-y: auto; }
+.dlg-foot { flex: 0 0 auto; }
+/* 摆出一堆物证的时候，正文可以矮一点 */
+.cs-dlg.choosing .dlg-text { min-height: 0; }
+.ps-list::-webkit-scrollbar { width: 6px; }
+.ps-list::-webkit-scrollbar-track { background: rgba(255, 220, 170, .04); }
+.ps-list::-webkit-scrollbar-thumb { background: #4a3a26; border-radius: 3px; }
+.ps-list::-webkit-scrollbar-thumb:hover { background: #6b5334; }
+
+/* ---------- 叫魂：把黑补出层次 ---------- */
+#screen-soul {
+  background:
+    radial-gradient(ellipse 46% 38% at 50% 40%, rgba(255, 235, 200, .05), transparent 72%),
+    radial-gradient(ellipse 84% 62% at 50% 100%, rgba(70, 46, 24, .16), transparent 70%),
+    #030303;
+}
+.sl-door::after {
+  content: ""; position: absolute; left: -12%; right: -12%; bottom: -22px; height: 18px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0, 0, 0, .95), transparent 72%);
+}
+.sl-gap {
+  background: linear-gradient(180deg,
+    rgba(255, 240, 200, .02),
+    rgba(255, 240, 200, .42) 46%,
+    rgba(255, 240, 200, .06) 78%,
+    rgba(255, 240, 200, .02));
+  filter: blur(.3px);
+}
+
+/* ---------- 叫魂：门改成竖的，加门框与把手 ---------- */
+.sl-door { width: min(148px, 34vw); height: 200px; border-width: 6px; border-color: #1c140d; border-style: solid; box-shadow: inset 0 0 60px #000, 0 0 0 1px #0a0705, 0 26px 60px rgba(0, 0, 0, .9); }
+.sl-door::before {
+  content: ""; position: absolute; right: 9px; top: 50%; width: 7px; height: 7px;
+  transform: translateY(-50%); border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #c9a45c, #6b5324 70%, #241a10);
+  box-shadow: 0 1px 3px #000;
+}
+@media (max-width: 900px) {
+  .sl-door { width: min(120px, 32vw); height: 168px; }
+}
+
+/* ---------- 结局：长文要能滚，短的时候还是居中 ---------- */
+.end-wrap {
+  justify-content: flex-start; overflow-y: auto;
+  padding: 5vh 6vw 7vh; gap: 26px;
+}
+.end-text { flex: 0 0 auto; margin: auto 0; }
+.end-restart { flex: 0 0 auto; }
+.end-wrap::-webkit-scrollbar { width: 6px; }
+.end-wrap::-webkit-scrollbar-track { background: rgba(255, 255, 255, .03); }
+.end-wrap::-webkit-scrollbar-thumb { background: #22302a; border-radius: 3px; }
+
+/* ---------- 门沉到柜台后面，别像立在台面上 ---------- */
+.cs-door { bottom: 26%; height: 50%; }
+/* 黄历：纸别太白，字要大一点 */
+.om-cal { width: 52px; height: 76px; left: 34.5%; bottom: 47%; }
+.om-cal-leaf { background: linear-gradient(180deg, #cfc0a0, #a8977a); border-color: #8d7a5c; }
+.om-cal-num { font-size: 14px; top: 13px; letter-spacing: .12em; }
+.om-cal-leaf::after { border-color: rgba(150, 40, 32, .5); }
+@media (max-width: 900px) {
+  .cs-door { bottom: 24%; height: 52%; }
+  .om-cal { width: 42px; height: 62px; }
+}
+
+/* ============================================================
+   小屏重排：柜台、器物、抽屉、独白
+   ============================================================ */
+@media (max-width: 900px) {
+  /* 独白下移，别和左上角状态条打架 */
+  .cs-dialogue { top: 13%; font-size: 13px; line-height: 1.95; max-width: 92vw; }
+  /* 器物排到柜台右侧那段台面上 */
+  .om-lamp { left: 36%; bottom: 34.5%; transform: scale(.86); }
+  .om-bowl { left: 45%; bottom: 34.5%; transform: scale(.86); }
+  .om-joss { left: 53%; bottom: 34.5%; transform: scale(.86); }
+  /* 黄历挂到左墙、柜子上方 */
+  .om-cal { left: 4%; bottom: 62%; width: 42px; height: 60px; }
+  /* 抽屉和“柜台底下”抬到持有栏上面 */
+  .cs-drawer { left: 44%; bottom: 24%; width: 16%; height: 10%; }
+  .om-under { left: 5%; bottom: 12%; width: 84px; height: 38px; }
+}
+@media (max-width: 900px) {
+  .om-lamp { left: 37%; transform: scale(.68); }
+  .om-bowl { left: 45.5%; transform: scale(.68); }
+  .om-joss { left: 53%; transform: scale(.68); }
+}
+
+/* 关键选项：摊牌那一句 */
+.dlg-choice.dlg-key {
+  color: #e6cf92; border-color: #6d5230;
+  background: linear-gradient(90deg, rgba(255, 200, 130, .08), transparent);
+  letter-spacing: .1em;
+}
+.dlg-choice.dlg-key::before { content: "◆ "; color: #c9a45c; }
+.dlg-choice.dlg-key:hover { border-color: #c9a45c; color: #fff0cc; background: rgba(255, 200, 130, .13); }
+/* 抽屉挪到 20% 之后，“柜台底下”要让开，别叠在抽屉上 */
+.om-under { left: 33.5%; bottom: 5.5%; }
+.inv-item.inv-book { color: #c9a45c; border-color: #4a3624; }
+.inv-item.inv-book:hover { border-color: #8d6f42; color: #f0dcb4; }
+.inv-item.inv-book { color: #c9a45c; border-color: #4a3624; }
+.inv-item.inv-book:hover { border-color: #8d6f42; color: #f0dcb4; }

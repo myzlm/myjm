@@ -64,6 +64,7 @@
 
       const panel = $('#cs-dlg');
       panel.classList.add('on');
+      panel.classList.remove('choosing');
       $('#dlg-choices').innerHTML = '';
       $('#dlg-choices').classList.remove('on');
       $('#dlg-text').textContent = '';
@@ -126,7 +127,11 @@
 
     afterLines() {
       const node = this.node;
-      if (node.choices) { this.showChoices(node.choices); return; }
+      if (node.choices) {
+        const list = typeof node.choices === 'function' ? (node.choices() || []) : node.choices;
+        this.showChoices(list);
+        return;
+      }
       const nxt = typeof node.next === 'function' ? node.next() : node.next;
       if (nxt && global.DLG[nxt]) { this.openNode(global.DLG[nxt], nxt); return; }
       this.close();
@@ -148,7 +153,7 @@
 
       avail.forEach((c) => {
         const b = document.createElement('button');
-        b.className = 'dlg-choice';
+        b.className = 'dlg-choice' + (c.key ? ' dlg-key' : '');
         b.textContent = c.text;
         b.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -164,6 +169,7 @@
         box.appendChild(b);
       });
       box.classList.add('on');
+      $('#cs-dlg').classList.add('choosing');
       $('#dlg-tip').textContent = '选择一句话';
     },
 

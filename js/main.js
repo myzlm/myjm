@@ -53,6 +53,27 @@
     run('Ledger', () => { App.show('ledger'); Ledger.start(); });
     run('Film', () => { App.show('film'); Film.start(); });
     run('Scale', () => { App.show('scale'); Scale.start(); });
+    run('Soul', () => {
+      if (!global.SOUL_CALLS || global.SOUL_CALLS.length !== 6) throw new Error('calls');
+      const bad = global.SOUL_CALLS.filter((c) => c.right !== 'yes' && c.right !== 'no');
+      if (bad.length) throw new Error('bad answer');
+      log.push('soul calls=' + global.SOUL_CALLS.length);
+    });
+    run('Press', () => { App.show('stash'); Press.refresh(); });
+    run('ProofMap', () => {
+      const miss = [];
+      global.CLAIM_ORDER.forEach((cid) => {
+        const c = global.CLAIMS[cid];
+        if (!c) { miss.push('claim:' + cid); return; }
+        if (!global.PROOFS[c.proof]) miss.push(cid + '->' + c.proof);
+      });
+      Object.keys(global.PROOFS).forEach((pid) => {
+        const p = global.PROOFS[pid];
+        if (!global.CLAIMS[p.claim]) miss.push(pid + '->' + p.claim);
+      });
+      if (miss.length) throw new Error(miss.join(','));
+      log.push('proofs=' + Object.keys(global.PROOFS).length);
+    });
     run('DlgTree', () => {
       const ids = Object.keys(DLG);
       const missing = [];
@@ -60,7 +81,8 @@
         const n = DLG[id];
         const nxt = typeof n.next === 'function' ? n.next() : n.next;
         if (nxt && !DLG[nxt]) missing.push(id + '->' + nxt);
-        (n.choices || []).forEach((c) => { if (c.to && !DLG[c.to]) missing.push(id + '=>' + c.to); });
+        const ch = typeof n.choices === 'function' ? (n.choices() || []) : (n.choices || []);
+        ch.forEach((c) => { if (c.to && !DLG[c.to]) missing.push(id + '=>' + c.to); });
       });
       if (missing.length) throw new Error('dead link: ' + missing.join(','));
       log.push('dlg nodes=' + ids.length);
@@ -121,9 +143,14 @@
             State.hasUV = State.hasUV || qs.get('uv') === '1';
             if (qs.get('ch2')) State.ch2 = +qs.get('ch2');
             if (qs.get('key')) State.keyQ = qs.get('key');
+            if (qs.get('soul') === '1') { State.soulDone = true; State.soulAnswered = true; }
+            if (qs.get('proofs')) qs.get('proofs').split(',').forEach((p) => Lies.gain(p));
+            if (qs.get('lie')) State.exposed = +qs.get('lie');
             if (State.ch2 >= 1) State.gavePaper = true;
             Counter.init();
             break;
+          case 'stash': App.show('stash'); Press.refresh(); break;
+          case 'soul': App.show('soul'); Soul.run(); break;
           case 'rhythm':
             App.show('rhythm');
             if (qs.get('play') === '1') Rhythm.start();
@@ -154,6 +181,8 @@
             App.show('end');
             if (qs.get('key')) State.keyQ = qs.get('key');
             if (qs.get('wish')) State.wish = qs.get('wish');
+            if (qs.get('lie')) State.exposed = +qs.get('lie');
+            if (qs.get('soul') === '1') State.soulAnswered = true;
             End.show();
             break;
         }

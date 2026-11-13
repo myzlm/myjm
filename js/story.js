@@ -79,6 +79,7 @@
   ];
 
   /* ---------------- 结局：按钥匙品级 + 押掉的愿望 ---------------- */
+  /* ---------------- 结局：门后 ---------------- */
   const DOOR_TEXT = {
     broken: [
       '你把钥匙插进去，转了一圈。锁芯响了一声，又自己转回来了。',
@@ -108,21 +109,74 @@
     ],
   };
 
-  function endText(tier, wishId) {
-    const door = (DOOR_TEXT[tier] || DOOR_TEXT.plain).join('\n');
+  /* 拆穿五处以上：门后面是柜台 */
+  const DOOR_TRUTH = [
+    '门开了。',
+    '外面不是走廊。',
+    '是柜台。同一张柜台，同一盏灯，灯芯刚被人挑亮。',
+    '柜台后面坐着一个人。他抬起头。',
+    '你认得那张脸。',
+    '那是你的脸。比你老。老了很多。',
+    '他说：第三十六个。',
+    '他说：我等你，等了三十五次。',
+    '（他站起来，往门外走。擦过你身边的时候，你闻到他袖子上有一股很淡的甜味。）',
+    '（柜台后面空了。灯还亮着。）',
+    '（你走过去，坐下。）',
+  ];
+
+  /* 拆穿三四处：走廊还在，可他知道你来过 */
+  const DOOR_HALF = [
+    '门开了。',
+    '外面是一条走廊，和你家楼下那条一模一样。声控灯坏了一盏，剩下的那盏在闪。',
+    '走廊尽头有一张桌子。桌上放着一碗面，还在冒热气。',
+    '桌边坐着一个人，正在吃面。他抬起头——他的脸是空的。',
+    '他说：第三十六个。',
+    '他说：你上次也问了这句。',
+  ];
+
+  const TAIL_PLAIN = [
+    '账本上，第三十六行已经写好了。',
+    '名字被划掉，旁边用红笔补了三个字：三十六。',
+    '押品一栏空着。',
+    '——那一栏，本来是要你自己填的。',
+  ];
+
+  const TAIL_HALF = [
+    '你问过的那些，他一句也没答完。',
+    '账本上，第三十六行已经写好了。押品一栏空着。',
+    '——那一栏，本来是要你自己填的。',
+  ];
+
+  const TAIL_TRUTH = [
+    '账本摊在灯下，第三十六行已经写好了。',
+    '名字被划掉，旁边红笔补了三个字：三十六。',
+    '押品那一栏不是空的。',
+    '上面写着：身。',
+    '——轮到你等下一个了。',
+  ];
+
+  function endText(tier, wishId, opt) {
+    const o = opt || {};
+    const exposed = o.exposed || 0;
+    const soul = !!o.soul;
+
+    let door, tail;
+    if (exposed >= 5) { door = DOOR_TRUTH.join('\n'); tail = TAIL_TRUTH; }
+    else if (exposed >= 3) { door = DOOR_HALF.join('\n'); tail = TAIL_HALF; }
+    else { door = (DOOR_TEXT[tier] || DOOR_TEXT.plain).join('\n'); tail = TAIL_PLAIN; }
+
     const w = WISHES.find((x) => x.id === wishId);
-    const tail = [
-      '',
-      '—— 第二章 · 抵 押 ——',
-      '',
-      w ? w.end : '柜台上的碗已经收走了。你记不起自己吃过什么。',
-      '',
-      '账本上，第三十六行已经写好了。',
-      '名字被划掉，旁边用红笔补了三个字：三十六。',
-      '押品一栏空着。',
-      '——那一栏，本来是要你自己填的。',
-    ].join('\n');
-    return door + '\n\n' + tail;
+    const parts = [door, ''];
+    if (soul) {
+      parts.push('（门外有一把伞。伞面上补过一块，针脚很密。）');
+      parts.push('');
+    }
+    parts.push('—— 第二章 · 抵 押 ——');
+    parts.push('');
+    parts.push(w ? w.end : '柜台上的碗已经收走了。你记不起自己吃过什么。');
+    parts.push('');
+    parts.push(tail.join('\n'));
+    return parts.join('\n');
   }
 
   /* ============================================================
@@ -173,17 +227,33 @@
     menu: {
       who: '艾',
       lines: ['（他把手放在柜台上，等您问。）'],
-      choices: [
-        { text: '钥匙能开什么？', to: 'askKey' },
-        { text: '抵押了，我还记得吗？', to: 'askForget' },
-        { text: '记忆要多细才算够？', to: 'askDetail' },
-        { text: '愿望抵押了，会怎样？', to: 'askWish' },
-        { text: '那些纸呢？前三十五个。', to: 'askPapers' },
-        { text: '「离开」为什么没有了？', to: 'askLeave', if: () => global.State.leftClicked },
-        { text: '账本上写的「品级」是什么？', to: 'askTier', if: () => global.State.ch2 >= 1 },
-        { text: '我现在该做什么？', to: 'hint' },
-        { text: '没什么了。', to: null },
-      ],
+      choices: () => {
+        const base = [
+          { text: '钥匙能开什么？', to: 'askKey' },
+          { text: '抵押了，我还记得吗？', to: 'askForget' },
+          { text: '记忆要多细才算够？', to: 'askDetail' },
+          { text: '愿望抵押了，会怎样？', to: 'askWish' },
+          { text: '那些纸呢？前三十五个。', to: 'askPapers' },
+          { text: '「离开」为什么没有了？', to: 'askLeave', if: () => global.State.leftClicked },
+          { text: '账本上写的「品级」是什么？', to: 'askTier', if: () => global.State.ch2 >= 1 },
+        ];
+
+        // 手里有物证、还没问过的，一条一条摆出来
+        const press = global.Lies.ready().map((cid) => {
+          const c = global.CLAIMS[cid];
+          const p = global.PROOFS[c.proof];
+          return { text: '（摆出：' + p.name + '）您刚才那句，不对。', to: 'press_' + cid };
+        });
+
+        const head = global.Lies.allExposed()
+          ? [{ text: '（把六件东西全排在柜台上）还有一句话您没说。', to: 'truthAll', key: true, once: true }]
+          : [];
+
+        return head.concat(base, press, [
+          { text: '我现在该做什么？', to: 'hint' },
+          { text: '没什么了。', to: null },
+        ]);
+      },
     },
 
     askKey: {
@@ -192,6 +262,8 @@
         '门。这店里只有一扇门，在柜台后面。',
         '每一位客人都会问，门后面是什么。我说过三十五遍，每一遍都一样：我不知道。',
         '因为我没出去过。',
+        '（他顿了顿。）门口那条街，晚上是没人扫叶子的。叶子堆在墙根，堆到膝盖。',
+        '（——你没问过街。是他自己说的。）',
       ],
       next: 'menu',
     },
@@ -321,6 +393,25 @@
         '是您的一段。您刚才开锁的时候，它自己掉出来了。',
         '（他把木匣推到您面前。）接回去。接得越准，我看到的越多。',
       ],
+      next: 'afterLedger4',
+    },
+    afterLedger4: {
+      who: '艾',
+      lines: [
+        '（他伸手要合账本。你把手按在纸上——页脚还有一行，被上面那条压着。）',
+        '「齿深者，锁不住。太细的东西认主；认了主，就自己开门走了。」',
+        '（下面还有一行更小的，几乎是用针尖划的：别跟客人说。）',
+      ],
+      next: 'afterLedger5',
+    },
+    afterLedger5: {
+      who: '艾',
+      lines: [
+        '（他把账本抽回去，合上。动作很快。）',
+        '……那是上一任写的。',
+        '写账的人，总爱在边上写点没用的。',
+        '（他没有抬头。）',
+      ],
       next: null,
     },
 
@@ -377,8 +468,63 @@
       ],
       next: null,
     },
+    /* ---- 六件东西全摆出来 ---- */
+    truthAll: {
+      who: '艾',
+      lines: [
+        '（你把这六件东西一件一件排在柜台上。车票、残页、黄历、纸钱、刻着字的柜台。）',
+        '（他没有看。他把灯芯挑亮了一点。火苗终于动了。）',
+        '您问完了？',
+        '三十六个。您说得对，是三十六个。',
+        '我不是掌柜。我是第一个。',
+        '我押的是我自己。押完就走不了——得有人在这儿看着，等下一个进来。',
+        '（他抬手指了指柜台后面那扇门。）',
+        '门是给下一个开的。您进去，我就出去了。',
+        '（他停了很久。）',
+        '……所以您问这些做什么呢。',
+        '知道了，还是得进去。',
+      ],
+      next: 'truthAll2',
+    },
+    truthAll2: {
+      who: '你',
+      lines: ['那三十五个名字呢。'],
+      next: 'truthAll3',
+    },
+    truthAll3: {
+      who: '艾',
+      lines: [
+        '（他笑了一下。那个笑很轻，像纸折起来的声音。）',
+        '从来就只有一个名字。',
+        '写了三十五遍。',
+        '（他把账本翻到第一页，又翻到最后一页。每一页的名字，都是同一个。）',
+        '（是你的。）',
+        '您每来一次，我就得重新等一遍。',
+        '——我也不想的。',
+      ],
+      next: 'menu',
+    },
   };
 
+  /* 六条对质，按物证生成节点：拿什么摆什么，他就得接什么 */
+  if (global.CLAIM_ORDER) {
+    global.CLAIM_ORDER.forEach((cid) => {
+      DLG['press_' + cid] = {
+        who: '艾',
+        lines: () => {
+          const c = global.CLAIMS[cid];
+          const p = global.PROOFS[c.proof];
+          const rows = global.Lies.confront(cid);
+          if (!rows) return ['（这句他已经不接了。）'];
+          return ['（你把' + p.name + '放在柜台上，朝他推过去。）',
+            '您说过：「' + c.quote + '」']
+            .concat(rows)
+            .concat(['（他把嘴闭上了。）']);
+        },
+        next: 'menu',
+      };
+    });
+  }
   global.KEY_TIERS = KEY_TIERS;
   global.TIER_ORDER = TIER_ORDER;
   global.tierOfDetail = tierOfDetail;

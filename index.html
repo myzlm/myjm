@@ -319,10 +319,37 @@
         <div class="dw-gap"></div>
       </div>
 
+      <!-- 店里的东西：灯 / 水碗 / 纸钱 / 黄历 / 柜台底下 -->
+      <div class="omen om-lamp" id="om-lamp" title="长明灯">
+        <span class="om-flame"></span>
+        <span class="om-bowl-base"></span>
+        <span class="om-tip">灯</span>
+      </div>
+      <div class="omen om-bowl" id="om-bowl" title="水碗">
+        <span class="om-water"></span>
+        <span class="om-stick"></span>
+        <span class="om-tip">碗</span>
+      </div>
+      <div class="omen om-joss" id="om-joss" title="黄纸">
+        <span class="om-paper p1"></span>
+        <span class="om-paper p2"></span>
+        <span class="om-paper p3"></span>
+        <span class="om-tip">纸</span>
+      </div>
+      <div class="omen om-cal" id="om-cal" title="黄历">
+        <span class="om-cal-leaf"></span>
+        <span class="om-cal-num">十五</span>
+        <span class="om-tip">历</span>
+      </div>
+      <div class="omen om-under" id="om-under" title="柜台底下">
+        <span class="om-under-txt">柜台底下</span>
+      </div>
+
       <!-- 记忆细节 / 钥匙 状态 -->
       <div class="cs-hud" id="cs-hud">
         <div class="hud-row"><span class="hud-k">记忆细节</span><span class="hud-v" id="hud-detail">—</span></div>
         <div class="hud-row"><span class="hud-k">钥匙</span><span class="hud-v" id="hud-key">—</span></div>
+        <div class="hud-row"><span class="hud-k">他的话</span><span class="hud-v" id="hud-lie">—</span></div>
       </div>
 
       <div class="cs-dialogue" id="cs-dialogue"></div>
@@ -407,6 +434,40 @@
         <div class="sc-stones" id="sc-stones"></div>
         <div class="sc-stones-tip">砝码只有这五块，每块只能用一次。</div>
       </div>
+    </div>
+  </section>
+
+  <!-- ============ 6e. 证物册 ============ -->
+  <section class="screen" id="screen-stash" data-screen="stash">
+    <div class="ps-wrap">
+      <div class="ps-head">
+        <div class="ps-title">证 物</div>
+        <div class="ps-sub">他说的每句话，都能在这店里找到反证。<span class="ps-count" id="ps-count"></span></div>
+      </div>
+      <div class="ps-list" id="ps-list"></div>
+      <div class="ps-foot">
+        <button class="ps-btn" id="ps-back">合 上</button>
+        <div class="ps-note">按 <kbd>J</kbd> 随时翻开</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6f. 叫魂 ============ -->
+  <section class="screen" id="screen-soul" data-screen="soul">
+    <div class="sl-wrap">
+      <div class="sl-head">
+        <div class="sl-title">门 缝</div>
+        <div class="sl-sub" id="sl-sub">有人在门外叫你的名字。</div>
+      </div>
+      <div class="sl-door">
+        <div class="sl-gap" id="sl-gap"><div class="sl-shadow" id="sl-shadow"></div></div>
+      </div>
+      <div class="sl-text" id="sl-text"></div>
+      <div class="sl-acts" id="sl-acts">
+        <button class="sl-btn" id="sl-yes">应 一 声</button>
+        <button class="sl-btn sl-no" id="sl-no">不 应</button>
+      </div>
+      <div class="sl-tip" id="sl-tip">听清楚 —— 先到的是脚步，还是声音。</div>
     </div>
   </section>
 
@@ -618,6 +679,7 @@
 <script src="js/audio.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/data.js"></script>
+<script src="js/folklore.js"></script>
 <script src="js/story.js"></script>
 <script src="js/dialogue.js"></script>
 <script src="js/scene-mail.js"></script>
@@ -626,6 +688,8 @@
 <script src="js/scene-counter.js"></script>
 <script src="js/scene-repair.js"></script>
 <script src="js/scene-ch2.js"></script>
+<script src="js/scene-soul.js"></script>
+<script src="js/scene-stash.js"></script>
 <script src="js/scene-win98.js"></script>
 <script src="js/main.js"></script>
 </body>
