@@ -5372,6 +5372,58 @@ body.egg-fx-51::after {
 .ar-card.lock .ar-card-f i { color: #5c5040; font-size: 12px; }
 .ar-card:not(.lock):hover .ar-card-f { border-color: rgba(180,140,80,.6); }
 
+/* ============================================================
+   archive.js —  「当班」页签：那张纸
+   ============================================================ */
+.ar-dt { display: flex; flex-direction: column; gap: 6px }
+.ar-dt-row {
+  padding: 9px 11px 9px 10px;
+  border: 1px solid rgba(80, 64, 40, .26);
+  border-left: 2px solid rgba(140, 108, 60, .42);
+  background: rgba(20, 16, 11, .5);
+  cursor: pointer; transition: border-color .2s, background .2s;
+}
+.ar-dt-row:hover { border-color: rgba(180, 140, 80, .5); background: rgba(26, 20, 13, .66) }
+.ar-dt-row.rw { border-left-color: rgba(200, 69, 47, .58) }
+.ar-dt-h { display: flex; align-items: baseline; gap: 8px }
+.ar-dt-no { font-family: var(--mono); font-size: 8.5px; color: #6b5636; letter-spacing: .1em; flex: 0 0 auto }
+.ar-dt-name { font-family: var(--serif); font-size: 13px; font-weight: 400; color: #ddceac; letter-spacing: .12em }
+.ar-dt-relic {
+  font-family: var(--serif); font-style: normal; font-size: 9.5px; color: #857758;
+  letter-spacing: .06em; flex: 1 1 auto; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ar-dt-r { display: flex; align-items: baseline; gap: 12px; flex: 0 0 auto; margin-left: 10px }
+.ar-dt-door { font-family: var(--serif); font-size: 8.5px; text-decoration: none; color: #5f7f74; letter-spacing: .06em; white-space: nowrap }
+.ar-dt-k { font-family: var(--mono); font-style: normal; font-size: 8.5px; letter-spacing: .08em; color: #7d6a48; white-space: nowrap }
+.ar-dt-f { font-family: var(--mono); font-style: normal; font-size: 8.5px; letter-spacing: .1em; flex: 0 0 auto; white-space: nowrap }
+.ar-dt-f.f-kept { color: #9fb98c }
+.ar-dt-f.f-stripped { color: #c08a5a }
+.ar-dt-f.f-voided { color: #8a7c74 }
+.ar-dt-f.f-refused { color: #a08d6a }
+.ar-dt-f.f-paid { color: #c8452f }
+.ar-dt-w {
+  margin-top: 7px; font-family: var(--serif); font-size: 11px; line-height: 1.85;
+  color: #7d7059; letter-spacing: .02em;
+  border-left: 1px dashed rgba(110, 88, 54, .34); padding-left: 9px;
+}
+.ar-dt-a {
+  display: none; margin-top: 10px; padding-left: 9px;
+  border-left: 1px solid rgba(120, 92, 52, .16);
+}
+.ar-dt-row.on .ar-dt-a { display: block }
+.ar-dt-lab {
+  display: block; font-family: var(--mono); font-style: normal; font-size: 8px;
+  letter-spacing: .28em; color: #5f5443; margin-bottom: 7px;
+}
+.ar-dt-a p { font-family: var(--serif); font-size: 11px; line-height: 1.95; color: #a3947a; letter-spacing: .04em }
+.ar-dt-a p:first-child { margin-top: 0 }
+@media (max-height: 760px) {
+  .ar-dt-row { padding: 7px 9px }
+  .ar-dt-name { font-size: 12px }
+  .ar-dt-w, .ar-dt-a p { font-size: 10px; line-height: 1.78 }
+}
+
 /* 票根页签在窄屏下换一行 */
 @media (max-width: 620px) {
   .ar-cards { grid-template-columns: 1fr; }

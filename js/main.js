@@ -353,6 +353,33 @@
       log.push('street=5 五个门 · 四档此刻 · 四句台词 ok');
     });
 
+    /* ---- 档案册「当班」页：那张纸翻得到 ---- */
+    run('DutyBook', () => {
+      if (!global.Archive || !global.Archive.dutyHTML) throw new Error('no Archive.dutyHTML');
+      if (!global.Duty.FATE_CN || !global.Duty.WRITE_CN) throw new Error('缺字表导出');
+      const S = global.State;
+      const bak = (S.sys || {}).duty;
+      S.sys = S.sys || {};
+      S.sys.duty = null;
+      if (global.Archive.dutyHTML().indexOf('还没到你手里') < 0) throw new Error('空态没话说');
+      /* 七笔四种写法都摆上，其中一笔是改判 */
+      const KINDS = ['truth', 'rule', 'theirs', 'refuse', 'selfpay', 'truth', 'rule'];
+      const FATES = ['kept', 'stripped', 'voided', 'refused', 'paid', 'kept', 'stripped'];
+      S.sys.duty = { picks: global.DUTY_GUESTS.map((g, i) => ({
+        no: i + 1, id: g.id, name: g.name, relic: g.relic,
+        kind: KINDS[i], fate: FATES[i], rewritten: i === 2,
+      })), oil: 2, book: 4, lamp: true, seat: false };
+      const h = global.Archive.dutyHTML();
+      if ((h.match(/class="ar-dt-row/g) || []).length !== 7) throw new Error('行数不对');
+      if (h.indexOf('undefined') >= 0) throw new Error('渲染出 undefined');
+      if (h.indexOf('替徒工挡刀') < 0) throw new Error('没写出他写的那一行');
+      if (h.indexOf('这一笔没有写') < 0) throw new Error('不收这一笔没留痕');
+      if (h.indexOf('抵了这一笔') < 0) throw new Error('拿自己的东西抵没留痕');
+      if (h.indexOf('↺') < 0) throw new Error('改判没留印子');
+      S.sys.duty = bak;
+      log.push('dutybook 七行 · 四种写法 · 改判留印 ok');
+    });
+
     /* ---- 里间 / 二十二个结局 ---- */
     run('Memory', () => {
       if (!global.Memory || Memory.total !== 35) throw new Error('total=' + (global.Memory ? Memory.total : 0));

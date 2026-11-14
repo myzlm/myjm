@@ -113,6 +113,7 @@
         '<button class="ar-t" data-t="fus">融合</button>' +
         '<button class="ar-t" data-t="ends">结局</button>' +
         '<button class="ar-t" data-t="cards">票根</button>' +
+        '<button class="ar-t" data-t="duty">当班</button>' +
         '<button class="ar-t" data-t="perm">权限</button>' +
         '</div>' +
         '<div class="ar-body" id="ar-body"></div>' +
@@ -140,6 +141,8 @@
         }
         const cd = e.target.closest('.ar-card');
         if (cd && !cd.classList.contains('lock')) { cd.classList.toggle('flip'); return; }
+        const dt = e.target.closest('.ar-dt-row');
+        if (dt) { dt.classList.toggle('on'); return; }
         const go = e.target.closest('[data-space-go]');
         if (go) {
           this.close();
@@ -199,7 +202,7 @@
       return h;
     },
 
-    /* 票根：八张，翻过来看它借的是谁的胆子 */
+    /* 票根：九张，翻过来看它借的是谁的胆子 */
     cardsHTML() {
       if (!global.Chapter) return '<div class="ar-empty">柜台还没有给你票。</div>';
       const list = global.Chapter.list();
@@ -220,6 +223,68 @@
       });
       h += '</div><div class="ar-note">每一章进门之前，柜台都给你一张票。<br>' +
         '票上盖的章，是你替他记下的那一个字。</div>';
+      return h;
+    },
+
+    /* 当班：七笔，你写的那一行，和它后来变成的样子 */
+    dutyHTML() {
+      const S = global.State || {};
+      const d = (S.sys && S.sys.duty) || null;
+      const picks = (d && d.picks) || [];
+      if (!picks.length) {
+        return '<div class="ar-empty">柜台上那张纸还没到你手里。</div>' +
+          '<div class="ar-note">打烊那一班在第六章。<br>（到那时候，这一页会自己长出字来。）</div>';
+      }
+      const guests = (global.Duty && global.Duty.data) ? global.Duty.data() : [];
+      const FC = (global.Duty && global.Duty.FATE_CN) || {};
+      const WC = (global.Duty && global.Duty.WRITE_CN) || {};
+      const st = (S.sys && S.sys.street) || null;
+      const seen = (st && st.seen) || [];
+      const acts = (st && st.acts) || {};
+      const ACT_CN = { near: '只走近了', say: '说了话', away: '走开了' };
+
+      const c = (k) => picks.filter((p) => p.fate === k).length;
+      const kept = c('kept'), hurt = c('stripped'), voided = c('voided');
+      const ref = c('refused'), paid = c('paid');
+      const oil = (d && typeof d.oil === 'number') ? d.oil : null;
+
+      let h = '<div class="ar-count">七笔 · 保住 ' + kept + ' · 被折 ' + hurt +
+        ' · 作废 ' + voided + (ref ? ' · 没办 ' + ref : '') + (paid ? ' · 抵了 ' + paid : '') +
+        (oil !== null ? '　·　油剩 ' + oil + ' 格' : '') + '　·　点一行看它后来' + '</div>';
+
+      h += '<div class="ar-dt">';
+      picks.forEach((p, i) => {
+        const g = guests.find((x) => x.id === p.id) || {};
+        const w = (g.writes && g.writes[p.kind]) ? g.writes[p.kind].line : '';
+        const aft = (g.after && g.after[p.fate]) ? g.after[p.fate] : [];
+        const went = seen.indexOf(p.id) >= 0;
+        const how = acts[p.id] ? (ACT_CN[acts[p.id]] || '') : '';
+        h += '<div class="ar-dt-row' + (p.rewritten ? ' rw' : '') + '" data-dt="' + p.id + '">' +
+          '<div class="ar-dt-h">' +
+          '<span class="ar-dt-no">' + String(p.no || (i + 1)).padStart(2, '0') + '</span>' +
+          '<b class="ar-dt-name">' + p.name + '</b>' +
+          '<i class="ar-dt-relic">' + p.relic + '</i>' +
+          '<span class="ar-dt-r">' +
+          (went ? '<u class="ar-dt-door">门外 · ' + (how || '走过') + '</u>' : '') +
+          '<em class="ar-dt-k">' + (p.rewritten ? '↺ ' : '') + (WC[p.kind] || '') + '</em>' +
+          '<em class="ar-dt-f f-' + p.fate + '">' + (FC[p.fate] || '') + '</em>' +
+          '</span></div>' +
+          '<div class="ar-dt-w">' + (w ? w.replace(/</g, '&lt;')
+            : (p.kind === 'refuse' ? '（这一笔没有写。）' : '（你拿自己的东西抵了这一笔。）')) + '</div>' +
+          '<div class="ar-dt-a"><em class="ar-dt-lab">后 来</em>' +
+          (aft.length ? aft.map((t) => '<p>' + t.replace(/</g, '&lt;') + '</p>').join('')
+            : '<p>（纸上没有这一笔的后来。）</p>') +
+          '</div></div>';
+      });
+      h += '</div>';
+
+      const tail = (d && d.seat)
+        ? '这一班最后不是你收的摊。你走到门口，把灯留给了下一个人。'
+        : ((d && d.lamp === false) || oil === 0
+          ? '灯灭在你收摊之前。纸上的字还认得出来。'
+          : '灯亮着。你把纸对折，塞进柜台的抽屉里。');
+      h += '<div class="ar-note">这是那张纸。上面的字是你写的，不是别人替你写的。<br>' +
+        tail.replace(/</g, '&lt;') + '</div>';
       return h;
     },
 
@@ -250,6 +315,8 @@
         body.innerHTML = global.Endings.galleryHTML();
       } else if (this.tab === 'cards') {
         body.innerHTML = this.cardsHTML();
+      } else if (this.tab === 'duty') {
+        body.innerHTML = this.dutyHTML();
       } else {
         const lv = global.Persp ? global.Persp.level() : 0;
         const rows = [

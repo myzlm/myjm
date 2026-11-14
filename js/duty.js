@@ -1165,6 +1165,8 @@
     total() { return GUESTS.length; },
     OIL: OIL,
     LEDGER: LEDGER,
+    FATE_CN: FATE_CN,
+    WRITE_CN: WRITE_CN,
   };
 
   global.Duty = Duty;
