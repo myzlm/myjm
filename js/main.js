@@ -364,6 +364,80 @@
       }
       log.push('duel pick ok');
     });
+    /* 撕了纸人 / 陪到最后，他该有话说 */
+    run('Ghost', () => {
+      const S = global.State;
+      const bk = JSON.parse(JSON.stringify(S.sys || {}));
+      const pick = (sys) => {
+        S.sys = Object.assign({}, bk, sys);
+        const ch = typeof DLG.menu.choices === 'function' ? (DLG.menu.choices() || []) : [];
+        const g = ch.filter((c) => /^ai_(hurt6|hurt|soft)$/.test(c.to || ''));
+        g.forEach((c) => { if (!DLG[c.to]) throw new Error('dead ghost ' + c.to); });
+        return g.map((c) => c.to);
+      };
+      const a = pick({ hurt: 2, torn: { zhou: 1 }, npcs: { zhou: 1 } });
+      const b = pick({ hurt: 6, torn: { zhou: 1, xie: 1, wu: 1, lan: 1, cao: 1, man: 1 } });
+      const c = pick({ hurt: 0, npcs: { zhou: 1, xie: 1, wu: 1, lan: 1, cao: 1, man: 1 } });
+      S.sys = bk;
+      if (!a.length || !b.length || !c.length) throw new Error('ghost 没挂上 ' + [a, b, c].join('|'));
+      if (a[0] !== 'ai_hurt' || b[0] !== 'ai_hurt6' || c[0] !== 'ai_soft') throw new Error('优先级错');
+      ['ai_hurt', 'ai_hurt6', 'ai_soft'].forEach((id) => {
+        if (!DLG[id] || (DLG[id].lines || []).length < 6) throw new Error(id + ' 太短');
+      });
+      log.push('ghost=hurt/hurt6/soft');
+    });
+    /* 墙上的剪报：十二条，年份与编号都得对得上 */
+    run('Clips', () => {
+      if (!global.Clips || !global.CLIPS) throw new Error('no Clips');
+      const C = global.CLIPS;
+      if (C.length !== 12) throw new Error('条数=' + C.length);
+      const nos = new Set(), years = new Set();
+      C.forEach((c) => {
+        ['no', 'date', 'page', 'head', 'body', 'edge', 'cut'].forEach((k) => {
+          if (!c[k]) throw new Error('第' + c.no + '号缺 ' + k);
+        });
+        if (nos.has(c.no)) throw new Error('重复关联 ' + c.no);
+        nos.add(c.no);
+        years.add(c.date.slice(0, 4));
+        if (!global.Memory.get(c.no)) throw new Error('关联到不存在的人 ' + c.no);
+        if (c.head.length < 8 || c.head.length > 30) throw new Error('标题长度 ' + c.no);
+        if (c.body.length < 50 || c.body.length > 130) throw new Error('正文长度 ' + c.no + '=' + c.body.length);
+        if (c.edge.length < 10 || c.edge.length > 50) throw new Error('夹缝长度 ' + c.no + '=' + c.edge.length);
+      });
+      if (years.size !== C.length) throw new Error('年份重复，对局会出歧义');
+      // 年份跨度要覆盖三个人生阶段
+      const ys = C.map((c) => +c.date.slice(0, 4));
+      if (Math.min.apply(null, ys) > 1990) throw new Error('最早的太晚');
+      if (Math.max.apply(null, ys) < 2020) throw new Error('最新的太早');
+      log.push('clips=12 span=' + Math.min.apply(null, ys) + '-' + Math.max.apply(null, ys));
+    });
+    run('ClipQ', () => {
+      if (!global.Clips) throw new Error('no Clips');
+      // openAll = true：不解锁存档，只验出题
+      for (let i = 0; i < 40; i++) {
+        const q = global.Clips.pick(true);
+        if (!q) throw new Error('没出题');
+        if (q.opts.indexOf(q.ans) < 0) throw new Error('答案不在选项里');
+        if (new Set(q.opts).size !== q.opts.length) throw new Error('选项重复');
+        if (q.opts.length !== 4) throw new Error('选项数=' + q.opts.length);
+      }
+      log.push('clipq ok');
+    });
+    run('ArSpace', () => {
+      if (!global.Archive || !global.Archive.spaceHTML) throw new Error('no Archive.spaceHTML');
+      const S = global.State;
+      const bk = S.sys.sawSpace;
+      S.sys.sawSpace = false;
+      const off = global.Archive.spaceHTML();
+      S.sys.sawSpace = true;
+      const on = global.Archive.spaceHTML();
+      S.sys.sawSpace = bk;
+      if (off.indexOf('data-space-go') >= 0) throw new Error('没进过里间就给了入口');
+      if ((on.match(/ar-spcase/g) || []).length !== 8) throw new Error('柜数');
+      if (on.indexOf('第 36 只') < 0) throw new Error('缺第 36 只');
+      if (on.indexOf('data-space-go') < 0) throw new Error('缺入口');
+      log.push('ar cases=8');
+    });
 
 
     run('Music', () => {

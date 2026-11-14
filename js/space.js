@@ -89,6 +89,14 @@
     },
 
     close() {
+      const S = global.State;
+      const s = S.sys || {};
+      s.told = s.told || {};
+      // 六个人都说过话、一个也没撕：回去他会有话说
+      if (!s.pendingTalk && (s.hurt || 0) === 0 &&
+          Object.keys(s.npcs || {}).length >= 6 && !s.told.ai_soft) {
+        s.pendingTalk = 'ai_soft';
+      }
       App.show(this.from === 'space' ? 'counter' : this.from);
       if (App.current === 'counter' && global.Counter) global.Counter.init();
     },
@@ -128,6 +136,7 @@
         '<div class="sp-acts"><button id="sp-duel" class="sp-back">跟他赌一把</button>' +
         '<button id="sp-shift" class="sp-shift" disabled>错 位</button>' +
         '<button id="sp-back" class="sp-back">回去</button></div>' +
+        '<button id="sp-clips" class="sp-clips">墙上的剪报 <b>0</b> / 12</button>' +
         '</div>' +
         '<div class="sp-card" id="sp-card"></div>' +
         '<div class="sp-say" id="sp-say"></div>';
@@ -158,6 +167,8 @@
       if (du) du.addEventListener('click', () => { if (global.Duel) global.Duel.open(); });
       const bk = $('#sp-back');
       if (bk) bk.addEventListener('click', () => this.close());
+      const cl = $('#sp-clips');
+      if (cl) cl.addEventListener('click', () => { if (global.Clips) global.Clips.open(); });
       this.stage = stage;
       this.setView('front', true);
     },
@@ -320,6 +331,12 @@
       const el = document.querySelector('.sp-fig[data-fig="' + id + '"]');
       if (el) el.classList.add('torn');
       this.refresh();
+
+      // 回到柜台上，他会开口。只开一次。
+      const told = S.sys.told = S.sys.told || {};
+      const key = n >= 6 ? 'ai_hurt6' : 'ai_hurt';
+      if (!told[key]) S.sys.pendingTalk = key;
+
       if (n >= 6) {
         this.say('六个都撕完了。\n地上很干净。\n\n干净得像这里从来没有站过人。');
       } else if (n === 1) {
@@ -338,6 +355,12 @@
       const r = $('#sp-n-read'); const t = $('#sp-n-take');
       if (r) r.textContent = st.read;
       if (t) t.textContent = st.relics;
+      const cl = $('#sp-clips');
+      if (cl && global.Clips) {
+        const n = global.Clips.openCount();
+        cl.querySelector('b').textContent = n;
+        cl.classList.toggle('all', n >= global.Clips.total());
+      }
       $$('.sp-relic').forEach((b) => {
         if (global.Memory.hasRelic(+b.dataset.no)) b.classList.add('got');
         if (global.Memory.hasRead(+b.dataset.no)) b.classList.add('read');

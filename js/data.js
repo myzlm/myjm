@@ -109,6 +109,9 @@
       boss: {},              // 每个对手的胜场 {ai: 3}
       played: 0,             // 这是第几周目
       sameAsLast: false,     // 这一周目是否完全复刻上一周目
+      pendingTalk: null,     // 回到柜台后要自动开口的对话节点
+      told: {},              // 已经听过的自动对话，不重复
+      clipped: false,        // 十二页剪报都看清了
     },
   };
 

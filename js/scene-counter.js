@@ -39,7 +39,28 @@
       if (!this.introPlayed) {
         this.introPlayed = true;
         this.intro();
+      } else {
+        this.autoTalk();
       }
+    },
+
+    /* 从里间回来，他有时候已经先开口了 */
+    autoTalk() {
+      const s = (State && State.sys) || null;
+      if (!s || !s.pendingTalk) return;
+      const id = s.pendingTalk;
+      s.pendingTalk = null;
+      s.told = s.told || {};
+      if (s.told[id]) return;
+      s.told[id] = true;
+      setTimeout(() => {
+        if (Dlg.active) return;
+        if (!App.isCurrent('counter')) return;
+        this.talked = true;
+        Dlg.open(id);
+        if (global.Sys) global.Sys.talk('ai');
+        this.updateHint();
+      }, 1100);
     },
 
     bind() {

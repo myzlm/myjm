@@ -61,6 +61,11 @@
     },
 
     pick() {
+      // 偶尔不问人，问报纸：同一个年份，两种说法
+      if (global.Clips && Math.random() < 0.3) {
+        const cq = global.Clips.pick();
+        if (cq) return cq;
+      }
       const M = global.Memory;
       const d = M.read();
       const pool = d.read.filter((n) => n <= M.total);

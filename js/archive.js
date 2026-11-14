@@ -86,6 +86,7 @@
         '<button class="ar-t on" data-t="name">真名</button>' +
         '<button class="ar-t" data-t="quests">未竟</button>' +
         '<button class="ar-t" data-t="eggs">彩蛋</button>' +
+        '<button class="ar-t" data-t="space">里间</button>' +
         '<button class="ar-t" data-t="fus">融合</button>' +
         '<button class="ar-t" data-t="ends">结局</button>' +
         '<button class="ar-t" data-t="perm">权限</button>' +
@@ -111,6 +112,12 @@
           const v = c.dataset.copy;
           try { navigator.clipboard.writeText(v); Toast.show('已抄下：' + v, 1800); }
           catch (err) { Toast.show(v, 2600); }
+          return;
+        }
+        const go = e.target.closest('[data-space-go]');
+        if (go) {
+          this.close();
+          if (global.Space) setTimeout(() => global.Space.open(), 260);
         }
       });
     },
@@ -118,6 +125,53 @@
     toggle() { this.open ? this.close() : this.show(); },
     show() { this.buildModal(); this.open = true; this.el.classList.add('on'); this.render(); },
     close() { this.open = false; if (this.el) this.el.classList.remove('on'); },
+
+    /* 里间：三十五个人、八只柜子 */
+    spaceHTML() {
+      const M = global.MEMORY || [];
+      const S = global.State || {};
+      const s = S.sys || {};
+      const st = global.Memory ? global.Memory.stats() : { read: 0, relics: 0, total: 35 };
+
+      if (!s.sawSpace) {
+        return '<div class="ar-empty">柜台后面有一道缝。它一直比看起来深。</div>' +
+          '<div class="ar-note">你还没走进去过。<br>（柜台里，按 L，或者点门后那道缝。）</div>';
+      }
+
+      let h = '<div class="ar-count">读过 ' + st.read + ' / ' + st.total +
+        '　·　拿走 ' + st.relics + ' / ' + st.total +
+        '　·　说过话 ' + Object.keys(s.npcs || {}).length + ' / 6' +
+        '　·　撕掉 ' + Object.keys(s.torn || {}).length + ' / 6</div>';
+
+      h += '<div class="ar-sp">';
+      for (let c = 0; c < 8; c++) {
+        if (c === 7) {
+          const full = st.relics >= 35;
+          h += '<div class="ar-spcase empty"><b>第 36 只</b><i>' +
+            (s.shifted ? (full ? '空着。你已经把三十五件都穿在身上了。' : '空着。柜门朝里开。')
+                       : '接不上。得换个角度才看得见。') +
+            '</i></div>';
+          continue;
+        }
+        const rows = M.filter((m) => Math.floor((m.no - 1) / 5) === c);
+        if (!rows.length) continue;
+        h += '<div class="ar-spcase"><b>' + rows[0].year + '′ — ' + rows[rows.length - 1].year + '′</b>' +
+          '<i>第 ' + (c + 1) + ' 只</i>' +
+          rows.map((m) => {
+            const rd = global.Memory.hasRead(m.no);
+            const gt = global.Memory.hasRelic(m.no);
+            return '<div class="ar-spm' + (rd ? ' on' : '') + (gt ? ' got' : '') + '">' +
+              '<span>' + String(m.no).padStart(2, '0') + '</span>' +
+              '<em>' + (rd ? m.job : '—— 还没打开') + '</em>' +
+              (gt ? '<u>拿走</u>' : '') + '</div>';
+          }).join('') + '</div>';
+      }
+      h += '</div>';
+
+      h += '<div class="ar-note">读是见证，拿是占有。<br>读完了还拿，就是替他把东西留着——也替他把话堵住了。</div>' +
+        '<div class="ar-spgo"><button data-space-go="1">走进去（L）</button></div>';
+      return h;
+    },
 
     render() {
       const body = $('#ar-body');
@@ -137,6 +191,8 @@
       } else if (this.tab === 'eggs') {
         body.innerHTML = '<div class="ar-count">彩蛋 ' + global.Eggs.count() + ' / 60　·　融合 ' +
           global.Eggs.fusionCount() + ' / 44</div>' + global.Eggs.listHTML();
+      } else if (this.tab === 'space') {
+        body.innerHTML = this.spaceHTML();
       } else if (this.tab === 'fus') {
         body.innerHTML = '<div class="ar-count">已成形 ' + global.Eggs.fusionCount() + ' / 44</div>' +
           global.Eggs.fusionHTML();
