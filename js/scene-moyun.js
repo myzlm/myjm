@@ -2,7 +2,7 @@
    scene-moyun.js — 墨韵 · 科技卷轴
    ------------------------------------------------------------
    "以古法落墨，以科技解迷。"
-   二楼工作台上的东西。五段密文，四层密钥。
+   二楼工作台上的东西。八段密文，四层密钥，三种不用钥匙的写法。
    密钥不是猜的——是你自己：来的时间、押下的记忆、做过的选择。
    解开的结果会自己回写到世界里。
    ============================================================ */
@@ -35,6 +35,25 @@
       id: 'root', name: '控制室 · 终端', src: 'root/tty0', alg: 'ancient', key: 'sigil',
       plain: '地球online v0.1 最初的回响', hint: '终端上闪着一串东西。要五层才解得开。',
       reward: '「最初的回响」程序已激活。连接成功。你好，编写者。', unlock: 'final',
+    },
+    /* --- 后三段：不用钥匙的新法 --- */
+    {
+      id: 'tele', name: '电报局 · 未发出的电文', src: '档案盒 #37 夹层', alg: 'morse', key: 'base',
+      plain: '三十七号从来没有存在过',
+      hint: '一长串点和横。像电报。中间夹着单独的「!」，那不是标点，是另一种字的开头。',
+      reward: '三十七号不是一个玩家。是一个位置——谁坐上去，谁就是三十七。', unlock: 'tele',
+    },
+    {
+      id: 'ash', name: '灰里剩下的稿纸', src: '柜台下的铁盒', alg: 'bacon', key: 'base',
+      plain: '你不姓你以为的那个姓',
+      hint: '纸上只有 A 和 B，五个一组。像有人用两种字重写了一遍，然后把墨水抽走了。',
+      reward: '你在合同上签字的时候，笔尖停了一下。因为那个姓，你不熟。', unlock: 'ash',
+    },
+    {
+      id: 'mirror', name: '镜子背面', src: '里空间 · 第三面镜', alg: 'atbash', key: 'base',
+      plain: '镜子里的人先眨眼',
+      hint: '每个字都是对的形状，但拼在一起读不通。像是把整张纸对着光翻了一次。',
+      reward: '你把镜子翻过来，背面没有水银。后面是一行正着写的字：我比你先到。', unlock: 'mirror',
     },
   ];
 
@@ -177,7 +196,8 @@
       const it = this.items[this.cur];
       if (!it) return;
       this.busy = true;
-      $('#my-cands').innerHTML = '<div class="my-scan">正在依次试：凯撒 · 维吉尼亚 · 栅栏 · AES · 古法五层……</div>';
+      $('#my-cands').innerHTML = '<div class="my-scan">正在依次试：' +
+        global.Cipher.ALGS.filter((a) => a.id !== 'plain').map((a) => a.name).join(' · ') + '……</div>';
       const key = global.TrueName.key(this.keyLevel);
       const cands = await global.Cipher.solve(it.ct, key);
       this.busy = false;
@@ -207,8 +227,9 @@
 
     reportUsed() {
       const used = Object.keys(this.used);
+      const total = global.Cipher.ALGS.filter((a) => a.id !== 'plain').length;
       document.dispatchEvent(new CustomEvent('moyunAlgs', { detail: used }));
-      if (used.length >= 6) Toast.show('六种算法都用过了。卷轴认了你。', 2600);
+      if (used.length >= total) Toast.show('八种写法都用过了。卷轴认了你。', 2600);
     },
 
     checkManual() {
@@ -250,6 +271,13 @@
       if (sys.moyunSolved.indexOf(it.id) < 0) sys.moyunSolved.push(it.id);
       if (it.unlock === 'inner') sys.innerSpace = true;
       if (it.unlock === 'zero') sys.zero = true;
+      if (it.unlock === 'tele') { sys.tele = true; }
+      if (it.unlock === 'ash') { sys.ash = true; }
+      if (it.unlock === 'mirror') {
+        sys.mirrorBack = true;
+        // 三面镜子都解出来了 → 里空间的门是开的
+        if (sys.tele && sys.ash) sys.innerSpace = true;
+      }
       if (it.unlock === 'final') {
         sys.cipherFinal = true;
         document.dispatchEvent(new CustomEvent('cipherFinal'));

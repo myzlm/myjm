@@ -76,7 +76,7 @@
     { id: 51, cat: 'ink', n: '卷轴回响', how: '在墨韵终端输入「墨韵」', fx: '一首没写完的古诗' },
     { id: 52, cat: 'ink', n: '密钥同频', how: '真名印记与他人对上', fx: '「同频」提示' },
     { id: 53, cat: 'ink', n: '古法显影', how: '用古法五层解开一条密文', fx: '开发者手记' },
-    { id: 54, cat: 'ink', n: '卷轴之魂', how: '六种算法各用一次', fx: '「墨韵大师」' },
+    { id: 54, cat: 'ink', n: '卷轴之魂', how: '八种写法各用一次', fx: '「墨韵大师」' },
     { id: 55, cat: 'ink', n: '墨韵之核', how: '用真名印记解终极密文', fx: '隐藏对话' },
     /* 隐藏 #56—#60 */
     { id: 56, cat: 'hid', n: '（未公开）', how: '隐藏', fx: '——', hidden: true },
@@ -408,7 +408,7 @@
       document.addEventListener('moyunAlgs', (e) => {
         const used = e.detail || [];
         if (used.indexOf('ancient') >= 0) self.unlock(53, true);
-        if (used.length >= 6) self.unlock(54, true);
+        if (used.length >= 8) self.unlock(54, true);
       });
       document.addEventListener('cipherFinal', () => self.unlock(55, true));
       document.addEventListener('moyunSolved', () => {

@@ -45,6 +45,19 @@
       $('#rt-list').classList.remove('slow');
       $('#rt-nar').textContent = '';
       $('#rt-sub').textContent = '— 记录库 · 37 行 —';
+
+      // 「七行假记录」的入口：只在列表这一层出现一次
+      if (!this.anomBound) {
+        this.anomBound = true;
+        const an = $('#rt-anom');
+        if (an) {
+          an.addEventListener('click', (e) => {
+            e.stopPropagation();
+            Snd.init();
+            Fade.through(() => { global.App.show('anomaly'); global.Anomaly.start(); });
+          });
+        }
+      }
       this.buildRows();
       Snd.startDrone();
 
@@ -255,6 +268,7 @@
         if (!b) return;
         this.choose(b.dataset.c);
       });
+      // 三十七行里混了七行假的 →「七行假记录」
     },
 
     async submitName() {

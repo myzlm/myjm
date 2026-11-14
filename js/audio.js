@@ -38,6 +38,8 @@
 
     A.ready = true;
     if (A.ctx.state === 'suspended') A.ctx.resume();
+    // 配乐引擎在上下文建好之后才能起拍
+    if (global.Music && global.Music.boot) setTimeout(() => global.Music.boot(), 0);
     return A.ctx;
   }
 

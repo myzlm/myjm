@@ -404,6 +404,21 @@
         <span class="om-book-cover"></span>
         <span class="om-tip">册</span>
       </div>
+      <div class="omen om-oil" id="om-oil" title="油壶">
+        <span class="om-oil-body"></span>
+        <span class="om-oil-spout"></span>
+        <span class="om-tip">油</span>
+      </div>
+      <div class="omen om-clock" id="om-clock" title="墙上的钟">
+        <span class="om-clock-face"></span>
+        <span class="om-clock-h"></span>
+        <span class="om-clock-m"></span>
+        <span class="om-tip">钟</span>
+      </div>
+      <div class="omen om-seam" id="om-seam" title="地板缝">
+        <span class="om-seam-line"></span>
+        <span class="om-tip">缝</span>
+      </div>
       <div class="omen om-under" id="om-under" title="柜台底下">
         <span class="om-under-txt">柜台底下</span>
       </div>
@@ -772,6 +787,7 @@
 
       <div class="rt-list" id="rt-list"></div>
       <div class="rt-list-hint">（F2 可以打开控制台。有些行，用 grep 找更快。）</div>
+      <button class="rt-anom" id="rt-anom">这三十七行里，有七行是假的</button>
       <div class="rt-nar" id="rt-nar"></div>
 
       <div class="rt-detail" id="rt-detail">
@@ -820,7 +836,7 @@
         </div>
         <div class="my-body">
           <aside class="my-left">
-            <div class="my-l-h">密 文 · 五</div>
+            <div class="my-l-h">密 文 · 八</div>
             <div id="my-list"></div>
             <div class="my-l-note">解开的会自己回到世界里去。</div>
           </aside>
@@ -841,6 +857,9 @@
               <button class="my-alg" data-a="caesar">凯撒</button>
               <button class="my-alg" data-a="vigenere">维吉尼亚</button>
               <button class="my-alg" data-a="rail">栅栏</button>
+              <button class="my-alg" data-a="atbash">反转</button>
+              <button class="my-alg" data-a="morse">摩斯</button>
+              <button class="my-alg" data-a="bacon">培根</button>
               <button class="my-alg" data-a="aes">AES</button>
               <button class="my-alg" data-a="ancient">古法五层</button>
               <button class="my-alg" data-a="plain">原文</button>
@@ -865,10 +884,136 @@
               基础码 → 凯撒 / 维吉尼亚<br>
               记忆码 → AES-GCM<br>
               行为码 → 栅栏<br>
-              印记 → 古法五层
+              印记 → 古法五层<br><br>
+              反转 / 摩斯 / 培根<br>
+              <b>不用钥匙。</b>谁拿到都能读——所以写字的人赌你不会试。
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 9c-2. 灯油 ============ -->
+  <section class="screen" id="screen-oil" data-screen="oil">
+    <div class="oil-wrap">
+      <div class="oil-head">
+        <div class="oil-t">灯 油</div>
+        <div class="oil-s">八钱油，三只碗。两盏灯要烧到同一个时辰。</div>
+      </div>
+      <div class="oil-bowls" id="oil-bowls"></div>
+      <div class="oil-note">点一只碗，再点另一只——油会自己流过去，流到满或流干为止。</div>
+      <div class="oil-msg" id="oil-msg"></div>
+      <div class="oil-btns">
+        <button class="oil-b" id="oil-hint">提 示</button>
+        <button class="oil-b" id="oil-reset">重 来</button>
+        <button class="oil-b ghost" id="oil-back">回 柜 台</button>
+        <span class="oil-steps" id="oil-steps">倒 0 次</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 9c-3. 墙上的钟 ============ -->
+  <section class="screen" id="screen-clock" data-screen="clock">
+    <div class="cl-wrap">
+      <div class="cl-left">
+        <div class="cl-face">
+          <span class="cl-ticks"></span>
+          <span class="cl-hand cl-h" id="cl-hour"></span>
+          <span class="cl-hand cl-m" id="cl-min"></span>
+          <span class="cl-pin"></span>
+        </div>
+        <div class="cl-read" id="cl-read">下午 12:00</div>
+        <button class="cl-ampm pm" id="cl-ampm">午 后</button>
+      </div>
+      <div class="cl-right">
+        <div class="cl-t">墙 上 的 钟</div>
+        <div class="cl-notes">
+          <p>钟背刻着两个字：<b>三</b>、<b>未过半</b>。</p>
+          <p>记录卡最后一行：<b>expire 今夜 03:14</b>。</p>
+          <p>账本页脚：<b>屋里的钟只走一遍。走到头，回到十二。</b></p>
+        </div>
+        <div class="cl-pad">
+          <button class="cl-k" data-cl="h" data-v="-1">时针 −</button>
+          <button class="cl-k" data-cl="h" data-v="1">时针 +</button>
+        </div>
+        <div class="cl-pad">
+          <button class="cl-k" data-cl="m" data-v="-5">分 −5</button>
+          <button class="cl-k" data-cl="m" data-v="-1">分 −1</button>
+          <button class="cl-k" data-cl="m" data-v="1">分 +1</button>
+          <button class="cl-k" data-cl="m" data-v="5">分 +5</button>
+        </div>
+        <div class="cl-msg" id="cl-msg"></div>
+        <div class="cl-btns">
+          <button class="cl-b" id="cl-check">对 时</button>
+          <button class="cl-b" id="cl-hint">提 示</button>
+          <button class="cl-b ghost" id="cl-back">回 柜 台</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 9c-4. 地板上的刻痕 ============ -->
+  <section class="screen" id="screen-scratch" data-screen="scratch">
+    <div class="kh-wrap">
+      <div class="kh-plane">
+        <div class="kh-groups" id="kh-groups"></div>
+        <div class="kh-hatch" id="kh-hatch"><span>暗 格</span></div>
+      </div>
+      <div class="kh-side">
+        <div class="kh-t">地 板 上 的 刻 痕</div>
+        <div class="kh-legend">
+          <div class="kh-row">
+            <i class="kh-n deep"></i><i class="kh-n shal"></i><i class="kh-n shal"></i><i class="kh-n shal"></i><b>一</b>
+          </div>
+          <div class="kh-note">砖角有人用炭写着：深者为一，浅者为零。四道一组，一数。</div>
+        </div>
+        <div class="kh-in-row">
+          <input id="kh-input" maxlength="6" inputmode="numeric" autocomplete="off" placeholder="六个数" />
+          <button id="kh-check">开</button>
+        </div>
+        <div class="kh-msg" id="kh-msg"></div>
+        <div class="kh-btns">
+          <button class="kh-b" id="kh-hint">提 示</button>
+          <button class="kh-b ghost" id="kh-back">回 柜 台</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 9c-5. 七行假记录 ============ -->
+  <section class="screen" id="screen-anomaly" data-screen="anomaly">
+    <div class="an-wrap">
+      <div class="an-head">
+        <div class="an-t">三 十 七 行</div>
+        <div class="an-s">其中七行是假的。点一行，标一行。</div>
+        <div class="an-count" id="an-count">0 / 7</div>
+      </div>
+      <div class="an-body">
+        <div class="an-main">
+          <div class="an-th">
+            <span>编号</span><span>名字</span><span>押品</span><span>状态</span><span class="an-th-d">日期</span><span></span>
+          </div>
+          <div class="an-list" id="an-list"></div>
+        </div>
+        <aside class="an-side">
+          <div class="an-rule-t">什么算假</div>
+          <ul class="an-rule">
+            <li>两个记录不会同名同姓</li>
+            <li>押品是「身」的，不会「已释放」</li>
+            <li>日期只会往后走</li>
+            <li>编号是连着的</li>
+            <li>你的名字不在别人的行里</li>
+            <li>状态只有「已释放」「待覆盖」两种</li>
+          </ul>
+          <div class="an-reveal" id="an-reveal"></div>
+          <div class="an-msg" id="an-msg"></div>
+          <div class="an-btns">
+            <button class="an-b" id="an-check">校 验</button>
+            <button class="an-b" id="an-hint">提 示</button>
+            <button class="an-b ghost" id="an-back">回 记 录 库</button>
+          </div>
+        </aside>
       </div>
     </div>
   </section>
@@ -1001,6 +1146,7 @@
 </div>
 
 <script src="js/audio.js"></script>
+<script src="js/music.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/cipher.js"></script>
 <script src="js/data.js"></script>
@@ -1019,6 +1165,10 @@
 <script src="js/scene-counter.js"></script>
 <script src="js/scene-repair.js"></script>
 <script src="js/scene-ch2.js"></script>
+<script src="js/scene-oil.js"></script>
+<script src="js/scene-clock.js"></script>
+<script src="js/scene-scratch.js"></script>
+<script src="js/scene-anomaly.js"></script>
 <script src="js/scene-soul.js"></script>
 <script src="js/scene-stash.js"></script>
 <script src="js/scene-ch4.js"></script>
@@ -1031,6 +1181,7 @@
 <script src="js/codepersp.js"></script>
 <script src="js/codeeditor.js"></script>
 <script src="js/archive.js"></script>
+<script src="js/roam.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

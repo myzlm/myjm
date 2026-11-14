@@ -5,6 +5,29 @@
   'use strict';
   const { $, $$, wait } = global.G;
 
+  /* 每个场景配一首曲子；null = 让这一关自己发声（节奏关有它自己的鼓） */
+  const THEME_OF = {
+    mail: 'mail', download: 'mail',
+    login: 'login',
+    hall: 'hall', contract: 'hall',
+    dark: 'void', doll: 'void', soul: 'void',
+    counter: 'counter', verify: 'counter', stash: 'counter',
+    pry: 'counter', lock: 'counter', print: 'counter',
+    ledger: 'ch2', film: 'ch2', scale: 'ch2',
+    oil: 'ch2', clock: 'ch2', scratch: 'ch2',
+    win98: 'ch2',
+    layer: 'chase',
+    rhythm: null,
+    root: 'deep', anomaly: 'deep',
+    moyun: 'moyun',
+    end: 'final', final: 'final',
+  };
+  const TENSION_OF = {
+    chase: 0.82, deep: 0.56, root: 0.56, anomaly: 0.6,
+    void: 0.62, hall: 0.34, mail: 0.45, login: 0.5,
+    counter: 0.4, ch2: 0.44, moyun: 0.3, final: 0.48,
+  };
+
   const App = {
     current: '',
 
@@ -18,6 +41,16 @@
       // 侧边坞只在这间屋子里出现（序章、下载页、终章、卷轴里都不该有）
       const outside = ['mail', 'download', 'login', 'contract', 'dark', 'doll', 'final', 'moyun', 'end'];
       document.body.classList.toggle('in-game', outside.indexOf(name) < 0);
+
+      // 配乐：同一首不重起，换首就交叉淡变
+      if (global.Music) {
+        const tid = THEME_OF[name];
+        if (tid === null) global.Music.stop(1.2);
+        else if (tid) {
+          global.Music.tension(TENSION_OF[tid] == null ? 0.42 : TENSION_OF[tid]);
+          global.Music.play(tid);
+        }
+      }
     },
 
     isCurrent(name) { return this.current === name; },
@@ -202,15 +235,101 @@
       if (!document.querySelector('#fn-end-text')) throw new Error('no end text');
     });
     run('Scenes', () => {
-      ['login', 'verify', 'moyun', 'final'].forEach((s) => {
+      ['login', 'verify', 'moyun', 'final', 'oil', 'clock', 'scratch', 'anomaly'].forEach((s) => {
         if (!document.querySelector('#screen-' + s)) throw new Error('missing screen ' + s);
       });
       log.push('new screens ok');
     });
 
+    /* ---- 配乐 ---- */
+    run('Music', () => {
+      if (!global.Music) throw new Error('no Music');
+      const ids = ['mail', 'login', 'hall', 'void', 'counter', 'ch2', 'chase', 'deep', 'moyun', 'final'];
+      const miss = ids.filter((id) => !global.Music.themes[id]);
+      if (miss.length) throw new Error('missing theme ' + miss.join(','));
+      const bad = [];
+      ids.forEach((id) => {
+        const d = global.Music.describe(id);
+        if (!d) { bad.push(id + ':null'); return; }
+        if (!(d.bpm >= 40 && d.bpm <= 140)) bad.push(id + ':bpm=' + d.bpm);
+        if (!d.chords.length) bad.push(id + ':nochord');
+        d.chords.forEach((c) => {
+          if (c.length !== 3) bad.push(id + ':triad');
+          c.forEach((f) => { if (!(f > 30 && f < 3000)) bad.push(id + ':freq=' + Math.round(f)); });
+        });
+        if (d.prog < 2) bad.push(id + ':prog');
+      });
+      if (bad.length) throw new Error(bad.slice(0, 3).join(','));
+      log.push('music=' + ids.length);
+    });
+
+    /* ---- 新关卡：能不能打通 ---- */
+    run('Oil', () => {
+      const CAP = global.Oil.CAP || [8, 5, 3];
+      const seen = new Set();
+      const q = [[8, 0, 0]];
+      let ok = false, hops = 0;
+      while (q.length && hops < 5000) {
+        hops++;
+        const cur = q.shift();
+        const k = cur.join(',');
+        if (seen.has(k)) continue;
+        seen.add(k);
+        if (cur[0] === 4 && cur[1] === 4) { ok = true; break; }
+        for (let i = 0; i < 3; i++) {
+          for (let j = 0; j < 3; j++) {
+            if (i === j) continue;
+            const mv = Math.min(cur[i], CAP[j] - cur[j]);
+            if (mv <= 0) continue;
+            const nx = cur.slice();
+            nx[i] -= mv; nx[j] += mv;
+            if (!seen.has(nx.join(','))) q.push(nx);
+          }
+        }
+      }
+      if (!ok) throw new Error('8/5/3 分不出两个四');
+      log.push('oil ok (' + seen.size + ' 种状态)');
+    });
+
+    run('Gates', () => {
+      App.show('oil'); global.Oil.start();
+      if (global.Oil.amt.join(',') !== '8,0,0') throw new Error('oil init');
+      App.show('clock'); global.ClockG.start();
+      if (!document.querySelector('#cl-hour')) throw new Error('no clock hand');
+      App.show('scratch'); global.Scratch.start();
+      const c = global.Scratch.code;
+      if (!Array.isArray(c) || c.length !== 6) throw new Error('scratch code');
+      if (c.some((d) => !(d >= 0 && d <= 9))) throw new Error('scratch digit');
+      App.show('anomaly'); global.Anomaly.start();
+      const bad = global.Anomaly.rows.filter((r) => r.bad);
+      if (bad.length !== 7) throw new Error('anomaly=' + bad.length);
+      if (bad.some((r) => !r.why)) throw new Error('no why');
+      const idx = new Set(bad.map((r) => global.Anomaly.rows.indexOf(r)));
+      if (idx.size !== 7) throw new Error('dup anomaly row');
+      log.push('gates ok 刻痕=' + c.join(''));
+    });
+
+    /* ---- 自由走动 ---- */
+    run('Roam', () => {
+      if (!global.Roam || !global.Roam.places) throw new Error('no Roam');
+      const ps = global.Roam.places;
+      if (ps.length < 15) throw new Error('places=' + ps.length);
+      const ids = ps.map((p) => p.id);
+      if (new Set(ids).size !== ids.length) throw new Error('dup place');
+      const cold = { sys: {}, ch2: 0, ch4: 0, ch5: 0 };
+      const bad = ps.filter((p) => {
+        try { return typeof p.ok(cold) !== 'boolean' || typeof p.go !== 'function'; }
+        catch (e) { return true; }
+      });
+      if (bad.length) throw new Error('bad place ' + bad[0].id);
+      // 冷状态下至少得有几处能去，否则一开始就寸步难行
+      const openNow = ps.filter((p) => p.ok(cold)).length;
+      if (openNow < 6) throw new Error('too few open: ' + openNow);
+      log.push('roam=' + ids.length + ' open=' + openNow);
+    });
+
     /* ---- 第四 / 五章 ---- */
-    run('Layer', () => { App.show('layer'); Layer.start(); });
-    run('Root', () => { App.show('root'); Root.start(); });
+    run('Layer', () => { App.show('layer'); Layer.start(); });    run('Root', () => { App.show('root'); Root.start(); });
     run('DevFS', () => {
       const need = ['/app/hall.js', '/app/render.css', '/app/memory.js', '/etc/mount.conf',
         '/log/build.log', '/log/access.log', '/var/records/1', '/var/records/14',
@@ -290,6 +409,7 @@
     if (global.Eggs) Eggs.boot();
     if (global.Quests) Quests.boot();
     if (global.Archive) Archive.boot();
+    if (global.Roam) Roam.boot();
 
     // 开发者模式：F2 / ~ 打开；同时往真·控制台里打一行横幅（用 DevTools 的人会看见）
     if (global.Dev) Dev.boot();
@@ -464,6 +584,23 @@
               const b = document.querySelector('#dock-moyun');
               if (b) b.click();
             }, 400);
+            break;
+
+          /* ---- 新关卡 / 自由走动 ---- */
+          case 'oil': App.show('oil'); State.ch2 = 1; global.Oil.start(); break;
+          case 'clock': App.show('clock'); State.ch2 = 1; global.ClockG.start(); break;
+          case 'scratch': App.show('scratch'); State.ch2 = 1; global.Scratch.start(); break;
+          case 'anomaly':
+            App.show('anomaly');
+            if (qs.get('name')) State.playerName = qs.get('name');
+            global.Anomaly.start();
+            break;
+          case 'roam':
+            App.show('counter');
+            State.ch2 = 1;
+            if (qs.get('ch5') === '1') { State.ch5 = 1; State.recordFound = true; }
+            Counter.init();
+            setTimeout(() => global.Roam.open(), 420);
             break;
           default:
             // 不存在的路径 → 404

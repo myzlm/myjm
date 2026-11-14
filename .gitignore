@@ -1,0 +1,5 @@
+# 截图与本地调试产物，不入库
+.shots/
+*.log
+.DS_Store
+Thumbs.db

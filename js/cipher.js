@@ -1,13 +1,17 @@
 /* ============================================================
    cipher.js — 密码引擎（《墨韵·科技卷轴》内核）
    ------------------------------------------------------------
-   六种算法：
+   九种写法（含对照用的原文）：
      caesar    凯撒（汉字按区位移，不只是英文字母）
      vigenere  维吉尼亚（真名派生密钥流）
      rail      栅栏（字序重排）
+     atbash    反转（字母对折、汉字按区镜像）
+     morse     摩斯（汉字的五位码）
+     bacon     培根（AB 五位）
      aes       AES-GCM（WebCrypto；无 crypto.subtle 时降级为流异或）
      ancient   古法五层（反写 → 隔字换位 → 维吉尼亚 → 凯撒 → Base64）
      plain     原文（对照用）
+   后三种不必用钥匙，谁拿到都能试。
    + SHA-256 / Base64 / 可读性打分 / 一键智能检测
    ------------------------------------------------------------
    纯函数，无 DOM 依赖：游戏内终端与独立卷轴页共用这一份。
@@ -170,8 +174,7 @@
   }
 
   /* 古法五层：反写 → 隔字换位 → 维吉尼亚 → 凯撒 → Base64 */
-  function ancientEnc(text, key) {
-    const a = Array.from(text);
+  function ancientEnc(text, key) {    const a = Array.from(text);
     let out = a.reverse().join('');
     // 隔字换位：奇数位串 + 偶数位串
     const odd = [], even = [];
@@ -197,6 +200,91 @@
       if (i < odd.length) inter += odd[i];
     }
     return Array.from(inter).reverse().join('');
+  }
+
+  /* ================= 摩斯 · 电报 =================
+     拉丁、数字、标点照标准电码走；
+     汉字没有电报码，就写成「! + 五位码」，
+     像一封从很远的电报局发回来的稿子。 */
+  const MORSE = {
+    a: '.-', b: '-...', c: '-.-.', d: '-..', e: '.', f: '..-.', g: '--.', h: '....',
+    i: '..', j: '.---', k: '-.-', l: '.-..', m: '--', n: '-.', o: '---', p: '.--.',
+    q: '--.-', r: '.-.', s: '...', t: '-', u: '..-', v: '...-', w: '.--', x: '-..-',
+    y: '-.--', z: '--..',
+    0: '-----', 1: '.----', 2: '..---', 3: '...--', 4: '....-',
+    5: '.....', 6: '-....', 7: '--...', 8: '---..', 9: '----.',
+    '.': '.-.-.-', ',': '--..--', '?': '..--..', ';': '-.-.-.', ':': '---...',
+    "'": '.----.', '"': '.-..-.', '-': '-....-', '/': '-..-.', '(': '-.--.',
+    ')': '-.--.-', '!': '-.-.--', '=': '-...-', '+': '.-.-.',
+  };
+  const MORSE_REV = (() => {
+    const r = {};
+    Object.keys(MORSE).forEach((k) => { r[MORSE[k]] = k; });
+    return r;
+  })();
+
+  function morseEnc(text) {
+    return Array.from(text).map((ch) => {
+      if (ch === ' ') return '/';
+      const hit = MORSE[ch.toLowerCase()];
+      if (hit) return hit;
+      // 五位码
+      return '! ' + String(ch.codePointAt(0)).padStart(5, '0').split('')
+        .map((d) => MORSE[d]).join(' ');
+    }).join(' ');
+  }
+
+  function morseDec(text) {
+    const tk = String(text).trim().split(/\s+/);
+    let out = '';
+    for (let i = 0; i < tk.length; i++) {
+      const t = tk[i];
+      if (!t) continue;
+      if (t === '/') { out += ' '; continue; }
+      if (t === '!') {
+        let num = '';
+        for (let j = 0; j < 5 && i + 1 < tk.length; j++) { i++; num += MORSE_REV[tk[i]] || '0'; }
+        out += String.fromCharCode(parseInt(num, 10) || 32);
+        continue;
+      }
+      const ch = MORSE_REV[t];
+      if (ch != null) out += ch;
+    }
+    return out;
+  }
+
+  /* ================= 培根 · AB =================
+     每个字符取十六位，0 写 A，1 写 B，五位一节。
+     密文看上去只是一长串 A 和 B。 */
+  function baconEnc(text) {
+    const bits = Array.from(text).map((ch) => ch.charCodeAt(0).toString(2).padStart(16, '0')).join('');
+    let out = [];
+    for (let i = 0; i < bits.length; i += 5) {
+      out.push(Array.from(bits.slice(i, i + 5)).map((b) => (b === '1' ? 'B' : 'A')).join(''));
+    }
+    return out.join(' ');
+  }
+
+  function baconDec(text) {
+    const bits = String(text).toUpperCase().replace(/[^AB]/g, '');
+    let out = '';
+    for (let i = 0; i + 16 <= bits.length; i += 16) {
+      out += String.fromCharCode(parseInt(bits.slice(i, i + 16).replace(/A/g, '0').replace(/B/g, '1'), 2));
+    }
+    return out;
+  }
+
+  /* ================= 反转（镜像） =================
+     字母 a↔z，汉字按字区首尾对折。
+     自己做自己的逆运算。 */
+  function atbash(text) {
+    return Array.from(text).map((ch) => {
+      const c = ch.charCodeAt(0);
+      if (c >= 97 && c <= 122) return String.fromCharCode(219 - c);
+      if (c >= 65 && c <= 90) return String.fromCharCode(155 - c);
+      if (c >= CJK0 && c < CJK0 + CJKN) return String.fromCharCode(CJK0 + CJKN - 1 - (c - CJK0));
+      return ch;
+    }).join('');
   }
 
   /* ================= AES-GCM（异步，失败降级） ================= */
@@ -269,15 +357,24 @@
     { id: 'caesar', name: '凯撒', cn: '位移' },
     { id: 'vigenere', name: '维吉尼亚', cn: '密钥流' },
     { id: 'rail', name: '栅栏', cn: '重排' },
+    { id: 'atbash', name: '反转', cn: '镜像' },
+    { id: 'morse', name: '摩斯', cn: '电报' },
+    { id: 'bacon', name: '培根', cn: 'AB 五位' },
     { id: 'aes', name: 'AES-GCM', cn: '密文块' },
     { id: 'ancient', name: '古法五层', cn: '墨韵' },
   ];
+
+  /* 不需要密钥的几种：谁拿到都能解 */
+  const KEYLESS = ['atbash', 'morse', 'bacon', 'plain'];
 
   function enc(text, key, alg) {
     switch (alg) {
       case 'caesar': return caesar(text, keyShift(key));
       case 'vigenere': return vigenere(text, key, 1);
       case 'rail': return rail(text, keyRails(key));
+      case 'atbash': return atbash(text);
+      case 'morse': return morseEnc(text);
+      case 'bacon': return baconEnc(text);
       case 'ancient': return ancientEnc(text, key);
       case 'aes': return aesEnc(text, key);
       default: return text;
@@ -289,18 +386,24 @@
       case 'caesar': return caesar(text, -keyShift(key));
       case 'vigenere': return vigenere(text, key, -1);
       case 'rail': return unrail(text, keyRails(key));
+      case 'atbash': return atbash(text);
+      case 'morse': return morseDec(text);
+      case 'bacon': return baconDec(text);
       case 'ancient': return ancientDec(text, key);
       case 'aes': return aesDec(text, key);
       default: return text;
     }
   }
 
-  /* 同步版：AES 之外的四法（自检、批量试算用） */
+  /* 同步版：AES 之外的几法（自检、批量试算用） */
   function decSync(text, key, alg) {
     switch (alg) {
       case 'caesar': return caesar(text, -keyShift(key));
       case 'vigenere': return vigenere(text, key, -1);
       case 'rail': return unrail(text, keyRails(key));
+      case 'atbash': return atbash(text);
+      case 'morse': return morseDec(text);
+      case 'bacon': return baconDec(text);
       case 'ancient': return ancientDec(text, key);
       default: return text;
     }
@@ -323,9 +426,10 @@
   global.Cipher = {
     sha256hex, sha256bytes, hex, b64enc, b64dec,
     keyShift, keyLetters, keyRails,
-    enc, dec, decSync, solve, readability, ALGS,
+    enc, dec, decSync, solve, readability, ALGS, KEYLESS,
     hasSubtle,
     // 给自检用
     _caesar: caesar, _vigenere: vigenere, _rail: rail,
+    _morse: morseEnc, _bacon: baconEnc, _atbash: atbash,
   };
 })(window);

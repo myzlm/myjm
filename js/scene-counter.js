@@ -62,10 +62,16 @@
       $('#cs-door').addEventListener('click', (e) => { e.stopPropagation(); this.clickDoor(); });
 
       // 店里的器物
-      ['lamp', 'bowl', 'joss', 'cal', 'under'].forEach((k) => {
+      ['lamp', 'bowl', 'joss', 'cal', 'under', 'oil', 'clock', 'seam'].forEach((k) => {
         const el = $('#om-' + k);
         if (el) el.addEventListener('click', (e) => { e.stopPropagation(); this.clickOmen(k); });
       });
+
+      // 油添过了，灯就一直在亮，回来也认得出
+      if (global.State && global.State.sys && global.State.sys.oil) {
+        const lamp = $('#om-lamp');
+        if (lamp) lamp.classList.add('full');
+      }
 
       // 柜台上那张空白的抵押单 → 记忆核验
       const form = $('#om-form');
@@ -268,6 +274,47 @@
         }
         this.sayLong(Lies.proofText('joss'));
         Lies.gain('joss');
+        return;
+      }
+
+      if (k === 'oil') {
+        if (!late) {
+          Snd.noise(0.3, { type: 'bandpass', freq: 520, q: 1.4, gain: 0.05 });
+          this.say('（柜台边上立着一只油壶。满的。）\n（灯还长着，没人想起它。）');
+          return;
+        }
+        Snd.tone(300, 0.3, { type: 'sine', gain: 0.04 });
+        this.say('（油壶轻了。三只碗摆在桌上：八钱、五钱、三钱。）');
+        await wait(900);
+        Fade.through(() => { global.App.show('oil'); global.Oil.start(); });
+        return;
+      }
+
+      if (k === 'clock') {
+        if (!late) {
+          this.say('（墙上挂着一只钟。秒针不动。）\n（时针和分针停在差一分的地方——三点十三。）');
+          return;
+        }
+        Snd.tone(180, 0.12, { type: 'square', gain: 0.04 });
+        this.say('（钟背上有刻字。凑近看——三。未过半。）');
+        await wait(1100);
+        Fade.through(() => { global.App.show('clock'); global.ClockG.start(); });
+        return;
+      }
+
+      if (k === 'seam') {
+        if (!late) {
+          this.say('（地板有一条缝。踩上去会响。）');
+          return;
+        }
+        if (State.sys && State.sys.scratch) {
+          this.say('（暗格开着。铜片还在里面。）');
+          return;
+        }
+        Snd.noise(0.25, { type: 'bandpass', freq: 300, q: 1.2, gain: 0.06 });
+        this.say('（你把地板撬起一角。下面全是划痕——六组，每组四道。）');
+        await wait(1100);
+        Fade.through(() => { global.App.show('scratch'); global.Scratch.start(); });
         return;
       }
 
