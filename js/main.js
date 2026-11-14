@@ -214,11 +214,13 @@
       Verify.reset();
     });
     run('Endings', () => {
-      if (Endings.list.length !== 20) throw new Error('count=' + Endings.list.length);
+      if (Endings.list.length !== 22) throw new Error('count=' + Endings.list.length);
       const ids = Endings.list.map((e) => e.id);
       if (new Set(ids).size !== Endings.list.length) throw new Error('dup id');
       const nos = Endings.list.map((e) => e.no);
       if (nos.join(',') !== nos.slice().sort((x, y) => x - y).join(',')) throw new Error('编号乱序');
+      const names = Endings.list.map((e) => e.name);
+      if (new Set(names).size !== names.length) throw new Error('结局重名');
       const S = { playerName: '测试', sys: { verified: 0, deleted: 0, endings: [], ending: 'observer' } };
       const e = Endings.evaluate(S);
       if (!e || !e.text(S) || e.text(S).length < 80) throw new Error('text');
@@ -287,7 +289,7 @@
       log.push('new screens ok');
     });
 
-    /* ---- 里间 / 二十个结局 ---- */
+    /* ---- 里间 / 二十二个结局 ---- */
     run('Memory', () => {
       if (!global.Memory || Memory.total !== 35) throw new Error('total=' + (global.Memory ? Memory.total : 0));
       const nos = Memory.list.map((m) => m.no);
@@ -303,7 +305,7 @@
       c7.forEach((q) => { if (q.opts.indexOf(q.a) < 0) throw new Error('copy7 选项不含答案'); });
       log.push('mem=35 copy7=3');
     });
-    run('Reach20', () => {
+    run('Reach22', () => {
       const mk = (patch, choice) => {
         const S = { playerName: '测试', finalChoice: choice || 'nothing', sys: { endings: [], npcs: {}, boss: {}, bossMax: 0 } };
         Object.assign(S.sys, patch || {});
@@ -327,6 +329,9 @@
         ['nightwatch', mk({ played: 2, sameAsLast: true })],
         ['clerk', mk({ duty: { rule: 5, total: 11, truth: 1, theirs: 1 } })],
         ['lastguest', mk({ duty: { seat: true, rule: 2, total: 6 } })],
+        ['nightkeeper', mk({ duty: { oil: 0, kept: 2, hurt: 5, paid: 0, voided: 0,
+          picks: [{}, {}, {}, {}, {}, {}, {}] } })],
+        ['insider', mk({ duty: { peek: 5, kept: 2, hurt: 0, voided: 5, oil: 4 } })],
         ['inherit', mk({}, 'fail')],
         ['observer', mk({}, 'nothing')],
         ['nameless', mk({}, 'overwrite')],
@@ -343,6 +348,26 @@
         if (!t || t.length < 120) throw new Error('文案太短 ' + e.id);
       });
       log.push('reach=' + Endings.list.length + '/' + Endings.list.length);
+    });
+    run('Spend', () => {
+      if (!global.Memory || typeof global.Memory.spend !== 'function') throw new Error('no Memory.spend');
+      const LSKEY = 'code_echo_mem_v1';
+      const bak = localStorage.getItem(LSKEY);
+      try {
+        localStorage.setItem(LSKEY, JSON.stringify({ read: [], relics: [] }));
+        Memory.sync();
+        if (Memory.spend() !== null) throw new Error('空身上也能花掉');
+        Memory.takeRelic(3); Memory.takeRelic(9);
+        const got = Memory.spend();
+        if (!got || !got.relic) throw new Error('花掉没返回物件');
+        if (Memory.stats().relics !== 1) throw new Error('花掉后剩 ' + Memory.stats().relics);
+        if (Memory.hasRelic(3) && Memory.hasRelic(9)) throw new Error('花了却没少');
+        if (State.sys.memRelics !== 1) throw new Error('sys 没同步 ' + State.sys.memRelics);
+      } finally {
+        if (bak === null) localStorage.removeItem(LSKEY); else localStorage.setItem(LSKEY, bak);
+        Memory.sync();
+      }
+      log.push('spend ok');
     });
     run('Ch6', () => {
       if (!global.Duty) throw new Error('no Duty');
@@ -365,8 +390,28 @@
           if (!g.after[k] || g.after[k].length < 2) throw new Error('缺后日谈 ' + g.id + '/' + k);
         });
         if (g.extra && g.extra.kind === 'refuse' && !g.after.refused) throw new Error('缺 refused 后日谈 ' + g.id);
+        if (!g.peekSay || g.peekSay.length < 3) throw new Error('缺偷看反应 ' + g.id);
       });
-      log.push('duty=7 ok');
+
+      /* 第六条路：拿自己的东西抵 */
+      const wp = G[5];
+      if (!wp.extra2 || wp.extra2.kind !== 'selfpay') throw new Error('缺 selfpay 选项');
+      if (!wp.after.paid || wp.after.paid.length < 3) throw new Error('缺 paid 后日谈');
+
+      /* 数值设计的不变量：这个局必须无解 —— 否则就不是考验，是算术 */
+      const L = global.Duty.LEDGER, OIL = global.Duty.OIL;
+      if (!L || !OIL) throw new Error('缺 LEDGER/OIL');
+      const full = G.length * L.truth.cost;
+      if (full <= OIL) throw new Error('全员保住可行（' + full + ' <= ' + OIL + '），局不成立');
+      if (L.theirs.cost !== 0) throw new Error('theirs 必须零成本，否则会卡死');
+      if (L.refuse.cost <= L.rule.cost) throw new Error('不收这一笔必须比照规矩更贵');
+      if (L.truth.cost <= L.rule.cost) throw new Error('照实必须比照规矩更贵');
+      /* 至少存在一条"灯亮着还能救三个人"的路 */
+      const best = 3 * L.truth.cost + 4 * L.theirs.cost;
+      if (best > OIL) throw new Error('救三人都不可行：' + best);
+      /* 改判的油差 */
+      if (L.truth.cost - L.theirs.cost !== 2) throw new Error('改判油差算错');
+      log.push('duty=7 oil=' + OIL + ' full=' + full);
     });
     run('Space', () => {
       if (!global.Space) throw new Error('no Space');

@@ -5026,3 +5026,170 @@ body.egg-fx-51::after {
   .dt-sr-w { font-size: 8px }
   .dt-sum-in { padding: 22px 18px }
 }
+
+/* ============================================================
+   第六章 · 人性的账（油 / 账 双指标、偷看、改判）
+   ============================================================ */
+
+/* --- 底部：你的油 + 账 --- */
+.dt-lg-gap { flex: 0 0 14px }
+.dt-lg-book {
+  font-family: var(--mono); font-size: 11px; color: #8fa89c;
+  min-width: 30px; text-align: right; letter-spacing: .04em;
+}
+.dt-ledger[data-low="1"] .dt-lgk,
+.dt-ledger[data-low="1"] .dt-lg-k { color: #b06a5c }
+.dt-ledger[data-low="1"] .dt-lg-track i {
+  background: linear-gradient(90deg, rgba(150,60,48,.6), #b06a5c);
+}
+.dt-ledger[data-low="1"] .dt-lg-n { color: #b06a5c }
+
+/* 油条从右往左退：视觉上像油在沉下去 */
+.dt-lg-track i { transform-origin: left center; }
+
+/* --- 选项上的价格 --- */
+.dt-w b { position: relative; padding-right: 62px }
+.dt-w-cost {
+  position: absolute; right: 0; top: 0;
+  font-family: var(--mono); font-size: 8.5px; font-style: normal;
+  letter-spacing: .08em; color: #7a6544;
+  border: 1px solid rgba(160,130,80,.24); padding: 1px 5px;
+}
+.dt-w-cost.poor { color: #b06a5c; border-color: rgba(176,106,92,.4) }
+
+/* --- 偷看 --- */
+.dt-ask-h2 { margin-top: 14px; color: #5e5138 }
+.dt-peek {
+  border-style: dashed !important;
+  border-color: rgba(150,110,80,.34) !important;
+  background: linear-gradient(180deg, rgba(22,16,12,.86), rgba(11,9,8,.9)) !important;
+}
+.dt-peek b {
+  display: flex; align-items: baseline; gap: 10px;
+  font-family: var(--serif); font-size: 12.5px; letter-spacing: .2em;
+  color: #b08c72; margin-bottom: 4px;
+}
+.dt-peek-c {
+  font-family: var(--mono); font-size: 8.5px; font-style: normal;
+  letter-spacing: .08em; color: #8a6a5a;
+}
+.dt-peek i {
+  display: block; font-style: normal;
+  font-size: 11px; line-height: 1.75; color: #7d6f5e;
+}
+.dt-peek:hover:not(:disabled) b { color: #d8b49a }
+.dt-peek-l { color: #c0a486 !important }
+
+/* --- 改判 --- */
+.dt-opts-r .dt-rw b {
+  display: block; font-family: var(--serif); font-size: 12.5px;
+  font-weight: 400; color: #cbbda1; letter-spacing: .06em; margin-bottom: 3px;
+}
+.dt-opts-r .dt-rw i {
+  display: block; font-style: normal; font-size: 10.5px; color: #8a7d68;
+}
+.dt-opts-r .dt-rw:hover:not(:disabled) i { color: #b8a98e }
+.dt-w-skip { border-style: dashed !important }
+.dt-w-skip b { color: #8a9a80 !important }
+
+/* --- 结算：统计条 --- */
+.dt-sum-tally {
+  display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+  margin-top: 16px; padding-top: 13px;
+  border-top: 1px solid rgba(160,130,80,.16);
+  font-family: var(--mono); font-size: 9px; letter-spacing: .16em; color: #6b5a42;
+}
+.dt-sum-tally b { font-weight: 400; margin-left: 5px; font-size: 12px }
+.dt-t-kept { color: #7fdcc0 }
+.dt-t-hurt { color: #c9a45c }
+.dt-t-void { color: #b06a5c }
+.dt-t-ref { color: #8a9a80 }
+
+.dt-sum-moral {
+  margin-top: 14px; text-align: center;
+  font-family: var(--serif); font-size: 13px; line-height: 1.95;
+  letter-spacing: .1em; color: #d8c5a0;
+}
+
+/* --- 结算：被划掉的行 --- */
+.dt-sum-row.rewritten .dt-sr-w { text-decoration: line-through; text-decoration-color: rgba(176,106,92,.7) }
+.dt-sum-row.rewritten .dt-sr-name { color: #b8a98e }
+
+/* --- 旁白：暗一档（油尽、划掉） --- */
+.dt-l.dt-dark { color: #8a7268 }
+
+/* --- 开场纸条里的加粗 --- */
+.dt-note-b b { font-weight: 400; color: #1c1610; border-bottom: 1px solid rgba(40,32,20,.5) }
+
+/* 改判：六行压成两列，别把「不划了」挤出屏幕 */
+.dt-wrap[data-stage="review"] .dt-acts { max-height: 56vh }
+.dt-wrap[data-stage="review"] .dt-say { justify-content: flex-end; padding-bottom: 4px }
+.dt-wrap[data-stage="review"] .dt-say .dt-l:first-child { margin-top: 0 }
+.dt-opts-r {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+  max-height: 40vh; overflow-y: auto; padding-right: 4px;
+}
+.dt-opts-r::-webkit-scrollbar { width: 4px }
+.dt-opts-r::-webkit-scrollbar-thumb { background: rgba(160,130,80,.26) }
+.dt-opts-r .dt-rw { padding: 8px 11px }
+.dt-opts-r .dt-w-skip { grid-column: 1 / -1 }
+.dt-opts-r .dt-rw i { font-size: 10px; letter-spacing: .02em }
+
+/* 底部指标：多了「账」之后要重新分配宽度 */
+.dt-ledger { gap: 8px; padding: 0 2px }
+.dt-lg-k { font-size: 9px; letter-spacing: .18em; color: #8a7350; flex: 0 0 auto }
+.dt-lg-track { min-width: 40px }
+.dt-lg-n { font-size: 12px; min-width: 18px; color: #d8b268 }
+.dt-lg-book { font-size: 12px; color: #8fa89c; flex: 0 0 auto }
+
+/* 改判：旁白居中，别全部堆在顶上留一大片空 */
+.dt-wrap[data-stage="review"] .dt-say { justify-content: center }
+.dt-wrap[data-stage="review"] .dt-ask-h { color: #8a7350 }
+
+/* 结算单：被划掉那行的小标记，不要撑爆写法列 */
+.dt-sr-w { white-space: nowrap }
+.dt-sum-row.rewritten .dt-sr-w {
+  text-decoration: none; color: #c9a45c;
+}
+.dt-sum-row.rewritten .dt-sr-w::first-letter { font-size: 11px }
+.dt-sum-row.rewritten .dt-sr-name { text-decoration: line-through; text-decoration-color: rgba(176,106,92,.5) }
+.dt-sum-sub { color: #9a8258 }
+.dt-sum-sub { font-size: 10px }
+
+/* 写一行：油量提示改成一行小字，别占底部 */
+.dt-oil-line {
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: .12em;
+  color: #6f5e44; margin: -3px 0 8px;
+}
+.dt-oil-line b { font-weight: 400; color: #d8b268; font-size: 10.5px; margin: 0 1px }
+
+/* 第三条路：拿自己的东西抵 */
+.dt-w-selfpay { border-color: rgba(217,201,164,.3) !important }
+.dt-w-selfpay b { color: #d9c9a4 !important }
+.dt-w-selfpay i { color: #9a8b70 }
+.dt-w-selfpay:hover:not(:disabled) i { color: #c4b696 }
+.dt-f-paid { color: #d9c9a4 }
+.dt-stamp-paid .dt-stamp-v { color: #d9c9a4 }
+.dt-t-paid { color: #d9c9a4 }
+
+/* --- 矮屏（720p 上下）：五个选项要放得下 --- */
+@media (max-height: 790px) {
+  .dt-wrap { padding: 2.2vh 4vw 1.6vh }
+  .dt-top { min-height: 46px }
+  .dt-name { font-size: 20px; margin-top: 4px }
+  .dt-meta { margin-top: 4px; font-size: 10px }
+  .dt-relic { margin-top: 8px; min-height: 20px }
+  .dt-say { margin-top: 8px }
+  .dt-l { font-size: 13.5px; line-height: 1.9; margin-bottom: 5px }
+  .dt-ask-h { margin-bottom: 7px }
+  .dt-oil-line { margin-bottom: 6px }
+  .dt-opts { gap: 5px }
+  .dt-opt { padding: 8px 13px; font-size: 12.5px }
+  .dt-w b { margin-bottom: 3px }
+  .dt-w i { font-size: 10.5px; line-height: 1.65 }
+  .dt-acts { margin-top: 8px; max-height: 54vh }
+  .dt-ledger { margin-top: 8px }
+  .dt-ask-h2 { margin-top: 10px }
+  .dt-peek b { margin-bottom: 3px }
+  .dt-peek i { font-size: 10.5px; line-height: 1.6 }
+}

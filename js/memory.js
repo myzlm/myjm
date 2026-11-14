@@ -400,6 +400,19 @@
     hasRelic(no) { return this.read().relics.indexOf(+no) >= 0; },
     hasRead(no) { return this.read().read.indexOf(+no) >= 0; },
 
+    /* 花掉一件。
+       第六章「一个抱襁褓的女人」那一笔，可以用它来抵。
+       抵完就真的没了 —— 不是藏起来，是从这个存档里拿掉。 */
+    spend(no) {
+      const d = this.read();
+      if (!d.relics.length) return null;
+      const i = (no && d.relics.indexOf(+no) >= 0) ? d.relics.indexOf(+no) : 0;
+      const n = d.relics.splice(i, 1)[0];
+      this.save(d);
+      this.sync();
+      return this.get(n) || { no: n, name: '一个不记得名字的人', relic: '一件东西' };
+    },
+
     sync() {
       const d = this.read();
       const S = global.State;
