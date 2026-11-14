@@ -788,6 +788,7 @@
     if (global.Roam) Roam.boot();
     if (global.Save) Save.boot();
     if (global.Notes) global.Notes.boot();
+    if (global.Pause) global.Pause.init();
 
     // 开发者模式：F2 / ~ 打开；同时往真·控制台里打一行横幅（用 DevTools 的人会看见）
     if (global.Dev) Dev.boot();

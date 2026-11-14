@@ -328,7 +328,13 @@
 
     start() {
       this.init();
-      if (this.needs[0] === 0) {
+      /* 上次撬到一半：四个角各自差几下，都还在 */
+      const keep = State.sys && State.sys.pry;
+      if (this.needs[0] === 0 && keep && keep.needs && keep.needs[0] > 0) {
+        this.needs = keep.needs.slice();
+        this.counts = (keep.counts || [0, 0, 0, 0]).slice();
+        this.hiddenIdx = keep.hiddenIdx || 0;
+      } else if (this.needs[0] === 0) {
         this.needs = [0, 1, 2, 3].map(() => irnd(80, 120));
         this.counts = [0, 0, 0, 0];
       }
@@ -362,6 +368,7 @@
 
       this.counts[i]++;
       Snd.pry();
+      this.stash();
 
       const c = $$('.corner')[i];
       c.classList.add('pried');
@@ -387,6 +394,17 @@
           setTimeout(() => this.opened(), 500);
         }
       }
+    },
+
+    /* 撬一下记一下：不为刷新页面丢掉四十下 */
+    stash() {
+      if (!State.sys) State.sys = {};
+      State.sys.pry = {
+        needs: this.needs.slice(),
+        counts: this.counts.slice(),
+        hiddenIdx: this.hiddenIdx,
+      };
+      if (global.Save && global.Save.touch) global.Save.touch();
     },
 
     /* ---- 隐藏路径：连续三次点到那个"很小的地方" ---- */

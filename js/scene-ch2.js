@@ -180,11 +180,17 @@
     start() {
       this.init();
       this.sel = -1;
-      if (!State.filmSolved) {
-        this.errors = 0;
-        this.order = this.shuffle();
-      } else {
+      if (State.filmSolved) {
         this.order = FILM_LINES.map((_, i) => i);
+      } else if (this.order && this.order.length === FILM_LINES.length) {
+        /* 内存里还在：走开再回来不用重来 */
+      } else if (State.sys && State.sys.filmOrder &&
+                 State.sys.filmOrder.length === FILM_LINES.length) {
+        /* 关过页面：从上一次摆的样子接着来 */
+        this.order = State.sys.filmOrder.slice();
+      } else {
+        this.errors = this.errors || 0;
+        this.order = this.shuffle();
       }
       this.render();
       $('#fm-msg').textContent = '';
@@ -243,6 +249,9 @@
         Snd.tone(880, 0.06, { type: 'triangle', gain: 0.04 });
         this.render();
         $('#fm-msg').textContent = '';
+        if (!State.sys) State.sys = {};
+        State.sys.filmOrder = this.order.slice();
+        if (global.Save && global.Save.touch) global.Save.touch();
       }
     },
 
@@ -327,11 +336,20 @@
 
     start() {
       this.init();
+      const same = !!(this.wish && State.wish && this.wish.id === State.wish);
       this.wish = State.wish ? (WISHES.find((w) => w.id === State.wish) || null) : null;
-      this.on = [false, false, false, false, false];
+      if (!same) {
+        const kept = State.sys && State.sys.scaleOn;
+        this.on = (kept && kept.length === 5 && this.wish && State.wish === this.wish.id)
+          ? kept.slice()
+          : [false, false, false, false, false];
+      }
       this.balanced = false;
-      $('#sc-stage').classList.remove('on', 'done');
-      $('#sc-sub').textContent = '选一个愿望。选完了，就不能反悔。';
+      $('#sc-stage').classList.remove('done');
+      $('#sc-stage').classList.toggle('on', !!this.wish);
+      $('#sc-sub').textContent = this.wish
+        ? '把秤配平。砝码只有这五块。'
+        : '选一个愿望。选完了，就不能反悔。';
       this.renderWishes();
       this.renderStones();
       this.renderBeam();
@@ -383,9 +401,9 @@
     renderStones() {
       const box = $('#sc-stones');
       box.innerHTML = '';
-      this.STONES.forEach((w) => {
+      this.STONES.forEach((w, i) => {
         const b = document.createElement('button');
-        b.className = 'sc-stone';
+        b.className = 'sc-stone' + (this.on[i] ? ' on' : '');
         b.dataset.w = w;
         b.textContent = w + ' 两';
         b.disabled = !State.wish;      // 先把愿望放上去，砝码才让动
@@ -399,6 +417,9 @@
       const i = this.STONES.indexOf(w);
       this.on[i] = !this.on[i];
       Snd.tone(this.on[i] ? 520 + i * 80 : 300, 0.07, { type: 'square', gain: 0.05 });
+      if (!State.sys) State.sys = {};
+      State.sys.scaleOn = this.on.slice();
+      if (global.Save && global.Save.touch) global.Save.touch();
       $$('.sc-stone').forEach((b) => b.classList.toggle('on', this.on[this.STONES.indexOf(+b.dataset.w)]));
       this.renderBeam();
       const sum = this.sum();

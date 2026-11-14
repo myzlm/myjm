@@ -50,6 +50,14 @@
       } catch (e) {}
     },
 
+    /* 解谜屏里每动一下就存太吵，1.5 秒一次够了 */
+    touch() {
+      const t = Date.now();
+      if (t - (this._t || 0) < 1500) return;
+      this._t = t;
+      this.write();
+    },
+
     read() {
       /* 调试/回归用的入口：?fresh=1 当作没有存档 */
       if (location.search.indexOf('fresh=1') >= 0) return null;

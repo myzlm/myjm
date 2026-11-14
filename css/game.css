@@ -6093,3 +6093,45 @@ body.egg-fx-51::after {
   .hx-bed { min-height: 82px; }
   .hx-cn-wall { height: 112px; }
 }
+
+/* ------------------------------------------------------------
+   P. 先放着 —— 解谜屏的公共出口
+   ------------------------------------------------------------
+   右下角一个很小的按钮，Esc 同效。
+   不影响任何屏自己的布局：fixed 定位，只在四处出现。
+   ------------------------------------------------------------ */
+.pause-b {
+  position: fixed; right: 18px; bottom: 56px; z-index: 8660;
+  display: none; align-items: center; gap: 9px;
+  padding: 7px 12px 7px 14px;
+  background: rgba(10, 9, 8, .74);
+  border: 1px solid rgba(200, 169, 110, .2);
+  color: #a2957f;
+  font-family: var(--serif); font-size: 11px; letter-spacing: .2em;
+  text-indent: .2em;
+  cursor: pointer;
+  transition: color .22s, border-color .22s, background .22s;
+}
+.pause-b.on { display: inline-flex; }
+.pause-b i {
+  font-family: var(--mono); font-style: normal; font-size: 9px;
+  letter-spacing: .04em; text-indent: 0;
+  color: #6f6248; border: 1px solid rgba(200, 169, 110, .22);
+  padding: 1px 4px; border-radius: 2px;
+}
+.pause-b:hover {
+  color: #f0dcb4; border-color: #8b0000;
+  background: rgba(34, 12, 8, .84);
+}
+.pause-b:hover i { color: #cfb083; border-color: rgba(200, 169, 110, .4); }
+
+/* 矮屏往上让一点，别压住底部那行提示 */
+@media (max-height: 760px) {
+  .pause-b { bottom: 46px; padding: 5px 9px 5px 11px; font-size: 10px; }
+}
+
+/* 触屏：把 Esc 那个角标藏掉，按钮本身够大 */
+@media (pointer: coarse) {
+  .pause-b i { display: none; }
+  .pause-b { padding: 9px 14px; }
+}
