@@ -5373,6 +5373,14 @@ body.egg-fx-51::after {
 @media (max-width: 620px) {
   .ar-cards { grid-template-columns: 1fr; }
 }
+@media (max-height: 760px) {
+  .ar-card { height: 96px; }
+  .ar-card-f { padding: 9px 12px; }
+  .ar-card-f i { margin-top: 5px; font-size: 14px; }
+  .ar-card-f span { margin-top: 5px; font-size: 9px; }
+  .ar-card-b { padding: 9px 12px; }
+  .ar-card-b p { font-size: 9px; line-height: 1.62; margin-top: 5px; }
+}
 
 /* ============================================================
    save.js — 上次的门票
