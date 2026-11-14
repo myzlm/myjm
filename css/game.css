@@ -4366,12 +4366,80 @@ body.egg-fx-51::after {
   border-style: dashed; border-color: rgba(214,206,180,.1);
   background: rgba(0,0,0,.25);
   align-items: center; justify-content: center;
+  overflow: hidden;
 }
-.sp-case-empty {
-  font-family: var(--serif); font-size: 11px; line-height: 2.2;
-  letter-spacing: .2em; color: #4a4436; text-align: center;
+
+/* --- 第 36 只：空着的那一格 --- */
+.sp-void {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  transition: opacity .9s ease;
 }
-.sp-case-empty i { font-style: normal; font-size: 9px; color: #383326; letter-spacing: .3em }
+.sp-void-no {
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: .34em;
+  color: #554d3b; padding-left: .34em;
+}
+.sp-void-ch {
+  font-family: var(--serif); font-size: 42px; line-height: 1;
+  color: rgba(214,206,180,.15);
+  text-shadow: 0 0 26px rgba(214,206,180,.07);
+  animation: spVoidBreath 7.5s ease-in-out infinite;
+}
+.sp-void-sub {
+  font-family: var(--serif); font-size: 9px; letter-spacing: .24em;
+  color: #494434; padding-left: .24em;
+}
+@keyframes spVoidBreath {
+  0%, 100% { opacity: .5; transform: scale(.985) }
+  50% { opacity: 1; transform: scale(1) }
+}
+
+/* 接上以后：门缝透出来一点 */
+.sp-case[data-open="1"] { cursor: pointer }
+.sp-case[data-open="1"] .sp-case-body::after {
+  content: ''; position: absolute; left: 50%; top: 7%; bottom: 7%; width: 1px;
+  transform: translateX(-.5px);
+  background: linear-gradient(180deg, transparent, rgba(214,206,180,.16) 24%, rgba(214,206,180,.16) 76%, transparent);
+  opacity: 0; transition: opacity .6s ease;
+}
+.sp-case[data-open="1"]:hover .sp-case-body::after { opacity: 1 }
+.sp-case[data-open="1"]:hover .sp-case-body {
+  border-color: rgba(214,206,180,.34);
+  background: rgba(12,13,11,.62);
+}
+.sp-case[data-open="1"]:hover .sp-void-ch { color: rgba(214,206,180,.22) }
+
+/* 放进去之后 */
+.sp-mark {
+  position: absolute; left: 0; right: 0; top: 50%; z-index: 3;
+  transform: translateY(-50%);
+  text-align: center; padding: 0 10px;
+  font-family: var(--serif); font-size: 44px; line-height: 1.12;
+  letter-spacing: .08em; color: rgba(232,218,182,.44);
+  text-shadow: 0 0 30px rgba(214,206,180,.16);
+  opacity: 0; transition: opacity 1.2s ease .3s;
+  word-break: break-all;
+}
+.sp-case-in {
+  position: absolute; left: 0; right: 0; bottom: 15px; z-index: 3;
+  text-align: center; padding: 0 9px;
+  font-family: var(--serif); font-size: 9.5px; line-height: 1.7;
+  letter-spacing: .12em; color: #8d8471;
+  opacity: 0; transition: opacity 1s ease .55s;
+}
+.sp-case-in.void { letter-spacing: .3em; color: #4a4436; font-size: 9px }
+.sp-case[data-filled="1"] .sp-void { opacity: 0 }
+.sp-case[data-filled="1"] .sp-mark { opacity: 1 }
+.sp-case[data-filled="1"] .sp-case-in { opacity: 1 }
+.sp-case[data-filled="1"] .sp-case-body {
+  border-style: solid;
+  border-color: rgba(214,206,180,.24);
+  background:
+    radial-gradient(ellipse at 50% 74%, rgba(214,206,180,.07), transparent 62%),
+    linear-gradient(180deg, rgba(214,206,180,.04), rgba(0,0,0,.44));
+  box-shadow: inset 0 0 46px rgba(214,206,180,.05), 0 0 26px rgba(214,206,180,.06);
+}
+.sp-case[data-filled="1"] .sp-case-body::after { display: none }
 
 /* 从侧面看：柜子侧过去 */
 .sp-wrap[data-view="side"] .sp-cases {
@@ -4391,14 +4459,40 @@ body.egg-fx-51::after {
 .sp-wrap[data-view="hang"] .sp-tip {
   transform: rotate(178deg) translateY(-30px);
 }
+/* 柜子里的字跟着房间翻了，得自己转回来 */
+.sp-wrap[data-view="hang"] .sp-void,
+.sp-wrap[data-view="hang"] .sp-case-in { transform: rotate(178deg) }
+.sp-wrap[data-view="hang"] .sp-mark { transform: translateY(-50%) rotate(178deg) }
 
-/* 错位：第七只接上第八只 */
-.sp-wrap[data-shift="1"] .sp-case[data-case="6"] { transform: translateY(38px) }
-.sp-wrap[data-shift="1"] .sp-case[data-case="7"] { transform: translateY(-190px) }
-.sp-wrap[data-shift="1"] .sp-case[data-case="7"] .sp-case-top {
-  background: linear-gradient(180deg, rgba(127,220,192,.5), rgba(127,220,192,.1));
-  border-color: rgba(127,220,192,.7);
-  box-shadow: 0 0 24px rgba(127,220,192,.35);
+/* 错位：第七只接上第八只 —— 位置由 Space.alignCase8() 量出来，这里只管焊接的样子。
+   整排在倒吊视角里是翻过来的，所以接缝要按 data-joint 决定画在哪条边。 */
+.sp-case[data-joint2="bottom"] .sp-case-body {
+  border-bottom-color: rgba(127,220,192,.6);
+  box-shadow: inset 0 -14px 22px -14px rgba(127,220,192,.28), inset 0 0 34px rgba(0,0,0,.8);
+}
+.sp-case[data-joint2="top"] .sp-case-body {
+  border-top-color: rgba(127,220,192,.6);
+  box-shadow: inset 0 14px 22px -14px rgba(127,220,192,.28), inset 0 0 34px rgba(0,0,0,.8);
+}
+.sp-case[data-joint] .sp-case-body { border-style: solid }
+.sp-case[data-joint] .sp-case-body::before {
+  content: ''; position: absolute; left: -1px; right: -1px; height: 2px; z-index: 4;
+  background: linear-gradient(90deg, transparent, rgba(159,236,208,.95), transparent);
+  box-shadow: 0 0 26px rgba(127,220,192,.75), 0 0 6px rgba(159,236,208,.6);
+  animation: spWeld 3.6s ease-in-out infinite;
+}
+.sp-case[data-joint="top"] .sp-case-body::before { top: -1px }
+.sp-case[data-joint="bottom"] .sp-case-body::before { bottom: -1px }
+/* 焊住的那一缝，两边都往里透一点光 */
+.sp-case[data-joint="top"] .sp-case-body {
+  box-shadow: inset 0 18px 26px -16px rgba(127,220,192,.34), inset 0 0 34px rgba(0,0,0,.8);
+}
+.sp-case[data-joint="bottom"] .sp-case-body {
+  box-shadow: inset 0 -18px 26px -16px rgba(127,220,192,.34), inset 0 0 34px rgba(0,0,0,.8);
+}
+@keyframes spWeld {
+  0%, 100% { opacity: .55 }
+  50% { opacity: 1 }
 }
 
 /* --- 一件东西 --- */
@@ -4572,6 +4666,15 @@ body.egg-fx-51::after {
 .spc-acts button.spc-tear:hover { color: #e08d7a; border-color: rgba(176,106,90,.8) }
 .spc-got { font-family: var(--mono); font-size: 9px; color: #7fdcc0; letter-spacing: .1em; align-self: center }
 .spc-opts button { flex: 1 1 46% }
+.spc-list { max-height: 46vh; overflow-y: auto }
+.spc-list button {
+  flex: 1 1 100%; display: flex; align-items: baseline; gap: 10px; text-align: left;
+  letter-spacing: .08em;
+}
+.spc-list button u {
+  margin-left: auto; flex: none; text-decoration: none;
+  font-family: var(--mono); font-size: 8.5px; color: #6d6553; letter-spacing: .04em;
+}
 
 /* --- 旁白 --- */
 .sp-say {
@@ -4657,6 +4760,9 @@ body.egg-fx-51::after {
 .ar-spcase i { display: block; font-family: var(--serif); font-size: 9.5px; font-style: normal; color: #463c2c; margin-bottom: 6px; letter-spacing: .14em }
 .ar-spcase.empty { border-left-style: dashed; opacity: .8 }
 .ar-spcase.empty i { line-height: 1.7; letter-spacing: .04em }
+.ar-spcase.c36 { border-left-color: rgba(200,170,110,.55); background: rgba(40,32,20,.28) }
+.ar-spcase.c36 b { color: #b08d52 }
+.ar-spcase.c36 i { color: #8d7d5f }
 .ar-spm {
   display: flex; align-items: baseline; gap: 7px; padding: 3px 0;
   border-bottom: 1px dashed rgba(80,64,40,.13);

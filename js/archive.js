@@ -175,6 +175,14 @@
       h += '<div class="ar-sp">';
       for (let c = 0; c < 8; c++) {
         if (c === 7) {
+          const c36 = s.case36 || null;
+          if (c36) {
+            h += '<div class="ar-spcase c36"><b>第 36 只 · 你的</b><i>' +
+              (c36.what || '空着') + '<br>' +
+              (c36.mark ? '柜门上写着「' + c36.mark + '」' : '柜门上没有字') +
+              '</i></div>';
+            continue;
+          }
           const full = st.relics >= 35;
           h += '<div class="ar-spcase empty"><b>第 36 只</b><i>' +
             (s.shifted ? (full ? '空着。你已经把三十五件都穿在身上了。' : '空着。柜门朝里开。')

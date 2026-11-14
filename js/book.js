@@ -149,6 +149,14 @@
         out.push('打烊以后你出过一次门，走过 ' + stt.seen.length + ' 个门' + endTx + '。');
       }
 
+      const c36 = (S && S.sys && S.sys.case36) || null;
+      if (c36) {
+        if (c36.k === 'relic') out.push('你在里间第三十六只柜里，放回了「' + (c36.what || '一件东西') + '」。');
+        else if (c36.k === 'ledger') out.push('你抄了一份那天的账，留在里间第三十六只柜里。');
+        else if (c36.k === 'name') out.push('你把名字写在里间第三十六只柜的灰上。');
+        else out.push('里间第三十六只柜还空着。你把它关上了。');
+      }
+
       const hh = (S && S.hands) || null;
       if (hh) {
         const all = Object.keys(hh).filter((k) => hh[k] && hh[k].done);

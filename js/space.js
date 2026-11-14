@@ -114,12 +114,20 @@
         '<div class="sp-cases">';
       // 七只柜子 + 第八只空柜（错位之后接上）
       for (let c = 0; c < 8; c++) {
-        h += '<div class="sp-case' + (c === 7 ? ' sp-empty' : '') + '" data-case="' + c + '">' +
+        const e = c === 7;
+        h += '<div class="sp-case' + (e ? ' sp-empty' : '') + '" data-case="' + c + '">' +
           '<div class="sp-case-top"></div><div class="sp-case-body">';
-        if (c === 7) {
-          h += '<div class="sp-case-empty">第 36 只<br><i>空着</i></div>';
+        if (e) {
+          h += '<div class="sp-void">' +
+            '<span class="sp-void-no">3 6</span>' +
+            '<span class="sp-void-ch">空</span>' +
+            '<span class="sp-void-sub">还没有人</span>' +
+            '</div>' +
+            '<div class="sp-mark" id="sp-mark"></div>' +
+            '<div class="sp-case-in" id="sp-case-in"></div>';
         }
-        h += '</div><div class="sp-case-plate">' + (c === 7 ? '' : (1987 + c * 6) + '′') + '</div></div>';
+        h += '</div><div class="sp-case-plate"' + (e ? ' id="sp-plate"' : '') + '>' +
+          (e ? '' : (1987 + c * 6) + '′') + '</div></div>';
       }
       h += '</div><div class="sp-figs">';
       FIGURES.forEach((f, i) => {
@@ -162,6 +170,8 @@
 
       $$('.sp-vb', stage).forEach((b) => b.addEventListener('click', () => this.setView(b.dataset.v)));
       $$('.sp-fig', stage).forEach((f) => f.addEventListener('click', () => this.fig(f.dataset.fig)));
+      const c7 = stage.querySelector('.sp-case[data-case="7"]');
+      if (c7) c7.addEventListener('click', () => this.case36());
       $('#sp-shift').addEventListener('click', () => this.shift());
       const du = $('#sp-duel');
       if (du) du.addEventListener('click', () => { if (global.Duel) global.Duel.open(); });
@@ -170,7 +180,13 @@
       const cl = $('#sp-clips');
       if (cl) cl.addEventListener('click', () => { if (global.Clips) global.Clips.open(); });
       this.stage = stage;
+      if (global.State && global.State.sys && global.State.sys.shifted) {
+        this.shifted = true;
+        stage.dataset.shift = '1';
+      }
       this.setView('front', true);
+      this.paintCase36();
+      this.alignCase8();
     },
 
     /* ---------------- 视角 ---------------- */
@@ -185,6 +201,67 @@
         this.say(vv.hint);
         if (global.Snd) { try { global.Snd.tone(v === 'hang' ? 92 : 300, 0.12, { type: 'square', gain: 0.03 }); } catch (e) {} }
       }
+      /* 视角一转，接缝的位置就得重新量 */
+      if (this.shifted) {
+        clearTimeout(this._alignT);
+        this._alignT = setTimeout(() => this.alignCase8(), silent ? 30 : 960);
+      }
+    },
+
+    /* ---------------- 错位：两只柜子接上 ----------------
+       接缝的位置不写死。柜子是转过的（倒吊 178°），
+       写在 CSS 里的 translate 会跟着翻转，量一次再焊一次才准。
+       ------------------------------------------------------------ */
+    alignCase8() {
+      const stage = this.stage || $('#sp-stage');
+      if (!stage) return;
+      const a = stage.querySelector('.sp-case[data-case="6"]');
+      const b = stage.querySelector('.sp-case[data-case="7"]');
+      if (!a || !b) return;
+      const S = global.State || {};
+      if (!(S.sys && S.sys.shifted)) {
+        b.style.transform = '';
+        b.removeAttribute('data-joint');
+        a.removeAttribute('data-joint2');
+        return;
+      }
+      /* 量的时候不能带过渡，不然读到的是半路上的位置 */
+      const prev = b.style.transition;
+      b.style.transition = 'none';
+      /* 探针法：局部坐标和屏幕坐标之间隔着旋转和缩放，
+         符号不能猜。先各推 10px 量出实际映射，再解方程。 */
+      b.style.transform = 'translate3d(0,0,0)';
+      const r0 = b.getBoundingClientRect();
+      b.style.transform = 'translate3d(10px,0,0)';
+      const rx = b.getBoundingClientRect();
+      b.style.transform = 'translate3d(0,10px,0)';
+      const ry = b.getBoundingClientRect();
+      const ra = a.getBoundingClientRect();
+      const rb = r0;
+      const dex = (ra.left + ra.right) / 2 - (rb.left + rb.right) / 2;
+      const dey = ra.bottom - 2 - rb.top;
+      const jxx = (rx.left - r0.left) / 10, jxy = (rx.top - r0.top) / 10;
+      const jyx = (ry.left - r0.left) / 10, jyy = (ry.top - r0.top) / 10;
+      const det = jxx * jyy - jxy * jyx;
+      let tx = 0, ty = 0;
+      if (det) {
+        tx = (dex * jyy - dey * jxy) / det;
+        ty = (jxx * dey - jyx * dex) / det;
+      }
+      /* 解完再量一次，把残差抹掉 —— 残差也要过逆矩阵，不能直接加 */
+      b.style.transform = 'translate3d(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px,0)';
+      const rc = b.getBoundingClientRect();
+      const resx = (ra.left + ra.right) / 2 - (rc.left + rc.right) / 2;
+      const resy = ra.bottom - 2 - rc.top;
+      tx += (resx * jyy - resy * jxy) / det;
+      ty += (jxx * resy - jyx * resx) / det;
+      /* 焊上去。这一下要硬，不要滑。 */
+      b.style.transform = 'translate3d(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px,0)';
+      /* 倒吊时整排翻了，接缝落在哪条边上得跟着换 */
+      const flip = this.view === 'hang';
+      b.setAttribute('data-joint', flip ? 'bottom' : 'top');
+      a.setAttribute('data-joint2', flip ? 'top' : 'bottom');
+      requestAnimationFrame(() => { b.style.transition = prev || ''; });
     },
 
     /* ---------------- 错位：两只柜子接上 ---------------- */
@@ -197,7 +274,9 @@
       S.sys = S.sys || {};
       S.sys.shifted = true;
       if (global.Snd) { try { global.Snd.glitch(0.3); } catch (e) {} }
-      this.say('你把脚跟提起来一点，头往下沉。\n第七只柜子的顶，接上了第八只柜子的底。\n\n它们本来就是一只。只是站着看的时候，中间隔着一个人的高度。');
+      this.alignCase8();
+      this.paintCase36();
+      this.say('你把脚跟提起来一点，头往下沉。\n第七只柜子的底，接上了第八只柜子的顶。\n\n它们本来就是一只。只是站着看的时候，中间隔着一个人的高度。\n\n（第八只的柜门，朝里开着。里面是空的。）');
     },
 
     /* ---------------- 看一件东西 ---------------- */
@@ -342,6 +421,197 @@
       } else if (n === 1) {
         this.say('走廊里少了一个影子。\n你发现少一个影子，光并不会变亮。');
       }
+    },
+
+    /* ---------------- 第三十六只柜：你自己那一格 ----------------
+       三十五个人，一人一格。最后一格没做门，一直空着。
+       接上之后才认得你。放什么，或者不放，都得你自己动手。
+       ------------------------------------------------------------ */
+    case36() {
+      const S = global.State;
+      S.sys = S.sys || {};
+      const done = S.sys.case36 || null;
+      const card = $('#sp-card');
+      if (!card) return;
+      const head = (ic, t, sub) =>
+        '<div class="spc-head"><span class="spc-ic">' + ic + '</span>' +
+        '<div class="spc-id"><b>' + t + '</b><i>' + sub + '</i></div>' +
+        '<button class="spc-x" id="spc-x">×</button></div>';
+      const open = () => {
+        card.classList.add('on');
+        const x = $('#spc-x');
+        if (x) x.addEventListener('click', () => card.classList.remove('on'));
+      };
+
+      if (done) {
+        card.innerHTML = head('▢', '第 三 十 六 只', '里面：' + (done.what || '空着')) +
+          '<div class="spc-logs">' + (done.lines || []).map((t) =>
+            '<p class="spc-log">' + t + '</p>').join('') + '</div>' +
+          (done.last ? '<div class="spc-last">' + done.last + '</div>' : '') +
+          '<div class="spc-acts"><span class="spc-got">' +
+          (done.mark ? '柜门上写着「' + done.mark + '」。' : '柜门上没有字。') +
+          '</span></div>';
+        open();
+        return;
+      }
+
+      if (!S.sys.shifted) {
+        this.say('柜门朝里开。\n你得先把它接上，它才认你。');
+        return;
+      }
+
+      const st = global.Memory.stats();
+      const picks = ((S.sys.duty || {}).picks || []);
+      card.innerHTML = head('▢', '第 三 十 六 只', '空的 · 木匠没给它做门') +
+        '<div class="spc-logs">' +
+        '<p class="spc-log"><i>一</i>三十五个人，一人一格。格子是按人打的，不是按东西打的。</p>' +
+        '<p class="spc-log"><i>二</i>打到最后一格，木匠停了手。他说：这一格不用做门——做门的人得自己站进去。</p>' +
+        '<p class="spc-log"><i>三</i>（他把刨子放下，走了。柜子留在这儿，一直空着。）</p>' +
+        '</div>' +
+        '<div class="spc-last">这一格是给你的。放什么，或者不放，都得你自己动手。' +
+        '<br>（柜门上有一层灰。手指一抹，能写出字来。）</div>' +
+        '<div class="spc-acts spc-opts">' +
+        (st.relics ? '<button data-c="relic">放回一件你拿走的东西</button>' : '') +
+        (picks.length ? '<button data-c="ledger">留下一份你写的账</button>' : '') +
+        '<button data-c="name">把你的名字写在灰上</button>' +
+        '<button data-c="none">什么也不放，把柜门关上</button>' +
+        '</div>';
+      open();
+      $$('.spc-opts button').forEach((b) =>
+        b.addEventListener('click', () => this.casePick(b.dataset.c)));
+    },
+
+    casePick(kind) {
+      if (kind !== 'relic') return this.casePut(kind, null);
+      const d = global.Memory.read();
+      const card = $('#sp-card');
+      card.innerHTML =
+        '<div class="spc-head"><span class="spc-ic">▢</span>' +
+        '<div class="spc-id"><b>哪一件</b><i>第 36 只 · 挑一件放回去</i></div>' +
+        '<button class="spc-x" id="spc-x">×</button></div>' +
+        '<div class="spc-last">挑的时候，你已经在想哪一件最不该在你身上。' +
+        '<br>（一共 ' + d.relics.length + ' 件。）</div>' +
+        '<div class="spc-acts spc-opts spc-list">' +
+        d.relics.map((no) => {
+          const m = global.Memory.get(no);
+          return '<button data-r="' + no + '">' + (m ? m.relic : '一件东西') +
+            '<u>' + (m ? m.name : '一个不记得名字的人') + '</u></button>';
+        }).join('') + '</div>';
+      card.classList.add('on');
+      $('#spc-x').addEventListener('click', () => card.classList.remove('on'));
+      $$('.spc-list button').forEach((b) =>
+        b.addEventListener('click', () => this.casePut('relic', +b.dataset.r)));
+    },
+
+    casePut(kind, no) {
+      const S = global.State;
+      const nm = String(S.playerName || '').trim();
+      const rec = { k: kind, at: Date.now(), mark: '', what: '', lines: [], last: '' };
+
+      if (kind === 'relic') {
+        const m = global.Memory.get(no) || { relic: '一件东西', name: '一个不记得名字的人' };
+        global.Memory.spend(no);
+        rec.what = m.relic;
+        rec.mark = '还';
+        rec.lines = [
+          '（你从身上取下「' + m.relic + '」。）',
+          '（' + m.name + '的东西。你拿走的时候，没问过他。）',
+          '（你把它放回格子里，放在它原来放着的位置。）',
+          '（位置还在。柜底有一圈比它大一点的灰印。）',
+        ];
+        rec.last = '你伸手，在柜门的灰上写了一个字：还。\n' +
+          '灰是厚的，一划就到底。下面还是灰。';
+        rec.tail = '柜门合上了。\n（「' + m.relic + '」留在里面。你身上轻了一点。）';
+      } else if (kind === 'ledger') {
+        const ps = ((S.sys.duty || {}).picks || []);
+        const one = ps[0] ? ps[0].name : '';
+        rec.what = '一份抄的账 · ' + ps.length + ' 笔';
+        rec.mark = '当';
+        rec.lines = [
+          '（你把打烊时那张纸摊在柜台上，从兜里摸出半截铅笔。）',
+          '（' + ps.length + ' 个名字，' + ps.length + ' 行字。你一笔一笔抄。）',
+          (one ? '（抄到第三行，手开始抖。不是怕——是那些名字里，有一个你到现在还记得他的声音。）'
+            : '（抄到一半，你停下来，发现自己在照着念。）'),
+          '（抄完，你把纸折好，放进格子。）',
+          '（原件还在兜里。你伸手按了按，还在。）',
+        ];
+        rec.last = '你伸手，在柜门的灰上写了一个字：当。\n' +
+          '写完了你才想起来，这一个字，今天已经盖过一次了。';
+        rec.tail = '柜门合上了。\n（账还在兜里。可你抄的那一份，现在不归你了。）';
+      } else if (kind === 'name') {
+        rec.what = nm ? '你的名字：' + nm : '你的名字';
+        rec.mark = nm ? nm : '我';
+        rec.lines = [
+          '（你伸手，在柜门的灰上写你的名字。）',
+          '（一个字一个字地写。灰很厚，写到第三个字，指尖已经黑了。）',
+          '（写完你把手收回来。牌上还是没有年份。）',
+          '（这是这条走廊上，第一次出现活人的名字。）',
+        ];
+        rec.last = '你退开半步，看了一会儿。\n' +
+          '（字是歪的。你本来想擦掉重写，手抬起来，又放下了。）';
+        rec.tail = '柜门合上了。\n（名字还在你身上。只是这世上多了一个地方，也写着它。）';
+      } else {
+        rec.what = '空着';
+        rec.mark = '';
+        rec.lines = [
+          '（你把柜门推上。木头合上的时候没有声音。）',
+          '（你没有往里放东西。你也没有写。）',
+          '（灰还是平的。）',
+          '（走廊那头有人翻了个身，纸响了一下。）',
+        ];
+        rec.last = '空着也是一种留法。\n' +
+          '只是没人知道，这一格是你留的。';
+        rec.tail = '柜门合上了。\n（空着。你走的时候没有回头。）';
+      }
+
+      S.sys.case36 = rec;
+      if (global.Save && global.Save.touch) global.Save.touch();
+      if (global.Snd) { try { global.Snd.tone(kind === 'none' ? 74 : 174, 1.6, { type: 'sine', gain: 0.05, attack: 0.4 }); } catch (e) {} }
+
+      const card = $('#sp-card');
+      card.innerHTML =
+        '<div class="spc-head"><span class="spc-ic">▢</span>' +
+        '<div class="spc-id"><b>放 进 去</b><i>第 36 只 · ' + rec.what + '</i></div></div>' +
+        '<div class="spc-logs">' + rec.lines.map((t) =>
+          '<p class="spc-log">' + t + '</p>').join('') + '</div>' +
+        (rec.last ? '<div class="spc-last">' + rec.last + '</div>' : '') +
+        '<div class="spc-acts"><button id="sp-c36-close">关 上 柜 门</button></div>';
+      card.classList.add('on');
+      const b = $('#sp-c36-close');
+      if (b) b.addEventListener('click', () => {
+        card.classList.remove('on');
+        this.paintCase36();
+        this.say(rec.tail || '柜门合上了。');
+        if (global.Snd) { try { global.Snd.noise(0.4, { type: 'lowpass', freq: 700, gain: 0.05 }); } catch (e) {} }
+      });
+      this.paintCase36();
+    },
+
+    paintCase36() {
+      const stage = this.stage || $('#sp-stage');
+      if (!stage) return;
+      const S = global.State || {};
+      const c = (S.sys && S.sys.case36) || null;
+      const el = stage.querySelector('.sp-case[data-case="7"]');
+      if (!el) return;
+      const mk = $('#sp-mark');
+      const inn = $('#sp-case-in');
+      if (c) {
+        el.dataset.filled = '1';
+        if (mk) mk.textContent = c.mark || '';
+        if (inn) {
+          inn.textContent = c.k === 'none' ? '空 着' : (c.k === 'name' ? '' : c.what || '');
+          inn.classList.toggle('void', c.k === 'none');
+        }
+        el.title = '第 36 只 · ' + (c.mark ? '写着「' + c.mark + '」' : '空着');
+      } else {
+        el.dataset.filled = '0';
+        if (mk) mk.textContent = '';
+        if (inn) { inn.textContent = ''; inn.classList.remove('void'); }
+        el.title = (S.sys && S.sys.shifted) ? '第 36 只 · 空着，等你' : '第 36 只 · 接不上';
+      }
+      if (S.sys && S.sys.shifted) el.dataset.open = '1';
+      else delete el.dataset.open;
     },
 
     /* ---------------- 状态 ---------------- */
