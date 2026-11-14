@@ -447,7 +447,8 @@
         ['外面的触碰', (s.outside || 0) + ' / 3'],
         ['删除节点', String(s.deleted || 0)],
         ['今日当班', s.duty
-          ? ('七笔 · 账 ' + (s.duty.total >= 0 ? '+' : '') + s.duty.total +
+          ? ('七笔 · 账 ' + (s.duty.total === undefined ? '—'
+            : (s.duty.total >= 0 ? '+' : '') + s.duty.total) +
             ' · 油剩 ' + (s.duty.oil === undefined ? '—' : s.duty.oil) +
             ' · ' + (s.duty.lamp ? '灯续' : '灯灭'))
           : '还没轮到'],

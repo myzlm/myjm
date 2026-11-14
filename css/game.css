@@ -4639,9 +4639,12 @@ body.egg-fx-51::after {
   border-top: 1px dashed rgba(214,206,180,.12);
   border-bottom: 1px dashed rgba(214,206,180,.12);
 }
-.fn-state span { display: flex; flex-direction: column; gap: 3px }
+.fn-state span { display: flex; flex-direction: column; gap: 3px; min-width: 0 }
 .fn-state i { font-family: var(--mono); font-size: 8px; font-style: normal; color: #4f4632; letter-spacing: .1em }
-.fn-state b { font-family: var(--mono); font-size: 11px; font-weight: 400; color: #9a917c }
+.fn-state b {
+  font-family: var(--mono); font-size: 11px; font-weight: 400; color: #9a917c;
+  line-height: 1.55; overflow-wrap: anywhere;
+}
 .duel-opts button.duel-end { text-align: center; letter-spacing: .3em; color: #7fdcc0; border-color: rgba(127,220,192,.45) }
 .duel-ft { white-space: pre-line }
 
