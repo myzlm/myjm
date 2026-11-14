@@ -89,6 +89,7 @@
         '<button class="ar-t" data-t="space">里间</button>' +
         '<button class="ar-t" data-t="fus">融合</button>' +
         '<button class="ar-t" data-t="ends">结局</button>' +
+        '<button class="ar-t" data-t="cards">票根</button>' +
         '<button class="ar-t" data-t="perm">权限</button>' +
         '</div>' +
         '<div class="ar-body" id="ar-body"></div>' +
@@ -114,6 +115,8 @@
           catch (err) { Toast.show(v, 2600); }
           return;
         }
+        const cd = e.target.closest('.ar-card');
+        if (cd && !cd.classList.contains('lock')) { cd.classList.toggle('flip'); return; }
         const go = e.target.closest('[data-space-go]');
         if (go) {
           this.close();
@@ -173,6 +176,30 @@
       return h;
     },
 
+    /* 票根：八张，翻过来看它借的是谁的胆子 */
+    cardsHTML() {
+      if (!global.Chapter) return '<div class="ar-empty">柜台还没有给你票。</div>';
+      const list = global.Chapter.list();
+      const got = list.filter((c) => c.seen).length;
+      let h = '<div class="ar-count">票根 ' + got + ' / ' + list.length +
+        '　·　点一下翻面</div><div class="ar-cards">';
+      list.forEach((c) => {
+        if (!c.seen) {
+          h += '<div class="ar-card lock"><div class="ar-card-f">' +
+            '<b>' + c.no + '</b><i>还没入场</i><span>——</span></div></div>';
+          return;
+        }
+        h += '<div class="ar-card" data-card="' + c.id + '"><div class="ar-card-in">' +
+          '<div class="ar-card-f"><b>' + c.no + '</b><i>' + c.name + '</i>' +
+          '<span>' + c.epi[0] + '</span><u>' + c.seall + '</u></div>' +
+          '<div class="ar-card-b"><em>票 根 背 面</em><p>' +
+          c.back.replace(/</g, '&lt;') + '</p></div></div></div>';
+      });
+      h += '</div><div class="ar-note">每一章进门之前，柜台都给你一张票。<br>' +
+        '票上盖的章，是你替他记下的那一个字。</div>';
+      return h;
+    },
+
     render() {
       const body = $('#ar-body');
       if (!body) return;
@@ -198,6 +225,8 @@
           global.Eggs.fusionHTML();
       } else if (this.tab === 'ends') {
         body.innerHTML = global.Endings.galleryHTML();
+      } else if (this.tab === 'cards') {
+        body.innerHTML = this.cardsHTML();
       } else {
         const lv = global.Persp ? global.Persp.level() : 0;
         const rows = [

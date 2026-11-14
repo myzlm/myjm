@@ -35,6 +35,7 @@
     show(name) {
       $$('.screen').forEach((s) => s.classList.toggle('active', s.dataset.screen === name));
       this.current = name;
+      document.dispatchEvent(new CustomEvent('screenchange', { detail: name }));
       // 隐藏背包（除柜台/密码场景外）
       const inv = $('#inventory');
       if (name === 'counter' || name === 'lock') inv.classList.add('on');
@@ -348,6 +349,34 @@
         if (!t || t.length < 120) throw new Error('文案太短 ' + e.id);
       });
       log.push('reach=' + Endings.list.length + '/' + Endings.list.length);
+    });
+    run('Cards', () => {
+      if (!global.Chapter) throw new Error('no Chapter');
+      const L = global.Chapter.list();
+      if (L.length !== 8) throw new Error('票根数=' + L.length);
+      const ids = L.map((c) => c.id).join(',');
+      if (ids !== 'ch0,ch1,ch2,ch3,ch4,ch5,ch6,ch7') throw new Error('顺序不对 ' + ids);
+      L.forEach((c) => {
+        if (!c.no || !c.name) throw new Error('缺章号章名 ' + c.id);
+        if (!c.epi || c.epi.length < 2) throw new Error('题记太短 ' + c.id);
+        if (!c.back || c.back.length < 30) throw new Error('票根背面太短 ' + c.id);
+        if (!c.seall || c.seall.length !== 1) throw new Error('章不是单字 ' + c.id);
+      });
+      if (new Set(L.map((c) => c.name)).size !== 8) throw new Error('票根重名');
+      if (new Set(L.map((c) => c.seall)).size !== 8) throw new Error('章重复');
+      /* 票根能记存根，且不弄脏玩家的存根 */
+      const KEY = 'code_echo_cards_v1';
+      const bak = localStorage.getItem(KEY);
+      try {
+        localStorage.removeItem(KEY);
+        if (global.Chapter.count() !== 0) throw new Error('清不掉');
+        global.Chapter.mark('ch3');
+        if (!global.Chapter.seen('ch3')) throw new Error('记不住看过');
+        if (global.Chapter.miss().length !== 7) throw new Error('缺页算出 ' + global.Chapter.miss().length);
+      } finally {
+        if (bak === null) localStorage.removeItem(KEY); else localStorage.setItem(KEY, bak);
+      }
+      log.push('cards=8');
     });
     run('Spend', () => {
       if (!global.Memory || typeof global.Memory.spend !== 'function') throw new Error('no Memory.spend');
@@ -681,6 +710,7 @@
     if (global.Quests) Quests.boot();
     if (global.Archive) Archive.boot();
     if (global.Roam) Roam.boot();
+    if (global.Save) Save.boot();
 
     // 开发者模式：F2 / ~ 打开；同时往真·控制台里打一行横幅（用 DevTools 的人会看见）
     if (global.Dev) Dev.boot();
@@ -880,6 +910,20 @@
             break;
         }
       }, 60);
+    } else if (global.Save && qs.get('fresh') !== '1' && global.Save.read()
+      && global.Save.chapterOf(global.Save.read().state) >= 2) {
+      // 上次没走完：柜台留着一张票
+      const sv = global.Save.read();
+      global.Save.prompt(sv).then((go) => {
+        if (go) global.Save.enter(sv);
+        else {
+          global.Save.clear();
+          if (global.Chapter && !global.Chapter.off()) global.Chapter.show('ch0');
+        }
+      });
+    } else if (global.Chapter && !global.Chapter.off()) {
+      // 正常启动：先给一张序章的票，票撕了才放进邮件
+      global.Chapter.show('ch0');
     }
 
     // 首次交互时启动音频上下文

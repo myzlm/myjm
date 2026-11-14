@@ -26,6 +26,7 @@
 
     /* ---------------- 进入 ---------------- */
     async start() {
+      if (global.Chapter) await global.Chapter.show('ch4');
       this.started = true;
       State.ch4 = 1;
       $('#ly-wrap').dataset.stage = 'room';

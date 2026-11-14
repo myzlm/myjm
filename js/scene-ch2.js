@@ -461,6 +461,7 @@
       await wait(4600);
       await Fade.through(() => { App.show('counter'); Counter.init(); });
       await Dlg.open('afterEat');
+      if (global.Chapter) await global.Chapter.show('ch3');
       Counter.refreshHud();
       Counter.updateHint();
     },

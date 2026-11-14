@@ -215,6 +215,7 @@
       Counter.refreshHud();
       $('#cs-dialogue').classList.remove('on');
       await Dlg.open('afterPaper');
+      if (global.Chapter) await global.Chapter.show('ch2');
       Counter.updateHint();
     },
   };

@@ -113,6 +113,7 @@
       document.body.classList.add('penetrate');
       await wait(520);
       await Fade.on(true);
+      if (global.Chapter) await global.Chapter.show('ch1');
       App.show('hall');
       global.Hall.init();
       document.body.classList.remove('penetrate');

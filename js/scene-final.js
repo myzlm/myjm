@@ -42,6 +42,7 @@
 
     async start(force) {
       this.init();
+      if (global.Chapter) await global.Chapter.show('ch7');
       clearInterval(this._stick);
       this.stage = 'choice';
       $('#fn-wrap').dataset.stage = 'text';

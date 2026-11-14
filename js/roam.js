@@ -58,7 +58,7 @@
     { zone: '下面', id: 'duty', name: '收银台 · 最后一班', desc: '七位客人。灯油只够到打烊。', ok: (S) => !!((S.ch6 || 0) >= 1),
       no: '得先走完记录库那一夜。',
       go: () => { global.App.show('duty'); global.Duty.start(); } },
-    { zone: '下面', id: 'final', name: '终章 · 回响', desc: '九张纸，二十个结局。', ok: (S) => !!((S.sys && ((S.sys.endings || []).length > 0 || S.sys.sawFinal))),
+    { zone: '下面', id: 'final', name: '终章 · 回响', desc: '九张纸，二十二个结局。', ok: (S) => !!((S.sys && ((S.sys.endings || []).length > 0 || S.sys.sawFinal))),
       no: '先走完任何一个结局。',
       go: () => { global.App.show('final'); global.Final.start(); } },
   ];
@@ -77,7 +77,7 @@
         '<div class="roam-page" role="dialog" aria-label="店里的平面图">' +
           '<div class="roam-head">' +
             '<div class="roam-t">店 里 的 平 面 图</div>' +
-            '<div class="roam-s">做过的可以回头。没做的可以绕开。</div>' +
+            '<div class="roam-s" id="roam-now">做过的可以回头。没做的可以绕开。</div>' +
             '<button class="roam-x" id="roam-x">关</button>' +
           '</div>' +
           '<div class="roam-body" id="roam-body"></div>' +
@@ -112,6 +112,17 @@
     open() {
       this.boot();
       this.render();
+      /* 头上那行小字：你现在站在第几章 */
+      const now = $('#roam-now');
+      if (now) {
+        let txt = '做过的可以回头。没做的可以绕开。';
+        if (global.Save && global.Chapter) {
+          const ch = global.Save.chapterOf(global.State);
+          const c = global.Chapter.CARDS['ch' + ch];
+          if (c && ch > 0) txt = '你在：' + c.no.replace(/\s/g, '') + ' · ' + c.name.replace(/\s/g, '');
+        }
+        now.textContent = txt;
+      }
       this.el.classList.add('on');
       global.Snd && global.Snd.click && global.Snd.click();
     },

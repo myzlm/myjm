@@ -536,7 +536,8 @@
 
       this.ledgerView();
 
-      /* 开场：柜台上那张纸 */
+      /* 开场：先给一张票，再给一张纸 */
+      if (global.Chapter && !done.length) await global.Chapter.show('ch6');
       await wait(600);
       this.showNote();
     },

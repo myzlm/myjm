@@ -33,6 +33,7 @@
     targetEl: null,
 
     async start() {
+      if (global.Chapter) await global.Chapter.show('ch5');
       State.ch5 = Math.max(State.ch5, 1);
       this.stage = 'list';
       this.wrong = 0;

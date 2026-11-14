@@ -148,6 +148,12 @@
       tone(720, 0.1, { type: 'sine', gain: 0.07 });
       tone(1080, 0.16, { type: 'sine', gain: 0.05, delay: 0.06 });
     },
+    /* 票根上盖章：木头磕在纸上，一下，余震 */
+    stamp() {
+      noise(0.10, { type: 'lowpass', freq: 1800, q: .7, gain: 0.10 });
+      tone(96, 0.20, { type: 'sine', gain: 0.11, attack: .002 });
+      tone(62, 0.34, { type: 'sine', gain: 0.06, attack: .01, delay: 0.035 });
+    },
     glitch(dur) {
       dur = dur || 0.25;
       noise(dur, { type: 'bandpass', freq: 400, to: 3200, q: 0.7, gain: 0.14 });
