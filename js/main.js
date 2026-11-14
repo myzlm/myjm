@@ -215,7 +215,7 @@
       Verify.reset();
     });
     run('Endings', () => {
-      if (Endings.list.length !== 22) throw new Error('count=' + Endings.list.length);
+      if (Endings.list.length !== 23) throw new Error('count=' + Endings.list.length);
       const ids = Endings.list.map((e) => e.id);
       if (new Set(ids).size !== Endings.list.length) throw new Error('dup id');
       const nos = Endings.list.map((e) => e.no);
@@ -336,6 +336,7 @@
         ['inherit', mk({}, 'fail')],
         ['observer', mk({}, 'nothing')],
         ['nameless', mk({}, 'overwrite')],
+        ['reader', mk({}, 'read')],
       ];
       const bad = [];
       cases.forEach(([id, S]) => {
@@ -349,6 +350,52 @@
         if (!t || t.length < 120) throw new Error('文案太短 ' + e.id);
       });
       log.push('reach=' + Endings.list.length + '/' + Endings.list.length);
+    });
+    run('Book', () => {
+      if (!global.Book) throw new Error('no Book');
+      const K = 'code_echo_book_v1';
+      const bak = localStorage.getItem(K);
+      try {
+        localStorage.removeItem(K);
+        if (global.Book.ok()) throw new Error('空账也够格');
+
+        global.Book.run({ playerName: '甲', sys: { hurt: 2, deleted: 3, memRelics: 5, memRead: 6, duty: { peek: 2 } } }, { id: 'inherit' });
+        if (global.Book.ok()) throw new Error('一遍就够格了');
+
+        global.Book.run({ playerName: '乙', sys: { duty: { picks: [1, 2], oil: 4, lamp: true, peek: 0 } } }, { id: 'observer' });
+        if (!global.Book.ok()) throw new Error('两遍还不够格');
+
+        const d = global.Book.read();
+        if (d.runs !== 2) throw new Error('run 计数 ' + d.runs);
+        if (d.names.join(',') !== '甲,乙') throw new Error('名字 ' + d.names.join(','));
+        if (d.hurt !== 2) throw new Error('纸人没累加 ' + d.hurt);
+
+        const rpt = global.Book.report({ sys: {} }).join('');
+        if (rpt.length < 20) throw new Error('册子没话可说');
+        if (rpt.indexOf('甲') < 0 || rpt.indexOf('乙') < 0) throw new Error('册子没提名字');
+        if (rpt.indexOf('你走到这里 2 次') < 0) throw new Error('没数次数 ' + rpt);
+
+        /* 只走同一种：不算够格 */
+        global.Book.clear();
+        global.Book.run({ playerName: '丙', sys: {} }, { id: 'inherit' });
+        global.Book.run({ playerName: '丙', sys: {} }, { id: 'inherit' });
+        if (global.Book.ok()) throw new Error('同一种结局也算够格');
+
+        /* 两种：够格；合上之后，册子记得 */
+        global.Book.run({ playerName: '丙', sys: {} }, { id: 'observer' });
+        if (!global.Book.ok()) throw new Error('两种结局还不够格');
+        const first = Endings.get('reader').text({ playerName: '丙', sys: {} });
+        if (first.indexOf('真的疼过') < 0) throw new Error('第一遍缺那句');
+        if (first.indexOf('又是这本') >= 0) throw new Error('没合过就说第二遍');
+        global.Book.seal();
+        if (global.Book.read().sealed !== 1) throw new Error('合上没记');
+        const again = Endings.get('reader').text({ playerName: '丙', sys: {} });
+        if (again.indexOf('又是这本') < 0) throw new Error('第二遍没变样');
+        if (again.indexOf('只活了一次') < 0) throw new Error('第二遍缺那句');
+      } finally {
+        if (bak === null) localStorage.removeItem(K); else localStorage.setItem(K, bak);
+      }
+      log.push('ledger ok');
     });
     run('Cards', () => {
       if (!global.Chapter) throw new Error('no Chapter');

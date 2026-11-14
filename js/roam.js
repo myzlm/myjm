@@ -58,7 +58,7 @@
     { zone: '下面', id: 'duty', name: '收银台 · 最后一班', desc: '七位客人。灯油只够到打烊。', ok: (S) => !!((S.ch6 || 0) >= 1),
       no: '得先走完记录库那一夜。',
       go: () => { global.App.show('duty'); global.Duty.start(); } },
-    { zone: '下面', id: 'final', name: '终章 · 回响', desc: '九张纸，二十二个结局。', ok: (S) => !!((S.sys && ((S.sys.endings || []).length > 0 || S.sys.sawFinal))),
+    { zone: '下面', id: 'final', name: '终章 · 回响', desc: '九张纸，二十三个结局。', ok: (S) => !!((S.sys && ((S.sys.endings || []).length > 0 || S.sys.sawFinal))),
       no: '先走完任何一个结局。',
       go: () => { global.App.show('final'); global.Final.start(); } },
   ];

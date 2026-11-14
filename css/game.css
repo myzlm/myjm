@@ -5441,3 +5441,95 @@ body.egg-fx-51::after {
   .rs-line { margin: 14px 0 13px; }
   .rs-note { margin-top: 12px; }
 }
+
+/* ============================================================
+   ledger.js — 柜台底下那本册子
+   ------------------------------------------------------------
+   第十张纸不显眼。它一直在那里，只是折了个角。
+   ============================================================ */
+.fn-opt.fold {
+  position: relative; padding-right: 26px;
+  border-style: dashed; border-color: #342a1c;
+  background: rgba(13, 11, 8, .52);
+}
+.fn-opt.fold::after {
+  content: ""; position: absolute; top: 0; right: 0;
+  width: 17px; height: 17px;
+  background: linear-gradient(225deg, #060504 50%, transparent 50%);
+  box-shadow: -1px 1px 0 rgba(200, 69, 47, .16);
+}
+.fn-opt.fold b { color: #b8a382; }
+.fn-opt.fold:hover { border-color: #57452c; }
+.fn-opt.fold:hover b { color: #e2cfab; }
+
+/* 合上之后 */
+.fn-seal {
+  position: fixed; inset: 0; z-index: 9600;
+  display: flex; align-items: center; justify-content: center;
+  background: #040405; opacity: 0; pointer-events: none;
+  transition: opacity 1.7s ease;
+}
+.fn-seal.on { opacity: 1; pointer-events: auto; }
+.fs-in { text-align: center; font-family: var(--serif); }
+.fs-in p {
+  font-size: clamp(15px, 1.8vw, 19px); letter-spacing: .36em;
+  color: #6d6860; line-height: 2.3; text-indent: .36em;
+}
+.fs-in .fs-b { color: #46423b; }
+.fs-in em {
+  display: block; margin-top: clamp(34px, 8vh, 64px);
+  font-style: normal; font-family: var(--mono);
+  font-size: 10.5px; letter-spacing: .3em; color: #504b43;
+  text-indent: .3em;
+  animation: fsIn 1.4s ease 2.6s both;
+}
+@keyframes fsIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ------------------------------------------------------------
+   终章选项：纸多了以后，矮屏让它自己滚
+   ------------------------------------------------------------
+   账目（记忆物件 / 今日当班 / 这本册子）是选之前要看的依据，
+   不能被选项挤到屏幕外。所以滚的只有纸，账目钉在下面。
+   ------------------------------------------------------------ */
+.fn-scroll { display: flex; flex-direction: column; gap: 7px; min-height: 0; }
+.fn-scroll.more {
+  -webkit-mask-image: linear-gradient(180deg, #000 0, #000 calc(100% - 30px), transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0, #000 calc(100% - 30px), transparent 100%);
+}
+.fn-scroll::-webkit-scrollbar { width: 4px; }
+.fn-scroll::-webkit-scrollbar-track { background: transparent; }
+.fn-scroll::-webkit-scrollbar-thumb { background: rgba(200, 169, 110, .22); border-radius: 2px; }
+
+@media (max-height: 1000px) {
+  .fn-scroll {
+    max-height: calc(100vh - 320px);
+    overflow-y: auto; overflow-x: hidden; padding-right: 8px;
+  }
+}
+@media (max-height: 820px) {
+  .fn-choice { gap: 6px; margin-top: 14px; }
+  .fn-scroll { max-height: calc(100vh - 292px); gap: 5px; }
+  .fn-opt { padding: 8px 14px; gap: 3px; }
+  .fn-opt b { font-size: 12.5px; }
+  .fn-opt span { font-size: 9px; }
+  .fn-q { margin-bottom: 3px; font-size: 11.5px; }
+  .fn-state { gap: 5px 12px; margin: 9px 0 2px; padding: 9px 0; }
+  .fn-state i { font-size: 7.5px; }
+  .fn-state b { font-size: 10px; }
+  .fn-idle { margin-top: 8px; }
+}
+@media (max-height: 740px) {
+  .fn-scroll { max-height: calc(100vh - 270px); }
+  .fn-opt { padding: 7px 13px; }
+  .fn-opt b { font-size: 12px; }
+  .fn-opt span { font-size: 8.5px; }
+  .fn-state { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* 结局页底部：册子记得的事 */
+.en-book {
+  margin-top: 12px; padding-top: 11px;
+  border-top: 1px dashed rgba(214, 206, 180, .1);
+  font-family: var(--mono); font-size: 9px; letter-spacing: .16em;
+  color: #4d4636; text-align: center;
+}

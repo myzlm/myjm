@@ -18,6 +18,7 @@
     { id: 'nothing', t: '什么都不做', s: '坐着。等灯灭。' },
     { id: 'core', t: '删掉核心程序', s: '这一层之下的那一层。', need: 'linf' },
     { id: 'write', t: '拿一张空白的，自己写', s: '不选它们给的路。', need: 'linf' },
+    { id: 'read', t: '翻开柜台底下那本册子', s: '它一直在那里。你从来没有弯过腰。', need: 'ledger', fold: true },
     { id: 'later', t: '还不想写', s: '先回去。灯还够烧一会儿。' },
   ];
 
@@ -31,6 +32,7 @@
       if (this.inited) return;
       this.inited = true;
       $('#fn-restart').addEventListener('click', () => {
+        if (this._reader) { this.seal(); return; }
         document.dispatchEvent(new CustomEvent('restart'));
         location.href = location.pathname;
       });
@@ -45,6 +47,11 @@
       if (global.Chapter) await global.Chapter.show('ch7');
       clearInterval(this._stick);
       this.stage = 'choice';
+      this.counted = false;
+      this._reader = false;
+      this._sealed = false;
+      const rt = $('#fn-restart');
+      if (rt) { rt.textContent = '重 开'; rt.removeAttribute('data-seal'); }
       $('#fn-wrap').dataset.stage = 'text';
       $('#fn-text').textContent = '';
       $('#fn-card').classList.remove('on');
@@ -60,7 +67,10 @@
       if (S.sys.selfDeleted) { await this.play('recycler'); return; }
       if (S.sys.allDeleted) { await this.play('eraser'); return; }
 
-      await this.say('灯芯只剩一小截了。\n\n柜台上的纸，还是那几张。');
+      /* 翻过册子的人，再进来时柜台底下那点亮，是看得见的 */
+      const flipped = !!(global.Book && global.Book.read().sealed > 0);
+      await this.say('灯芯只剩一小截了。\n\n柜台上的纸，还是那几张。' +
+        (flipped ? '\n\n（柜台底下那块地方，比别处暗一点。你上次把手伸进去过。）' : ''));
       await wait(2200);
       await this.say('艾把笔推过来。\n\n"这一次，"他说，"你自己写。"');
       if (!S.sys.sawSpace) {
@@ -87,11 +97,20 @@
       const prev = S.finalChoice;
       const box = $('#fn-choice');
       const rows = global.Endings.hint(S);
-      box.innerHTML = '<div class="fn-q">你要怎么处置这一行？' +
-        (prev ? '（刚才在记录里，你按的是另一张。要改，也可以。）' : '') + '</div>' +
-        CHOICES.filter((c) => !c.need || (c.need === 'linf' && linf))
-          .map((c) => '<button class="fn-opt' + (c.id === prev ? ' pre' : '') + '" data-c="' + c.id + '">' +
-            '<b>' + c.t + '</b><span>' + c.s + '</span></button>').join('') +
+      const needOK = (c) => {
+        if (!c.need) return true;
+        if (c.need === 'linf') return !!linf;
+        if (c.need === 'ledger') return !!(global.Book && global.Book.ok());
+        return false;
+      };
+      box.innerHTML = '<div class="fn-scroll">' +
+          '<div class="fn-q">你要怎么处置这一行？' +
+          (prev ? '（刚才在记录里，你按的是另一张。要改，也可以。）' : '') + '</div>' +
+          CHOICES.filter(needOK)
+            .map((c) => '<button class="fn-opt' + (c.fold ? ' fold' : '') +
+              (c.id === prev ? ' pre' : '') + '" data-c="' + c.id + '">' +
+              '<b>' + c.t + '</b><span>' + c.s + '</span></button>').join('') +
+        '</div>' +
         '<div class="fn-state">' + rows.map((r) =>
           '<span><i>' + r[0] + '</i><b>' + r[1] + '</b></span>').join('') + '</div>' +
         '<div class="fn-idle">（你还有 <b id="fn-idle-n">120</b> 秒。之后它会替你选。）</div>';
@@ -99,6 +118,16 @@
       $$('.fn-opt').forEach((b) => {
         b.addEventListener('click', () => this.choose(b.dataset.c));
       });
+
+      /* 纸多到排不下时，底部淡出去一点，让人知道下面还有 */
+      const sc = box.querySelector('.fn-scroll');
+      if (sc && sc.scrollHeight > sc.clientHeight + 4) {
+        sc.classList.add('more');
+        sc.addEventListener('scroll', () => {
+          const end = sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 8;
+          sc.classList.toggle('more', !end);
+        });
+      }
     },
 
     resetIdle() {
@@ -151,6 +180,12 @@
       const e = global.Endings.get(id);
       if (!e) return;
 
+      /* 一局只记一笔，记的是"你走到了哪里"，不是"你点了几下" */
+      if (!this.counted) {
+        this.counted = true;
+        if (global.Book) global.Book.run(global.State, e);
+      }
+
       $('#fn-choice').classList.remove('on');
       await wait(360);
       await Fade.on(true);
@@ -163,6 +198,13 @@
       $('#fn-end-tone').textContent = e.tone;
       $('#fn-end-name').style.color = e.color;
       $('#fn-end-text').textContent = '';
+
+      /* 读者：这一页没有"重开"。合上，是你自己的动作。 */
+      if (id === 'reader') {
+        this._reader = true;
+        const rt = $('#fn-restart');
+        if (rt) { rt.textContent = '合 上'; rt.setAttribute('data-seal', '1'); }
+      }
       await wait(200);
       await Fade.off(900);
 
@@ -174,11 +216,22 @@
          玩家自己往上翻不改变 scrollHeight，不会被拽回来。 */
       const pg = document.querySelector('.fn-page');
       clearInterval(this._stick);
+      if (this._unstick && pg) pg.removeEventListener('scroll', this._unstick);
       let lastH = -1;
+      let follow = true;
+      /* 玩家自己往上翻，就别再把他拽回底下 */
+      this._unstick = () => {
+        if (!pg) return;
+        follow = pg.scrollTop + pg.clientHeight >= pg.scrollHeight - 100;
+      };
+      if (pg) pg.addEventListener('scroll', this._unstick, { passive: true });
       this._stick = setInterval(() => {
         if (!pg || !pg.isConnected) { clearInterval(this._stick); return; }
         const h = pg.scrollHeight;
-        if (h !== lastH) { lastH = h; pg.scrollTop = 1e6; }
+        if (h !== lastH) {
+          lastH = h;
+          if (follow) pg.scrollTop = 1e6;
+        }
       }, 240);
       // 逐段浮出，不逐字（逐字太慢）
       const parts = text.split('\n');
@@ -235,8 +288,37 @@
         '<div class="fnc-row"><span>对局胜场</span><b>' + ((S.sys.boss && S.sys.boss.ai) || 0) + ' / 7</b></div>' +
         '<div class="fnc-row"><span>删除节点</span><b>' + rec.deleted + '</b></div>' +
         '<div class="fnc-row"><span>这一周目</span><b>第 ' + (S.sys.played || 1) + ' 次</b></div>' +
-        '<div class="fnc-foot">已记录。这一格不再是空的。</div>';
+        '<div class="fnc-foot">' +
+        (e.id === 'reader' ? '这本册子记住了你。' : '已记录。这一格不再是空的。') + '</div>';
       $('#fn-card').classList.add('on');
+    },
+
+    /* 合上。灯灭。剩下的一步不给你按钮，只给你一句话。 */
+    seal() {
+      if (this._sealed) return;
+      this._sealed = true;
+      if (global.Book) global.Book.seal();
+
+      let d = document.querySelector('.fn-seal');
+      if (!d) {
+        d = document.createElement('div');
+        d.className = 'fn-seal';
+        d.innerHTML = '<div class="fs-in">' +
+          '<p>灯灭了。</p><p class="fs-b">这里没有人。</p>' +
+          '<em>（按任意键，重新点亮。）</em></div>';
+        document.body.appendChild(d);
+      }
+      requestAnimationFrame(() => d.classList.add('on'));
+
+      const back = () => {
+        document.removeEventListener('keydown', back, true);
+        document.removeEventListener('mousedown', back, true);
+        location.reload();
+      };
+      setTimeout(() => {
+        document.addEventListener('keydown', back, true);
+        document.addEventListener('mousedown', back, true);
+      }, 1500);
     },
 
     /* 桌面上的那个文件 */
