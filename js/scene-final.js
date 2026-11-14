@@ -31,8 +31,17 @@
     init() {
       if (this.inited) return;
       this.inited = true;
-      $('#fn-restart').addEventListener('click', () => {
+      $('#fn-restart').addEventListener('click', (e) => {
         if (this._reader) { this.seal(); return; }
+        /* 重开是这一步最贵的动作，别让人手滑就点掉 */
+        const b = e.currentTarget;
+        if (global.Notes && global.Notes.again) {
+          global.Notes.again(b, () => {
+            document.dispatchEvent(new CustomEvent('restart'));
+            location.href = location.pathname;
+          });
+          return;
+        }
         document.dispatchEvent(new CustomEvent('restart'));
         location.href = location.pathname;
       });
@@ -305,12 +314,16 @@
         d.className = 'fn-seal';
         d.innerHTML = '<div class="fs-in">' +
           '<p>灯灭了。</p><p class="fs-b">这里没有人。</p>' +
-          '<em>（按任意键，重新点亮。）</em></div>';
+          '<em>（按 R 重新点亮。别的键都不作数。）</em></div>';
         document.body.appendChild(d);
       }
       requestAnimationFrame(() => d.classList.add('on'));
 
-      const back = () => {
+      /* 原先"按任意键"就重载——黑屏上随便一按就从头开始，
+         玩家会以为自己把进度弄丢了。改成只认 R。 */
+      const back = (e) => {
+        if (e.type === 'mousedown') return;
+        if (e.key !== 'r' && e.key !== 'R') return;
         document.removeEventListener('keydown', back, true);
         document.removeEventListener('mousedown', back, true);
         location.reload();

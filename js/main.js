@@ -758,6 +758,7 @@
     if (global.Archive) Archive.boot();
     if (global.Roam) Roam.boot();
     if (global.Save) Save.boot();
+    if (global.Notes) global.Notes.boot();
 
     // 开发者模式：F2 / ~ 打开；同时往真·控制台里打一行横幅（用 DevTools 的人会看见）
     if (global.Dev) Dev.boot();
@@ -986,6 +987,8 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'm' || e.key === 'M') {
         if (e.target.tagName === 'INPUT') return;
+        /* 锁屏的密码里有 m，静音往后排 */
+        if (global.App && global.App.current === 'lock') return;
         global.Snd.muted = !global.Snd.muted;
         global.Snd.setMute(global.Snd.muted);
         global.G.Toast.show(global.Snd.muted ? '静音' : '恢复声音');

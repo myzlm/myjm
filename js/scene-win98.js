@@ -264,7 +264,14 @@
       Snd.tone(70, 6, { type: 'sine', gain: 0.06, attack: 2 });
       await wait(600);
       $('#end-restart').classList.add('on');
-      $('#end-restart').onclick = () => location.reload();
+      $('#end-restart').onclick = (e) => {
+        const b = e.currentTarget;
+        if (global.Notes && global.Notes.again) {
+          global.Notes.again(b, () => location.reload());
+          return;
+        }
+        location.reload();
+      };
 
       // 第五章之后还有终章：回响
       let echo = document.getElementById('end-echo');

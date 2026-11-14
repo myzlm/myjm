@@ -82,6 +82,13 @@
 
     /* ---------------- 打字机 ---------------- */
     typeLine(text) {
+      /* 记下来。玩家手快跳过的话，L 能翻回去补。 */
+      const who = (this.node && this.node.who) || '艾';
+      this.log = this.log || [];
+      const last = this.log[this.log.length - 1];
+      if (!last || last.text !== text || last.who !== who) this.log.push({ who, text });
+      if (this.log.length > 160) this.log.shift();
+
       const el = $('#dlg-text');
       el.textContent = '';
       this.typing = true;
