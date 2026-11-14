@@ -53,7 +53,7 @@
 
     async start(force) {
       this.init();
-      if (global.Chapter) await global.Chapter.show('ch7');
+      if (global.Chapter) await global.Chapter.show('ch8');
       clearInterval(this._stick);
       this.stage = 'choice';
       this.counted = false;
@@ -78,7 +78,15 @@
 
       /* 翻过册子的人，再进来时柜台底下那点亮，是看得见的 */
       const flipped = !!(global.Book && global.Book.read().sealed > 0);
-      await this.say('灯芯只剩一小截了。\n\n柜台上的纸，还是那几张。' +
+      const stt = (S.sys && S.sys.street) || null;
+      const stTx = stt && stt.end === 'file'
+        ? '\n\n（你兜里是空的。那张纸现在在街尽头，压在一只右手下面。）'
+        : stt && stt.end === 'tear'
+          ? '\n\n（兜里有一片纸角，边缘是毛的。）'
+          : stt && stt.end === 'keep'
+            ? '\n\n（那张纸还在兜里。折了四折，硌着腿。）'
+            : '';
+      await this.say('灯芯只剩一小截了。\n\n柜台上的纸，还是那几张。' + stTx +
         (flipped ? '\n\n（柜台底下那块地方，比别处暗一点。你上次把手伸进去过。）' : ''));
       await wait(2200);
       await this.say('艾把笔推过来。\n\n"这一次，"他说，"你自己写。"');

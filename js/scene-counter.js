@@ -217,9 +217,19 @@
       const h = $('#cs-hint');
       if (!h) return;
       const sys = State.sys || {};
+      /* 打烊以后，柜台只剩一件事：出门 */
+      if ((State.ch6 >= 2 || State.ch7) && global.Street) {
+        h.textContent = '打烊了 —— 按 Q 出门，街上还有人';
+        return;
+      }
       if (State.ch2 >= 4 && !sys.sawSpace) { h.textContent = '柜台后面那道缝比看起来深 —— L 走进去'; return; }
       if (State.ch2 >= 1 && !sys.sawSpace) { h.textContent = '柜台后面有一道缝 —— L 走进去'; return; }
-      if (State.ch2 >= 5) { h.textContent = '门在你身后合上了'; return; }
+      if (State.ch2 >= 5) {
+        h.textContent = (State.ch6 >= 2 || State.ch7)
+          ? '门在你身后合上了 —— 按 Q 出门，街上还有人'
+          : '门在你身后合上了';
+        return;
+      }
       if (State.ch2 >= 4 && !State.soulDone) { h.textContent = '门缝里有声音 —— 先听清楚'; return; }
       if (State.ch2 >= 4) { h.textContent = '钥匙在手上 —— 去开那扇门'; return; }
       if (State.ch2 === 3) { h.textContent = '还差一顿饭 —— 点他，问愿望'; return; }

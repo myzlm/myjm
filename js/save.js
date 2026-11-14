@@ -22,6 +22,7 @@
     '第四章 · 渲 染 层',
     '第五章 · 根 目 录',
     '第六章 · 收 摊',
+    '第七章 · 门 外',
     '终章 · 回 响',
   ];
 
@@ -74,7 +75,10 @@
     chapterOf(S) {
       if (!S) return 0;
       const s = S.sys || {};
-      if (s.ending) return 7;
+      if (s.ending) return 8;
+      const st = (S.sys && S.sys.street) || null;
+      if (st && st.end) return 8;
+      if (S.ch7) return 7;
       if (S.ch6 >= 1) return 6;
       if (S.ch5 >= 1) return 5;
       if (S.ch4 >= 1) return 4;
@@ -198,6 +202,9 @@
       } else if (ch === 6) {
         global.App.show('duty');
         if (global.Duty) global.Duty.start();
+      } else if (ch === 7) {
+        global.App.show('street');
+        if (global.Street) global.Street.start();
       } else {
         global.App.show('final');
         if (global.Final) global.Final.start();

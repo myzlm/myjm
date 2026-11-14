@@ -16,6 +16,7 @@
     ledger: 'ch2', film: 'ch2', scale: 'ch2',
     oil: 'ch2', clock: 'ch2', scratch: 'ch2',
     hands: 'ch2',
+    street: 'final',
     win98: 'ch2',
     layer: 'chase',
     rhythm: null,
@@ -42,7 +43,7 @@
       if (name === 'counter' || name === 'lock') inv.classList.add('on');
       else inv.classList.remove('on');
       // 侧边坞只在这间屋子里出现（序章、下载页、终章、卷轴里都不该有）
-      const outside = ['mail', 'download', 'login', 'contract', 'dark', 'doll', 'final', 'moyun', 'end', 'space', 'duty'];
+      const outside = ['mail', 'download', 'login', 'contract', 'dark', 'doll', 'final', 'moyun', 'end', 'space', 'duty', 'street'];
       document.body.classList.toggle('in-game', outside.indexOf(name) < 0);
 
       // 配乐：同一首不重起，换首就交叉淡变
@@ -319,6 +320,39 @@
       log.push('hands=6 蜡/纸/带/片/孔/表 ok');
     });
 
+    /* ---- 第七章 · 门外 ---- */
+    run('Street', () => {
+      if (!global.Street) throw new Error('no Street');
+      const D = global.Street.data();
+      if (D.length !== 5) throw new Error('门数=' + D.length);
+      const ids = D.map((x) => x.id).join(',');
+      if (ids !== 'zhao,liu,girl,zhou,chen') throw new Error('门不对 ' + ids);
+      D.forEach((d) => {
+        if (!d.no || !d.name || !d.relic) throw new Error('缺牌子 ' + d.id);
+        ['kept', 'stripped', 'voided', 'other'].forEach((f) => {
+          if (!d.now || !d.now[f] || d.now[f].length < 2) throw new Error('缺此刻 ' + d.id + '/' + f);
+        });
+        ['truth', 'rule', 'theirs', 'refuse'].forEach((k) => {
+          if (!d.say || !d.say[k]) throw new Error('缺台词 ' + d.id + '/' + k);
+        });
+        if (!d.near || !d.back || !d.away) throw new Error('缺动作 ' + d.id);
+        if (!d.prop) throw new Error('缺道具 ' + d.id);
+      });
+      if (!document.querySelector('#screen-street')) throw new Error('no screen');
+      if (!document.querySelector('#st-houses') || !document.querySelector('#st-end')) throw new Error('no run');
+
+      /* 判决归一到四档：其余（没办/抵了/让位）都算 other */
+      const S = global.State;
+      const bak = (S.sys || {}).duty;
+      S.sys = S.sys || {};
+      S.sys.duty = { picks: [{ id: 'zhao', fate: 'paid' }, { id: 'liu', fate: 'stripped' }] };
+      if (global.Street.fateOf('zhao') !== 'other') throw new Error('paid 应归 other');
+      if (global.Street.fateOf('liu') !== 'stripped') throw new Error('stripped 不对');
+      if (global.Street.kindOf('zhao') !== 'refuse') throw new Error('缺 kind 应兜底 refuse');
+      S.sys.duty = bak;
+      log.push('street=5 五个门 · 四档此刻 · 四句台词 ok');
+    });
+
     /* ---- 里间 / 二十二个结局 ---- */
     run('Memory', () => {
       if (!global.Memory || Memory.total !== 35) throw new Error('total=' + (global.Memory ? Memory.total : 0));
@@ -429,17 +463,17 @@
     run('Cards', () => {
       if (!global.Chapter) throw new Error('no Chapter');
       const L = global.Chapter.list();
-      if (L.length !== 8) throw new Error('票根数=' + L.length);
+      if (L.length !== 9) throw new Error('票根数=' + L.length);
       const ids = L.map((c) => c.id).join(',');
-      if (ids !== 'ch0,ch1,ch2,ch3,ch4,ch5,ch6,ch7') throw new Error('顺序不对 ' + ids);
+      if (ids !== 'ch0,ch1,ch2,ch3,ch4,ch5,ch6,ch7,ch8') throw new Error('顺序不对 ' + ids);
       L.forEach((c) => {
         if (!c.no || !c.name) throw new Error('缺章号章名 ' + c.id);
         if (!c.epi || c.epi.length < 2) throw new Error('题记太短 ' + c.id);
         if (!c.back || c.back.length < 30) throw new Error('票根背面太短 ' + c.id);
         if (!c.seall || c.seall.length !== 1) throw new Error('章不是单字 ' + c.id);
       });
-      if (new Set(L.map((c) => c.name)).size !== 8) throw new Error('票根重名');
-      if (new Set(L.map((c) => c.seall)).size !== 8) throw new Error('章重复');
+      if (new Set(L.map((c) => c.name)).size !== 9) throw new Error('票根重名');
+      if (new Set(L.map((c) => c.seall)).size !== 9) throw new Error('章重复');
       /* 票根能记存根，且不弄脏玩家的存根 */
       const KEY = 'code_echo_cards_v1';
       const bak = localStorage.getItem(KEY);
@@ -448,11 +482,11 @@
         if (global.Chapter.count() !== 0) throw new Error('清不掉');
         global.Chapter.mark('ch3');
         if (!global.Chapter.seen('ch3')) throw new Error('记不住看过');
-        if (global.Chapter.miss().length !== 7) throw new Error('缺页算出 ' + global.Chapter.miss().length);
+        if (global.Chapter.miss().length !== 8) throw new Error('缺页算出 ' + global.Chapter.miss().length);
       } finally {
         if (bak === null) localStorage.removeItem(KEY); else localStorage.setItem(KEY, bak);
       }
-      log.push('cards=8');
+      log.push('cards=9');
     });
     run('Spend', () => {
       if (!global.Memory || typeof global.Memory.spend !== 'function') throw new Error('no Memory.spend');

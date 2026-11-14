@@ -6135,3 +6135,306 @@ body.egg-fx-51::after {
   .pause-b i { display: none; }
   .pause-b { padding: 9px 14px; }
 }
+
+/* ------------------------------------------------------------
+   Q. 第七章 · 门 外
+   ------------------------------------------------------------
+   天亮之前的街。冷灰，雾，一盏不肯灭的路灯。
+   五个门，每个门后面是一个人 —— 你昨晚写下的那七行字里的五个。
+   这里的配色故意和店里不一样：店里是暖的，街上没有暖的。
+   ------------------------------------------------------------ */
+#screen-street {
+  background:
+    radial-gradient(ellipse 90% 60% at 22% 88%, rgba(84, 96, 112, .2), transparent 68%),
+    radial-gradient(ellipse 70% 50% at 78% 92%, rgba(120, 92, 56, .14), transparent 72%),
+    linear-gradient(180deg, #080a0d 0%, #0d1116 42%, #12161b 74%, #0a0c0f 100%);
+}
+.st-wrap {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  padding: 4.4vh 4vw 3vh;
+}
+.st-head { text-align: center; flex: none; }
+.st-t {
+  font-family: var(--serif); font-size: clamp(19px, 2.4vh, 25px);
+  letter-spacing: .5em; text-indent: .5em; color: #cfd6de;
+}
+.st-s {
+  margin-top: 9px; font-family: var(--serif); font-size: 11.5px;
+  line-height: 1.9; letter-spacing: .04em; color: #6d7a88;
+}
+
+/* ---------- 街 ---------- */
+.st-run {
+  position: relative; flex: 1;
+  display: none; align-items: flex-end; justify-content: center;
+  gap: clamp(8px, 1.4vw, 22px);
+  padding: 2vh 0 7vh;
+  min-height: 0;
+}
+.st-run.on { display: flex; }
+/* 五个门并排 —— 这个容器自己不排，靠里面的 flex 排 */
+.st-houses {
+  flex: 1 1 auto; min-width: 0;
+  display: flex; align-items: stretch; justify-content: center;
+  gap: clamp(6px, 1.1vw, 14px);
+}
+.st-fog {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 46%;
+  background: linear-gradient(180deg, transparent, rgba(150, 166, 184, .07) 60%, rgba(150, 166, 184, .1));
+  pointer-events: none;
+}
+
+.st-house {
+  position: relative; flex: 0 1 168px;
+  display: flex; flex-direction: column; align-items: center;
+  height: clamp(200px, 30vh, 268px);
+  padding: 12px 10px 12px;
+  background: linear-gradient(180deg, rgba(24, 29, 36, .9), rgba(11, 14, 18, .96));
+  border: 1px solid rgba(140, 158, 178, .16);
+  cursor: pointer; overflow: hidden;
+  transition: border-color .26s, transform .26s, background .26s;
+}
+.st-house:hover {
+  border-color: rgba(180, 200, 222, .46);
+  transform: translateY(-3px);
+  background: linear-gradient(180deg, rgba(34, 41, 50, .94), rgba(14, 18, 23, .97));
+}
+.st-house.done { opacity: .46; cursor: default; }
+.st-house.done:hover { transform: none; border-color: rgba(140, 158, 178, .16); }
+.st-h-no {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .2em; color: #56636f;
+  align-self: flex-start;
+}
+.st-h-win {
+  display: flex; gap: 9px; margin: 14px 0 auto;
+}
+.st-h-win i {
+  width: 15px; height: 19px; display: block;
+  background: rgba(120, 140, 160, .1);
+  box-shadow: inset 0 0 0 1px rgba(140, 158, 178, .16);
+  transition: background .3s, box-shadow .3s;
+}
+.st-house:hover .st-h-win i:nth-child(2) { background: rgba(232, 190, 120, .3); box-shadow: 0 0 14px rgba(232, 190, 120, .2); }
+.st-house.done .st-h-win i { background: rgba(40, 46, 54, .5); }
+.st-h-name {
+  font-family: var(--serif); font-size: clamp(13px, 1.8vh, 16px);
+  letter-spacing: .18em; color: #c2ccd6;
+}
+.st-h-tx {
+  margin-top: 8px; font-family: var(--serif); font-size: 10.5px; line-height: 1.7;
+  letter-spacing: .02em; color: #6b7885; text-align: center;
+  min-height: 34px;
+}
+.st-h-fate {
+  margin-top: 9px; font-family: var(--mono); font-size: 8.5px;
+  letter-spacing: .04em; color: #5d6a77;
+}
+.st-h-fate.f-kept { color: #5f7d5a; }
+.st-h-fate.f-stripped { color: #8a6a4a; }
+.st-h-fate.f-voided { color: #7a4a4a; }
+
+/* 街尽头 */
+.st-end {
+  position: relative; flex: 0 0 auto;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  width: clamp(96px, 10vw, 138px); align-self: flex-end;
+  justify-content: center; padding-bottom: 0;
+  opacity: .34; transition: opacity .5s;
+  cursor: default;
+}
+.st-end.on { opacity: 1; cursor: pointer; }
+.st-end.on:hover .st-case { border-color: rgba(232, 190, 120, .6); }
+.st-case {
+  position: relative; width: 100%; flex: 0 0 auto;
+  height: clamp(96px, 17vh, 146px);
+  border: 1px solid rgba(140, 158, 178, .22);
+  background: linear-gradient(180deg, rgba(30, 38, 47, .7), rgba(12, 15, 19, .9));
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, .8);
+  transition: border-color .3s;
+}
+.st-case i {
+  position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
+  width: 40%; height: 3px; background: rgba(232, 190, 120, .14);
+  box-shadow: 0 -6px 0 rgba(232, 190, 120, .09), 0 -12px 0 rgba(232, 190, 120, .06);
+}
+.st-end.on .st-case i { background: rgba(232, 190, 120, .5); box-shadow: 0 -7px 0 rgba(232, 190, 120, .3), 0 -14px 0 rgba(232, 190, 120, .18); }
+.st-end-t {
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: .18em; color: #56636f;
+}
+
+/* ---------- 单站 ---------- */
+.st-stop {
+  display: none; flex: 1; flex-direction: column; align-items: center;
+  justify-content: flex-end; gap: 1.2vh;
+  min-height: 0; padding: 1vh 0 5vh;
+}
+.st-stop.on { display: flex; }
+/* 开场那几句：只有字，没有景，也没有按钮 */
+.st-wrap[data-stage="intro"] .st-stop { display: flex; justify-content: center; }
+.st-wrap[data-stage="intro"] .st-scene,
+.st-wrap[data-stage="intro"] .st-acts { display: none; }
+.st-wrap[data-stage="intro"] .st-text { max-height: 56vh; }
+.st-wrap[data-stage="intro"] .st-text .st-l {
+  font-size: clamp(13px, 1.8vh, 15.5px); line-height: 2.4; color: #93a1ae;
+}
+
+.st-scene {
+  position: relative; flex: none;
+  width: min(880px, 92vw);
+  flex: none; height: clamp(190px, 40vh, 370px);
+}
+.st-pool {
+  position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+  width: min(460px, 74%); height: 62%;
+  background: radial-gradient(ellipse at 50% 86%, rgba(196, 214, 232, .11), transparent 68%);
+  pointer-events: none;
+}
+.st-fig {
+  position: absolute; left: 50%; bottom: 7%; transform: translateX(-50%);
+  width: 58px; height: 166px;
+}
+.st-fig .hd {
+  position: absolute; left: 50%; top: 0; transform: translateX(-50%);
+  width: 26px; height: 30px; border-radius: 50% 50% 46% 46%;
+  background: #05070a;
+  box-shadow: 0 0 0 1px rgba(170, 190, 210, .14);
+}
+.st-fig .bd {
+  position: absolute; left: 50%; top: 30px; transform: translateX(-50%);
+  width: 56px; height: 130px;
+  background: #05070a;
+  /* 肩宽、腰收、下摆略宽 —— 一个站着的人，不是一根柱子 */
+  clip-path: polygon(50% 0, 72% 3%, 88% 13%, 96% 30%, 100% 52%, 94% 100%, 6% 100%, 0 52%, 4% 30%, 12% 13%, 28% 3%);
+  filter: drop-shadow(0 0 1px rgba(170, 190, 210, .28)) drop-shadow(0 6px 22px rgba(0, 0, 0, .9));
+}
+.st-prop {
+  position: absolute; left: 50%; bottom: 6%; transform: translateX(-50%);
+  pointer-events: none;
+}
+/* 长椅 */
+.st-prop.p-bench::before {
+  content: ""; position: absolute; left: -120px; bottom: 0;
+  width: 240px; height: 4px; background: rgba(160, 178, 196, .2);
+  box-shadow: 0 16px 0 -1px rgba(160, 178, 196, .1);
+}
+/* 一排塑料椅 */
+.st-prop.p-chair::before {
+  content: ""; position: absolute; left: -110px; bottom: 0;
+  width: 220px; height: 3px; background: rgba(160, 178, 196, .18);
+  box-shadow: 0 13px 0 -2px rgba(160, 178, 196, .09), 42px 0 0 rgba(160, 178, 196, .1);
+}
+/* 花坛 */
+.st-prop.p-planter::before {
+  content: ""; position: absolute; left: -90px; bottom: 0;
+  width: 180px; height: 22px;
+  background: rgba(46, 54, 62, .8);
+  box-shadow: inset 0 0 0 1px rgba(160, 178, 196, .12);
+}
+.st-prop.p-planter::after {
+  content: ""; position: absolute; left: -74px; bottom: 22px;
+  width: 148px; height: 12px; border-radius: 50% 50% 0 0;
+  background: rgba(58, 74, 62, .45);
+}
+/* 早点摊 */
+.st-prop.p-stall::before {
+  content: ""; position: absolute; left: -110px; bottom: 0;
+  width: 220px; height: 4px; background: rgba(200, 178, 148, .24);
+  box-shadow: 0 20px 0 -1px rgba(160, 178, 196, .1);
+}
+.st-prop.p-stall::after {
+  content: ""; position: absolute; left: -50px; bottom: 12px;
+  width: 100px; height: 46px;
+  background: radial-gradient(ellipse at 40% 90%, rgba(232, 190, 120, .14), transparent 70%);
+}
+/* 电动车 */
+.st-prop.p-bike::before,
+.st-prop.p-bike::after {
+  content: ""; position: absolute; bottom: 0; width: 22px; height: 22px;
+  border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(160, 178, 196, .26);
+}
+.st-prop.p-bike::before { left: -60px; }
+.st-prop.p-bike::after { left: 36px; }
+/* 街尽头这一站没有人：柜子里没有一个是站着的 */
+.st-scene[data-prop="case"] .st-fig { display: none; }
+.st-scene[data-prop="case"] .st-pool { opacity: .6; }
+
+/* 玻璃柜（街尽头） */
+.st-prop.p-case::before {
+  content: ""; position: absolute; left: -90px; bottom: 0;
+  width: 180px; height: 122px;
+  border: 1px solid rgba(170, 190, 210, .3);
+  background: linear-gradient(180deg, rgba(40, 50, 60, .4), rgba(10, 13, 17, .8));
+  box-shadow: inset 0 0 26px rgba(0, 0, 0, .8), 0 0 30px rgba(140, 180, 220, .06);
+}
+.st-prop.p-case::after {
+  content: ""; position: absolute; left: -62px; bottom: 30px;
+  width: 124px; height: 2px; background: rgba(232, 190, 120, .34);
+  box-shadow: 0 -10px 0 rgba(232, 190, 120, .2), 0 -20px 0 rgba(232, 190, 120, .12);
+}
+
+/* 文本 */
+.st-text {
+  width: min(620px, 86vw); flex: 0 1 auto;
+  min-height: 3.4em; max-height: 26vh; overflow-y: auto;
+  text-align: center;
+}
+.st-text::-webkit-scrollbar { width: 0; }
+.st-text .st-l {
+  font-family: var(--serif); font-size: clamp(12.5px, 1.6vh, 14.5px);
+  line-height: 2.1; letter-spacing: .035em; color: #a8b4c0;
+  opacity: 0; animation: stIn .7s ease forwards;
+}
+.st-text .st-l + .st-l { margin-top: 2px; }
+.st-text .st-l.narr { color: #6f7d8b; font-style: italic; }
+.st-text .st-l.say { color: #dbe3ec; }
+.st-text .st-l.back { color: #cdbb96; }
+@keyframes stIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* 三个姿态 */
+.st-acts {
+  display: flex; gap: clamp(8px, 1.2vw, 16px); justify-content: center;
+  margin-top: 1.6vh; flex-wrap: wrap;
+}
+.st-a {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  min-width: 108px; padding: 9px 18px 8px;
+  background: transparent;
+  border: 1px solid rgba(150, 172, 194, .22);
+  cursor: pointer; transition: all .22s;
+}
+.st-a b {
+  font-family: var(--serif); font-weight: 400; font-size: 12.5px;
+  letter-spacing: .22em; text-indent: .22em; color: #b9c6d2;
+}
+.st-a i {
+  font-family: var(--serif); font-style: normal; font-size: 9.5px;
+  letter-spacing: .06em; color: #5f6c79;
+}
+.st-a:hover { border-color: rgba(210, 226, 242, .6); background: rgba(40, 50, 62, .5); }
+.st-a:hover b { color: #eef4fa; }
+.st-a.ghost { border-color: rgba(150, 172, 194, .1); }
+.st-a.ghost b { color: #7d8a97; }
+
+.st-foot {
+  flex: none; display: flex; align-items: center; gap: 18px;
+  padding-top: 1.4vh;
+}
+.st-n { font-family: var(--mono); font-size: 9.5px; letter-spacing: .18em; color: #56636f; }
+.st-paper { font-family: var(--serif); font-size: 10px; letter-spacing: .06em; color: #4e5a66; }
+.st-b {
+  background: transparent; border: 1px solid #2c343d; color: #8b98a5;
+  font-family: var(--serif); font-size: 11px; letter-spacing: .24em;
+  padding: 6px 14px; cursor: pointer; transition: all .22s;
+}
+.st-b:hover { border-color: #6b7c8c; color: #d6e0e8; }
+.st-b.ghost { border-color: #222a32; color: #5a6672; }
+
+@media (max-height: 760px) {
+  .st-wrap { padding: 3vh 4vw 2vh; }
+  .st-run { padding: 1vh 0 4vh; }
+  .st-house { height: 246px; }
+  .st-scene { height: clamp(160px, 34vh, 240px); }
+  .st-text { max-height: 21vh; }
+  .st-text .st-l { line-height: 1.95; }
+}

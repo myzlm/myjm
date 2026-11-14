@@ -74,6 +74,14 @@
       back: '借《Papers, Please》：一张表格，一支笔，和一条不许你全都放过的规矩。',
     },
     ch7: {
+      no: '第 七 章',
+      name: '门 外',
+      seall: '外',
+      epi: ['打烊以后你走了一条街。', '昨晚写的字，已经落到人身上了。'],
+      foot: ['五个门', '一张纸'],
+      back: '借《Kentucky Route Zero》与《That Dragon, Cancer》的胆子：一条街只给一束光，人自己站着，不等旁白介绍。也借《Disco Elysium》：不给选项，给三个姿态 —— 走近、说一句、走开。',
+    },
+    ch8: {
       no: '终 章',
       name: '回 响',
       seall: '回',
@@ -83,7 +91,7 @@
     },
   };
 
-  const ORDER = ['ch0', 'ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7'];
+  const ORDER = ['ch0', 'ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8'];
 
   /* ---------- 票根存根 ---------- */
   function read() {
@@ -95,6 +103,19 @@
   function write(a) {
     try { localStorage.setItem(LS, JSON.stringify(a.filter((x, i) => a.indexOf(x) === i))); } catch (e) {}
   }
+
+  /* 旧存根里 ch7 是终章。现在第七章占了 ch7，终章挪到 ch8。
+     老玩家的票要挪一格，否则第七章的票会被当成"已经看过"。 */
+  (function migrate() {
+    try {
+      const a = read();
+      const i = a.indexOf('ch7');
+      if (i >= 0 && a.indexOf('ch8') < 0) {
+        a[i] = 'ch8';
+        write(a);
+      }
+    } catch (e) {}
+  })();
 
   const Chapter = {
     CARDS: CARDS,
@@ -148,7 +169,7 @@
 
     /**
      * 放一张票。
-     * @param {string} id  ch0..ch7
+     * @param {string} id  ch0..ch8
      * @param {number} [hold] 停留毫秒（默认 2000）
      */
     show(id, hold) {

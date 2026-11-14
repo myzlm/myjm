@@ -1147,7 +1147,11 @@
     /* ---------- 进终章 ---------- */
     toFinal() {
       Fade.through(() => {
-        if (global.Final) {
+        /* 打烊之后先出门：第七章那条街，然后才是柜台 */
+        if (global.Street) {
+          global.App.show('street');
+          global.Street.start();
+        } else if (global.Final) {
           global.App.show('final');
           global.Final.start();
         } else if (global.End && global.End.show) {

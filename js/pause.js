@@ -40,6 +40,11 @@
     moyun: '#my-back',
   };
 
+  /* 街上有自己的退法：站里退回街，街上退回柜台 */
+  const SPECIAL = {
+    street: () => { if (global.Street && global.Street.escBack) global.Street.escBack(); },
+  };
+
   /* 中途真走不开的：按了 Esc 得有一句话，别让人以为键盘坏了 */
   const STUCK = {
     lock: '门锁着。解开了才出得去。',
@@ -77,6 +82,7 @@
         if (this.blocked()) return;
 
         const cur = (global.App && global.App.current) || '';
+        if (SPECIAL[cur]) { e.preventDefault(); SPECIAL[cur](); return; }
         if (PAUSE[cur]) { e.preventDefault(); this.leave(); return; }
         if (BACK[cur]) {
           const btn = $(BACK[cur]);

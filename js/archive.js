@@ -37,10 +37,22 @@
         if (e.key === 'p' || e.key === 'P') { e.preventDefault(); if (global.Persp) global.Persp.toggle(); }
         if (e.key === 'k' || e.key === 'K') { e.preventDefault(); if (global.Moyun) global.Moyun.show(); }
         if (e.key === 'v' || e.key === 'V') { e.preventDefault(); this.toggle(); }
+        if (e.key === 'q' || e.key === 'Q') {
+          const cur = global.App && global.App.current;
+          const S = global.State || {};
+          const nightDone = (S.ch6 >= 1) || !!S.ch7;
+          if (!nightDone) return;
+          if (cur === 'lock' || cur === 'login' || cur === 'win98' || cur === 'duty' ||
+              cur === 'final' || cur === 'end' || cur === 'moyun' || cur === 'street' ||
+              this.open) return;
+          e.preventDefault();
+          if (global.Street) global.Street.reenter();
+        }
         if (e.key === 'y' || e.key === 'Y') {
           const cur = global.App && global.App.current;
           if (cur === 'lock' || cur === 'login' || cur === 'win98' ||
-              cur === 'final' || cur === 'end' || cur === 'moyun' || this.open) return;
+              cur === 'final' || cur === 'end' || cur === 'moyun' ||
+              cur === 'street' || this.open) return;
           e.preventDefault();
           if (global.Hands) global.Hands.enter();
         }

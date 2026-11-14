@@ -141,6 +141,14 @@
           (dd.lamp ? '灯续上了。' : '灯灭了。'));
       }
 
+      const stt = (S && S.sys && S.sys.street) || null;
+      if (stt && stt.seen && stt.seen.length) {
+        const endTx = stt.end === 'file' ? '，把那张纸塞进了玻璃柜'
+          : stt.end === 'tear' ? '，把那张纸撕了'
+            : stt.end === 'keep' ? '，把那张纸收进了兜里' : '';
+        out.push('打烊以后你出过一次门，走过 ' + stt.seen.length + ' 个门' + endTx + '。');
+      }
+
       const hh = (S && S.hands) || null;
       if (hh) {
         const all = Object.keys(hh).filter((k) => hh[k] && hh[k].done);

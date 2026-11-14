@@ -96,6 +96,18 @@
       warn: '七个人全保住要十四格油，你只有九格。这不是算错了，是做不到。',
     },
     7: {
+      no: '第七章', name: '门外',
+      goal: [
+        ['走过街上那五个门', (S) => ((((S.sys || {}).street || {}).seen) || []).length >= 5],
+        ['每个门只做一件事：走近 / 说一句 / 走开',
+          (S) => Object.keys((((S.sys || {}).street || {}).acts) || {}).length >= 5],
+        ['街尽头那张纸：塞进柜子，还是撕掉',
+          (S) => !!(((S.sys || {}).street || {}).end)],
+      ],
+      keys: '点门 · 三个姿态每站用一次 · Esc 先把这条街放下',
+      warn: '你说话他们听得见，但不会因此好起来。判决昨晚就生效了。',
+    },
+    8: {
       no: '终章', name: '回响',
       goal: [
         ['先不选。把笔推回去一次', (S) => (S.sys.transcend || 0) >= 1],
@@ -115,6 +127,7 @@
     ['Esc', '关掉当前这层浮窗；没有浮窗时＝先放着，退回上一步'],
     ['H', '这张纸：该做什么、说过什么、键在哪'],
     ['Y', '柜台底下的木箱：六件手上的活'],
+    ['Q', '第七章：从柜台再出门（打烊以后才有）'],
     ['L', '回看刚才的对话'],
     ['M', '静音 / 恢复'],
     ['Tab', '第四章：检查器（改元素层级）'],
@@ -174,13 +187,14 @@
       const S = global.State || {};
       /* 屏比存档准：终章/收摊/根目录/渲染层都是独占的屏 */
       const cur = (global.App && global.App.current) || '';
-      const byScreen = { final: 7, duty: 6, root: 5, anomaly: 5, layer: 4, hall: 1 };
+      const byScreen = { final: 8, street: 7, duty: 6, root: 5, anomaly: 5, layer: 4, hall: 1 };
       if (byScreen[cur]) return byScreen[cur];
       if (global.Save && global.Save.chapterOf) {
         const c = global.Save.chapterOf(S);
         if (typeof c === 'number') return c;
       }
-      if (S.finalChoice) return 7;
+      if (S.finalChoice) return 8;
+      if (S.ch7) return 7;
       if (S.ch6) return 6;
       if (S.ch5) return 5;
       if (S.ch4) return 4;
