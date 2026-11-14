@@ -120,7 +120,7 @@
       const S = global.App && global.App.current;
       const backable = ['ledger', 'film', 'scale', 'oil', 'clock', 'scratch'];
       if (backable.indexOf(S) >= 0) {
-        global.Fade.through(() => { global.App.show('counter'); global.Counter.init(); });
+        Fade.through(() => { global.App.show('counter'); global.Counter.init(); });
       }
     },
 
@@ -157,7 +157,7 @@
       S.sys.visited[id] = true;
       this.close();
       global.Snd && global.Snd.click && global.Snd.click();
-      global.Fade.through(() => { try { p.go(); } catch (e) { Toast.show('这扇门暂时打不开。', 2000); } });
+      Fade.through(() => { try { p.go(); } catch (e) { Toast.show('这扇门暂时打不开。', 2000); } });
     },
 
     places: PLACES,
