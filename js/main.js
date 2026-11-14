@@ -18,7 +18,7 @@
     win98: 'ch2',
     layer: 'chase',
     rhythm: null,
-    root: 'deep', anomaly: 'deep',
+    root: 'deep', anomaly: 'deep', duty: 'counter',
     moyun: 'moyun',
     space: 'deep',
     end: 'final', final: 'final',
@@ -40,7 +40,7 @@
       if (name === 'counter' || name === 'lock') inv.classList.add('on');
       else inv.classList.remove('on');
       // 侧边坞只在这间屋子里出现（序章、下载页、终章、卷轴里都不该有）
-      const outside = ['mail', 'download', 'login', 'contract', 'dark', 'doll', 'final', 'moyun', 'end', 'space'];
+      const outside = ['mail', 'download', 'login', 'contract', 'dark', 'doll', 'final', 'moyun', 'end', 'space', 'duty'];
       document.body.classList.toggle('in-game', outside.indexOf(name) < 0);
 
       // 配乐：同一首不重起，换首就交叉淡变
@@ -214,9 +214,11 @@
       Verify.reset();
     });
     run('Endings', () => {
-      if (Endings.list.length !== 18) throw new Error('count=' + Endings.list.length);
+      if (Endings.list.length !== 20) throw new Error('count=' + Endings.list.length);
       const ids = Endings.list.map((e) => e.id);
-      if (new Set(ids).size !== 18) throw new Error('dup id');
+      if (new Set(ids).size !== Endings.list.length) throw new Error('dup id');
+      const nos = Endings.list.map((e) => e.no);
+      if (nos.join(',') !== nos.slice().sort((x, y) => x - y).join(',')) throw new Error('编号乱序');
       const S = { playerName: '测试', sys: { verified: 0, deleted: 0, endings: [], ending: 'observer' } };
       const e = Endings.evaluate(S);
       if (!e || !e.text(S) || e.text(S).length < 80) throw new Error('text');
@@ -285,7 +287,7 @@
       log.push('new screens ok');
     });
 
-    /* ---- 里间 / 十八个结局 ---- */
+    /* ---- 里间 / 二十个结局 ---- */
     run('Memory', () => {
       if (!global.Memory || Memory.total !== 35) throw new Error('total=' + (global.Memory ? Memory.total : 0));
       const nos = Memory.list.map((m) => m.no);
@@ -301,7 +303,7 @@
       c7.forEach((q) => { if (q.opts.indexOf(q.a) < 0) throw new Error('copy7 选项不含答案'); });
       log.push('mem=35 copy7=3');
     });
-    run('Reach18', () => {
+    run('Reach20', () => {
       const mk = (patch, choice) => {
         const S = { playerName: '测试', finalChoice: choice || 'nothing', sys: { endings: [], npcs: {}, boss: {}, bossMax: 0 } };
         Object.assign(S.sys, patch || {});
@@ -323,6 +325,8 @@
         ['conqueror', mk({ bossMax: 7 })],
         ['awakened', mk({ outside: 3 })],
         ['nightwatch', mk({ played: 2, sameAsLast: true })],
+        ['clerk', mk({ duty: { rule: 5, total: 11, truth: 1, theirs: 1 } })],
+        ['lastguest', mk({ duty: { seat: true, rule: 2, total: 6 } })],
         ['inherit', mk({}, 'fail')],
         ['observer', mk({}, 'nothing')],
         ['nameless', mk({}, 'overwrite')],
@@ -333,12 +337,36 @@
         if (!e || e.id !== id) bad.push(id + '→' + (e ? e.id : 'null'));
       });
       if (bad.length) throw new Error(bad.join(' , '));
-      // 18 个都得有文案
+      // 每一个都得有文案
       Endings.list.forEach((e) => {
         const t = e.text({ playerName: '测试', sys: {} });
         if (!t || t.length < 120) throw new Error('文案太短 ' + e.id);
       });
-      log.push('reach=18/18');
+      log.push('reach=' + Endings.list.length + '/' + Endings.list.length);
+    });
+    run('Ch6', () => {
+      if (!global.Duty) throw new Error('no Duty');
+      const G = global.DUTY_GUESTS;
+      if (!G || G.length !== 7) throw new Error('人数=' + (G ? G.length : 0));
+      const ids = {};
+      G.forEach((g) => {
+        if (ids[g.id]) throw new Error('重复 ' + g.id);
+        ids[g.id] = 1;
+        if (!g.name || !g.relic || !g.want) throw new Error('缺字段 ' + g.id);
+        if (!g.lines || g.lines.length < 5) throw new Error('独白太短 ' + g.id);
+        if (!g.asks || g.asks.length !== 3) throw new Error('问话数=' + (g.asks ? g.asks.length : 0) + ' @' + g.id);
+        const ok = g.asks.filter((a) => a.ok);
+        if (ok.length !== 1) throw new Error('正确问话数=' + ok.length + ' @' + g.id);
+        if (!g.reveal || g.reveal.length < 5) throw new Error('真相太短 ' + g.id);
+        ['truth', 'rule', 'theirs'].forEach((k) => {
+          if (!g.writes[k] || !g.writes[k].line) throw new Error('缺写法 ' + g.id + '/' + k);
+        });
+        ['kept', 'stripped', 'voided'].forEach((k) => {
+          if (!g.after[k] || g.after[k].length < 2) throw new Error('缺后日谈 ' + g.id + '/' + k);
+        });
+        if (g.extra && g.extra.kind === 'refuse' && !g.after.refused) throw new Error('缺 refused 后日谈 ' + g.id);
+      });
+      log.push('duty=7 ok');
     });
     run('Space', () => {
       if (!global.Space) throw new Error('no Space');

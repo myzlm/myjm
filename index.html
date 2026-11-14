@@ -815,6 +815,31 @@
     </div>
   </section>
 
+  <!-- ============ 6. 收摊（最后一班） ============ -->
+  <section class="screen" id="screen-duty" data-screen="duty">
+    <div class="dt-wrap" id="dt-wrap" data-stage="intro">
+      <div class="dt-lamp" id="dt-lamp" data-lvl="low"><i></i><b></b></div>
+
+      <div class="dt-top">
+        <div class="dt-no" id="dt-no"></div>
+        <div class="dt-name" id="dt-name">—</div>
+        <div class="dt-meta" id="dt-meta"></div>
+      </div>
+
+      <div class="dt-relic" id="dt-relic"></div>
+      <div class="dt-say" id="dt-say"></div>
+      <div class="dt-acts" id="dt-acts"></div>
+
+      <div class="dt-ledger">
+        <span class="dt-lg-k">灯 油</span>
+        <span class="dt-lg-track"><i id="dt-ledger-bar"></i></span>
+        <span class="dt-lg-n" id="dt-ledger-n">0</span>
+      </div>
+
+      <div class="dt-sum" id="dt-sum"></div>
+    </div>
+  </section>
+
   <section class="screen" id="screen-end" data-screen="end">
     <div class="end-wrap">
       <div class="end-text" id="end-text"></div>
@@ -1033,7 +1058,7 @@
         <div class="fn-choice" id="fn-choice"></div>
         <div class="fn-end" id="fn-end">
           <div class="fn-end-top">
-            <span class="fn-end-no" id="fn-end-no">结局 01 / 18</span>
+            <span class="fn-end-no" id="fn-end-no">结局 01 / 20</span>
             <span class="fn-end-name" id="fn-end-name">传承者</span>
             <span class="fn-end-tone" id="fn-end-tone">悲壮的浪漫</span>
           </div>
@@ -1180,6 +1205,7 @@
 <script src="js/scene-stash.js"></script>
 <script src="js/scene-ch4.js"></script>
 <script src="js/scene-ch5.js"></script>
+<script src="js/duty.js"></script>
 <script src="js/scene-win98.js"></script>
 <script src="js/scene-ch0.js"></script>
 <script src="js/scene-verify.js"></script>

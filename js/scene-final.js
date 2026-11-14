@@ -42,6 +42,7 @@
 
     async start(force) {
       this.init();
+      clearInterval(this._stick);
       this.stage = 'choice';
       $('#fn-wrap').dataset.stage = 'text';
       $('#fn-text').textContent = '';
@@ -155,7 +156,8 @@
       $('#fn-text').textContent = '';
       $('#fn-wrap').dataset.stage = 'end';
       $('#fn-end').classList.add('on');
-      $('#fn-end-no').textContent = '结局 ' + String(e.no).padStart(2, '0') + ' / 18';
+      $('#fn-end-no').textContent = '结局 ' + String(e.no).padStart(2, '0') + ' / ' +
+        global.Endings.list.length;
       $('#fn-end-name').textContent = e.name;
       $('#fn-end-tone').textContent = e.tone;
       $('#fn-end-name').style.color = e.color;
@@ -165,6 +167,18 @@
 
       const text = e.text(S);
       const el = $('#fn-end-text');
+
+      /* 结局正文不再内部滚，整页随字数往下长。
+         内容一变高就把整页贴到底，最后那句【】永远看得见；
+         玩家自己往上翻不改变 scrollHeight，不会被拽回来。 */
+      const pg = document.querySelector('.fn-page');
+      clearInterval(this._stick);
+      let lastH = -1;
+      this._stick = setInterval(() => {
+        if (!pg || !pg.isConnected) { clearInterval(this._stick); return; }
+        const h = pg.scrollHeight;
+        if (h !== lastH) { lastH = h; pg.scrollTop = 1e6; }
+      }, 240);
       // 逐段浮出，不逐字（逐字太慢）
       const parts = text.split('\n');
       for (let i = 0; i < parts.length; i++) {
@@ -175,6 +189,12 @@
         requestAnimationFrame(() => d.classList.add('on'));
         await wait(parts[i].trim() ? 240 : 120);
       }
+
+      /* 卡片插进来之后正文区会缩，再贴一次底，保证最后一句看得见 */
+      await wait(260);
+      el.scrollTop = 1e6;
+      await wait(520);
+      el.scrollTop = 1e6;
 
       global.Endings.checkLoop(S);
       global.Endings.mark(id);

@@ -318,7 +318,18 @@
       State.finalChoice = c;
       State.ch5 = 3;
       Snd.tone(64, 4, { type: 'sine', gain: 0.07, attack: 1.6 });
-      if (global.End && global.End.show) global.End.show();
+
+      /* 门开了。但你还没走完这一夜 —— 第六章：最后一班 */
+      if (global.Duty && global.App) {
+        setTimeout(() => {
+          Fade.through(() => {
+            global.App.show('duty');
+            global.Duty.start();
+          });
+        }, 900);
+      } else if (global.End && global.End.show) {
+        global.End.show();
+      }
     },
 
     forceChoice(c) {

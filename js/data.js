@@ -64,6 +64,9 @@
     nameTries: 0,            // 名字输错过几次
     clues: {},               // 找到的代码线索
     devOpened: 0,            // 开发者模式打开次数
+    /* ---------- 第六章：收摊 ---------- */
+    ch6: 0,                  // 0 未开始 / 1 当班中 / 3 打烊
+
     finalChoice: '',         // overwrite | delete | logout | unbind
 
     /* ---------- 贯穿全局的"系统侧"计数（v11 设计稿） ---------- */
@@ -112,6 +115,9 @@
       pendingTalk: null,     // 回到柜台后要自动开口的对话节点
       told: {},              // 已经听过的自动对话，不重复
       clipped: false,        // 十二页剪报都看清了
+
+      /* ---------- 第六章：最后一班 ---------- */
+      duty: null,            // { picks, total, lamp, truth, rule, theirs, kept, voided, seat }
     },
   };
 

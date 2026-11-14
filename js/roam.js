@@ -55,7 +55,10 @@
     { zone: '下面', id: 'anomaly', name: '七行假记录', desc: '三十七行里有七行不对。', ok: (S) => !!((S.ch5 || 0) >= 1 || S.recordFound),
       no: '得先在记录库里找到自己那一行。',
       go: () => { global.App.show('anomaly'); global.Anomaly.start(); } },
-    { zone: '下面', id: 'final', name: '终章 · 回响', desc: '九张纸，十八个结局。', ok: (S) => !!((S.sys && ((S.sys.endings || []).length > 0 || S.sys.sawFinal))),
+    { zone: '下面', id: 'duty', name: '收银台 · 最后一班', desc: '七位客人。灯油只够到打烊。', ok: (S) => !!((S.ch6 || 0) >= 1),
+      no: '得先走完记录库那一夜。',
+      go: () => { global.App.show('duty'); global.Duty.start(); } },
+    { zone: '下面', id: 'final', name: '终章 · 回响', desc: '九张纸，二十个结局。', ok: (S) => !!((S.sys && ((S.sys.endings || []).length > 0 || S.sys.sawFinal))),
       no: '先走完任何一个结局。',
       go: () => { global.App.show('final'); global.Final.start(); } },
   ];
