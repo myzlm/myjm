@@ -43,6 +43,7 @@
       const got = Lies.list();
 
       $('#ps-count').textContent = got.length + ' / ' + Lies.total() + '　　拆穿 ' + State.exposed + ' 处';
+      if (global.State.sys) State.sys.relics = got.length;
 
       if (!got.length) {
         box.innerHTML = '<div class="ps-empty">（还没有东西。柜台上有灯、有碗、有黄纸；墙上有黄历；蹲下去，柜台底下也别放过。）</div>';

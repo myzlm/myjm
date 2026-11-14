@@ -149,6 +149,19 @@
       '  "note": "名字被取走了。记录还在，因为记录不需要名字也能跑。"',
       '}',
     ].join('\n'),
+    /* 李知远的支线：未寄出的信，收件人一栏空着 */
+    22: [
+      '{',
+      '  "id": 22,',
+      '  "name": "李知远",',
+      '  "collateral": "一封没寄出的信",',
+      '  "state": "未取",',
+      '  "to": "________",',
+      '  "postmark": "无",',
+      '  "note": "信写完了，邮票贴了，收件人那一栏空着。_meta.to 指向本条记录自己。",',
+      '  "note2": "他在备注里写：寄不出去的信，收件人只能是自己。"',
+      '}',
+    ].join('\n'),
   };
 
   const FILES = {
@@ -160,6 +173,7 @@
     '/log/access.log': { get: accessLog },
     '/var/records/1': { text: RECORDS[1] },
     '/var/records/14': { text: RECORDS[14] },
+    '/var/records/22': { text: RECORDS[22] },
     '/var/records/35': { text: RECORDS[35] },
     '/var/records/36': {
       text: RECORDS[36],
@@ -274,6 +288,7 @@
       S().devOpened = (S().devOpened || 0) + 1;
       if (global.Snd) { global.Snd.tone(320, .12, { type: 'square', gain: .03 }); }
       document.dispatchEvent(new CustomEvent('dev:open'));
+      document.dispatchEvent(new CustomEvent('devOpened'));
       if (!this.welcomed) {
         this.welcomed = true;
         this.print('MEMORY-VAULT console   build 0.9.36   (c) 记忆殿');
@@ -319,6 +334,8 @@
       }
       try { fn.call(this, arg); }
       catch (e) { this.print('E: ' + e.message, 'dev-err'); }
+      this.cmdCount = (this.cmdCount || 0) + 1;
+      document.dispatchEvent(new CustomEvent('devCmd', { detail: this.cmdCount }));
     },
 
     needWrite() {
@@ -361,8 +378,9 @@
         if (p === '/var/records') {
           const rows = [];
           for (let i = 1; i <= 37; i++) {
-            const nm = i === 36 ? '████' : (i === 35 ? '（空）' : (i === 1 ? '艾' : '…'));
-            rows.push(String(i).padStart(4, '0') + '  ' + nm + '  ' + (i === 36 ? '待覆盖' : '已释放'));
+            const nm = i === 36 ? '████' : (i === 35 ? '（空）' : (i === 1 ? '艾' : (i === 22 ? '李知远' : '…')));
+            const st = i === 36 ? '待覆盖' : (i === 22 ? '未取' : '已释放');
+            rows.push(String(i).padStart(4, '0') + '  ' + nm + '  ' + st);
           }
           this.print('共 37 行（其中 1 行没有名字）');
           rows.forEach((r) => this.print('  ' + r));
@@ -379,6 +397,8 @@
         const t = fileText(a);
         if (t == null) { this.print('cat: 没有这个文件: ' + a, 'dev-err'); return; }
         this.printLines(t);
+        const rec = /^\/var\/records\/(\d+)$/.exec(a);
+        if (rec) document.dispatchEvent(new CustomEvent('recordRead', { detail: +rec[1] }));
         if (a === '/var/records/1') gain('ai');
         if (a === '/log/build.log') gain('build');
         if (a === '/app/hall.js') gain('line');

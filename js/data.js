@@ -65,6 +65,39 @@
     clues: {},               // 找到的代码线索
     devOpened: 0,            // 开发者模式打开次数
     finalChoice: '',         // overwrite | delete | logout | unbind
+
+    /* ---------- 贯穿全局的"系统侧"计数（v11 设计稿） ---------- */
+    sys: {
+      ending: '',            // 当前/上一个结局
+      endings: [],           // 抵达过的结局
+      deleted: 0,            // 删掉的节点
+      modified: 0,           // 改过的节点
+      restored: false,       // 修复过
+      verified: 0,           // 通过核验的记忆数
+      relics: 0,             // 收集的记忆物件
+      reads: 0,              // 读过的档案
+      talks: 0,              // 完整谈过的人
+      mercy: true,           // 从未伤害 NPC
+      wins: 0,               // 同一对手的胜场
+      outside: 0,            // 试图与游戏外互动的次数
+      selfDeleted: false,
+      allDeleted: false,
+      coreDeleted: false,
+      printed: false,
+      rebooted: false,
+      newWorld: false,
+      taughtAI: false,
+      copy7: false,
+      readAll: false,
+      idleEnd: false,
+      loop: false,
+      linf: false,           // L∞ 编写者权限
+      perspOpened: 0,
+      rotations: 0,
+      editorRuns: 0,
+      moyunSolved: [],
+      cipherFinal: false,
+    },
   };
 
   /* ---------------- 密码谜题 ----------------

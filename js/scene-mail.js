@@ -37,8 +37,8 @@
       $('#btn-run').addEventListener('click', async () => {
         Snd.init(); Snd.click();
         await Fade.through(() => {
-          App.show('hall');
-          Hall.init();
+          App.show('login');
+          global.Login.start();
         });
       });
     },

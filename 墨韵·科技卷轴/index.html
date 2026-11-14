@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>墨韵 · 科技卷轴</title>
+<style>
+  :root{
+    --paper:#f5efe0; --paper2:#efe6d2; --ink:#1d1913; --ink2:#4a4136;
+    --red:#8b0000; --line:#c8b89a; --gold:#9a7b3f;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:#0d0b09; color:var(--ink);
+    font-family:"Songti SC","STSong","SimSun","Noto Serif SC",serif;
+    display:flex; align-items:center; justify-content:center; padding:28px;
+  }
+  body::before{
+    content:""; position:fixed; inset:0;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, rgba(154,123,63,.16), transparent 70%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 1px, transparent 1px 4px);
+    pointer-events:none;
+  }
+  .scroll{
+    position:relative; width:min(1080px,100%); max-height:calc(100vh - 56px);
+    overflow:auto; background:var(--paper);
+    box-shadow:0 30px 90px rgba(0,0,0,.7), 0 0 0 1px rgba(0,0,0,.4);
+    border-radius:3px;
+  }
+  .scroll::before,.scroll::after{
+    content:""; position:absolute; left:0; right:0; height:16px;
+    background:linear-gradient(180deg,#3a2c1c,#6d5636 40%,#2b2013);
+    box-shadow:0 2px 6px rgba(0,0,0,.4);
+  }
+  .scroll::before{top:0}
+  .scroll::after{bottom:0}
+
+  .head{
+    padding:44px 44px 18px; border-bottom:1px solid var(--line);
+    display:flex; align-items:flex-end; justify-content:space-between; gap:20px;
+    background:
+      radial-gradient(600px 200px at 10% 0%, rgba(139,0,0,.05), transparent 70%);
+  }
+  .title{font-size:34px; letter-spacing:.28em; margin:0; font-weight:600}
+  .title small{display:block; font-size:12px; letter-spacing:.4em; color:var(--ink2); margin-top:10px}
+  .seal{
+    border:1px solid var(--red); color:var(--red); padding:8px 10px; font-size:12px;
+    letter-spacing:.3em; writing-mode:vertical-rl; line-height:1.6; border-radius:2px;
+  }
+  .seal b{display:block; font-size:20px; letter-spacing:.2em}
+
+  .body{padding:26px 44px 44px; display:grid; grid-template-columns:1.15fr .85fr; gap:34px}
+  @media (max-width:860px){ .body{grid-template-columns:1fr; padding:20px} .head{padding:36px 20px 14px} }
+
+  h3{margin:0 0 10px; font-size:14px; letter-spacing:.22em; color:var(--ink2); font-weight:600}
+  .rule{height:1px; background:var(--line); margin:18px 0}
+
+  .tn{
+    border:1px solid var(--line); padding:14px 16px; background:rgba(255,255,255,.35);
+    font-size:12.5px; line-height:1.9; letter-spacing:.04em;
+  }
+  .tn .k{color:var(--ink2); display:inline-block; width:104px}
+  .tn .v{font-family:ui-monospace,Consolas,monospace; font-size:12px; word-break:break-all}
+  .tn .sig{color:var(--red)}
+
+  textarea,input[type=text]{
+    width:100%; background:rgba(255,255,255,.5); border:1px solid var(--line);
+    color:var(--ink); font-family:ui-monospace,Consolas,monospace; font-size:13px;
+    padding:12px; resize:vertical; outline:none;
+  }
+  textarea:focus,input:focus{border-color:var(--gold); background:#fffdf7}
+  textarea{min-height:110px; line-height:1.75}
+
+  .keys{display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 4px}
+  .key{
+    border:1px solid var(--line); background:transparent; color:var(--ink2);
+    padding:7px 11px; font-size:12px; letter-spacing:.14em; cursor:pointer; font-family:inherit;
+  }
+  .key.on{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+  .keyval{font-family:ui-monospace,monospace; font-size:11.5px; color:var(--ink2); word-break:break-all; margin-top:6px}
+
+  .algs{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px}
+  .alg{
+    border:1px solid var(--line); background:transparent; padding:10px 6px; cursor:pointer;
+    font-family:inherit; font-size:13px; letter-spacing:.12em; color:var(--ink);
+    transition:.15s;
+  }
+  .alg:hover{background:rgba(29,25,19,.06)}
+  .alg.on{background:var(--red); color:#f7f0e2; border-color:var(--red)}
+
+  .btn{
+    margin-top:14px; width:100%; padding:13px; background:var(--ink); color:var(--paper);
+    border:none; cursor:pointer; font-family:inherit; font-size:14px; letter-spacing:.2em;
+  }
+  .btn:hover{background:#2c251c}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+
+  .out{
+    border:1px solid var(--line); min-height:120px; padding:14px;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 27px, rgba(29,25,19,.06) 27px 28px),
+      rgba(255,255,255,.3);
+    font-size:15px; line-height:1.85; letter-spacing:.06em; white-space:pre-wrap; word-break:break-all;
+  }
+  .out.empty{color:#9c8f7c; font-size:13px}
+  .cands{display:flex; flex-direction:column; gap:6px; margin-top:10px}
+  .cand{
+    display:grid; grid-template-columns:76px 46px 1fr; gap:8px; align-items:center;
+    border:1px solid var(--line); background:transparent; padding:8px 10px; cursor:pointer;
+    font-family:inherit; text-align:left; font-size:12.5px;
+  }
+  .cand:hover{background:rgba(29,25,19,.05)}
+  .cand b{letter-spacing:.08em}
+  .cand i{font-style:normal; color:var(--red); font-family:ui-monospace,monospace; font-size:11px}
+  .cand span{color:var(--ink2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+  .foot{padding:0 44px 40px; display:flex; justify-content:space-between;
+    font-size:11.5px; color:var(--ink2); letter-spacing:.16em}
+  .foot a{color:var(--ink2)}
+  .bad{color:var(--red)}
+  .good{color:#3f6b34}
+  .note{font-size:12px; color:var(--ink2); line-height:1.9; letter-spacing:.04em}
+  .items{display:flex; flex-direction:column; gap:6px; margin-top:8px}
+  .item{border:1px solid var(--line); padding:8px 10px; cursor:pointer; background:transparent;
+    text-align:left; font-family:inherit; font-size:12.5px; display:flex; justify-content:space-between; gap:8px}
+  .item:hover{background:rgba(29,25,19,.05)}
+  .item.done{color:#3f6b34}
+</style>
+</head>
+<body>
+<div class="scroll">
+  <div class="head">
+    <div>
+      <h1 class="title">墨韵<small>以古法落墨　以科技解迷</small></h1>
+    </div>
+    <div class="seal"><b>卷</b>科技</div>
+  </div>
+
+  <div class="body">
+    <div>
+      <h3>真 名</h3>
+      <div class="tn" id="tn">正在读真名……</div>
+
+      <div class="rule"></div>
+
+      <h3>密 文</h3>
+      <div class="items" id="items"></div>
+      <textarea id="ct" placeholder="把密文贴在这里，或者从上面选一条。"></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <input type="text" id="manual" placeholder="也可以直接写你猜的明文，回车校验">
+      </div>
+      <div class="note" id="hint" style="margin-top:8px"></div>
+
+      <div class="rule"></div>
+
+      <h3>密 钥 层 级</h3>
+      <div class="keys">
+        <button class="key on" data-k="base">基础码 · 凯撒/维吉尼亚</button>
+        <button class="key" data-k="memory">记忆码 · AES</button>
+        <button class="key" data-k="action">行为码 · 栅栏</button>
+        <button class="key" data-k="sigil">印记 · 古法五层</button>
+      </div>
+      <div class="keyval" id="keyval"></div>
+
+      <h3 style="margin-top:18px">六 法</h3>
+      <div class="algs">
+        <button class="alg" data-a="caesar">凯撒</button>
+        <button class="alg" data-a="vigenere">维吉尼亚</button>
+        <button class="alg" data-a="rail">栅栏</button>
+        <button class="alg" data-a="aes">AES-GCM</button>
+        <button class="alg" data-a="ancient">古法五层</button>
+        <button class="alg" data-a="plain">原文</button>
+      </div>
+      <button class="btn" id="smart">一 键 智 能 解 密</button>
+    </div>
+
+    <div>
+      <h3>解 出 的 东 西</h3>
+      <div class="out empty" id="out">还没有。密文在左边。</div>
+      <div class="cands" id="cands"></div>
+      <div class="note" id="msg" style="margin-top:12px"></div>
+
+      <div class="rule"></div>
+      <h3>记 事</h3>
+      <div class="note">
+        真名不是名字。它由三样东西算出来：<br>
+        你来的时间、你押下的记忆、你做过的选择。<br><br>
+        基础码解对话与照片；记忆码解档案；<br>
+        行为码解注释；印记解最后那一条。<br><br>
+        密钥不对，任何算法都只会吐出乱码。<br>
+        <span style="color:var(--red)">这不是猜谜。这是在证明你是谁。</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>墨韵 · 科技卷轴　v1.0</span>
+    <span><a href="../index.html">← 回到《代码之下》</a></span>
+  </div>
+</div>
+
+<script src="../js/cipher.js"></script>
+<script src="../js/truename.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  var tn = window.TrueName.ensure();
+  var keyLevel = 'base';
+  var curItem = null;
+  var used = {};
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+
+  /* 与游戏内同一份密文 */
+  var ITEMS = [
+    { id: 'photo', name: '照片背面', src: '档案盒 #3', alg: 'caesar', key: 'base', plain: '不要相信典当行主人' },
+    { id: 'code', name: '代码注释', src: '/app/hall.js:41', alg: 'vigenere', key: 'base', plain: '隐藏功能：输入密码打开' },
+    { id: 'key', name: '钥匙柄', src: '档案盒 #17', alg: 'aes', key: 'memory', plain: '里空间新入口在祠堂' },
+    { id: 'diary', name: '日记残页', src: '档案盒 #28', alg: 'rail', key: 'action', plain: '典当行主人是第0号玩家' },
+    { id: 'root', name: '终端残码', src: 'root/tty0', alg: 'ancient', key: 'sigil', plain: '地球online v0.1 最初的回响' }
+  ];
+
+  function drawTN() {
+    $('#tn').innerHTML =
+      '<div><span class="k">基础码 BASE</span><span class="v">' + tn.base + '</span></div>' +
+      '<div><span class="k">记忆码 MEMORY</span><span class="v">' + tn.memory + '</span></div>' +
+      '<div><span class="k">行为码 ACTION</span><span class="v">' + tn.action + '</span></div>' +
+      '<div><span class="k">真名印记 SIGIL</span><span class="v sig">' + tn.sigil + '</span></div>' +
+      (tn.ancient ? '<div style="color:#8b0000">· 你的印记里有「远古印记」。别告诉别人。</div>' : '');
+    $('#keyval').textContent = window.Cipher ? '' : '';
+    $('#keyval').textContent = window.TrueName.key(keyLevel);
+  }
+
+  async function buildItems() {
+    for (var i = 0; i < ITEMS.length; i++) {
+      var it = ITEMS[i];
+      try { it.ct = String(await window.Cipher.enc(it.plain, window.TrueName.key(it.key), it.alg)); }
+      catch (e) { it.ct = '（生成失败）'; }
+    }
+    $('#items').innerHTML = ITEMS.map(function (it, i) {
+      return '<button class="item" data-i="' + i + '"><span>' + it.name + '　<small style="opacity:.6">' + it.src + '</small></span><span>›</span></button>';
+    }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('.item'), function (b) {
+      b.onclick = function () { pick(+b.dataset.i); };
+    });
+  }
+
+  function pick(i) {
+    curItem = ITEMS[i];
+    $('#ct').value = curItem.ct;
+    $('#hint').textContent = '来源：' + curItem.src;
+    clearOut();
+  }
+
+  function clearOut() {
+    $('#out').textContent = '还没有。密文在左边。';
+    $('#out').classList.add('empty');
+    $('#cands').innerHTML = '';
+    $('#msg').textContent = '';
+  }
+
+  function show(text, ok) {
+    var o = $('#out');
+    o.textContent = text;
+    o.classList.remove('empty');
+    $('#msg').innerHTML = ok ? '<span class="good">解开了。</span>' : '<span class="bad">解出来了，但不像人话。</span>';
+  }
+
+  function accept(cand) {
+    var plain = curItem ? curItem.plain : '';
+    var t = (cand.text || '').replace(/\s+$/, '');
+    if (!t) { $('#msg').textContent = '这一组算法配这把钥匙，什么也解不出来。'; return; }
+    var ok = t === plain || (plain && t.indexOf(plain) >= 0);
+    show(t, ok);
+    if (ok) {
+      Array.prototype.forEach.call(document.querySelectorAll('.item'), function (b) {
+        if (+b.dataset.i === ITEMS.indexOf(curItem)) b.classList.add('done');
+      });
+      try {
+        var res = JSON.parse(localStorage.getItem('code_echo_decrypt_results') || '{}');
+        res[curItem.id] = { alg: cand.alg, text: t, at: Date.now() };
+        localStorage.setItem('code_echo_decrypt_results', JSON.stringify(res));
+        window.dispatchEvent(new CustomEvent('codeEchoDecryptComplete', { detail: { id: curItem.id, text: t } }));
+      } catch (e) {}
+    }
+  }
+
+  $('#smart').onclick = async function () {
+    var ct = $('#ct').value.trim();
+    if (!ct) { $('#msg').textContent = '先给一段密文。'; return; }
+    $('#msg').textContent = '正在依次试：凯撒 · 维吉尼亚 · 栅栏 · AES · 古法五层……';
+    var key = window.TrueName.key(keyLevel);
+    var list = await window.Cipher.solve(ct, key);
+    if (!list.length) { $('#msg').textContent = '所有算法都吐出了乱码。'; return; }
+    $('#msg').textContent = '';
+    $('#cands').innerHTML = list.map(function (c, i) {
+      return '<button class="cand" data-i="' + i + '"><b>' + c.name + '</b><i>' + c.score.toFixed(1) + '</i>' +
+        '<span>' + esc((c.text || '').slice(0, 80)) + '</span></button>';
+    }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('.cand'), function (b) {
+      b.onclick = function () { accept(list[+b.dataset.i]); };
+    });
+  };
+
+  Array.prototype.forEach.call(document.querySelectorAll('.alg'), function (b) {
+    b.onclick = async function () {
+      var ct = $('#ct').value.trim();
+      if (!ct) { $('#msg').textContent = '先给一段密文。'; return; }
+      var alg = b.dataset.a;
+      used[alg] = true;
+      Array.prototype.forEach.call(document.querySelectorAll('.alg'), function (x) { x.classList.toggle('on', x === b); });
+      var key = window.TrueName.key(keyLevel);
+      var t = alg === 'plain' ? ct : await window.Cipher.dec(ct, key, alg);
+      accept({ alg: alg, text: t, score: window.Cipher.readability(t || '') });
+      if (alg === 'ancient') $('#msg').innerHTML += '<br><span style="color:#8b0000">古法显影：先反写，再隔字，再维吉尼亚，再凯撒，最后才是 Base64。</span>';
+    };
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.key'), function (b) {
+    b.onclick = function () {
+      keyLevel = b.dataset.k;
+      Array.prototype.forEach.call(document.querySelectorAll('.key'), function (x) { x.classList.toggle('on', x === b); });
+      $('#keyval').textContent = window.TrueName.key(keyLevel);
+      clearOut();
+    };
+  });
+
+  $('#manual').addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var v = e.target.value.trim();
+    if (!v) return;
+    var plain = curItem ? curItem.plain : '';
+    if (plain && (v === plain || v.indexOf(plain) >= 0)) { show(v, true); accept({ alg: 'manual', text: v }); }
+    else { $('#msg').innerHTML = '<span class="bad">不对。或者缺字。</span>'; }
+  });
+
+  drawTN();
+  buildItems();
+
+  /* ?auto=1：演示/回归用，自动解第一条 */
+  if (location.search.indexOf('auto=1') >= 0) {
+    setTimeout(function () {
+      pick(0);
+      setTimeout(function () { document.getElementById('smart').click(); }, 240);
+      setTimeout(function () { var c = document.querySelector('.cand'); if (c) c.click(); }, 1400);
+    }, 500);
+  }
+})();
+</script>
+</body>
+</html>

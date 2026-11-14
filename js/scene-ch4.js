@@ -275,7 +275,7 @@
       // 只闪 0.5 秒：它不属于这一帧，所以只能看见这么一下
       const face = document.createElement('div');
       face.className = 'ly-face';
-      face.innerHTML = '<img src="assets/doll.png" alt="">';
+      face.innerHTML = '<img src="assets/characters/doll.png" alt="">';
       $('#ly-run').appendChild(face);
       setTimeout(() => face.remove(), 520);
       await wait(900);

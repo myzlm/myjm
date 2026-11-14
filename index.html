@@ -74,6 +74,7 @@
             <p>您预购的游戏《<b>代码之下</b>》现在已经发布。感谢您在最开始就相信它。</p>
             <p>请点击下方链接下载：</p>
             <p class="dl-link-line"><a href="#" id="download-link" class="fake-link">game</a></p>
+            <p class="read-dim">访问口令：<b class="mail-pw">00110110</b>　（八位。别抄在纸上。我们会知道。）</p>
             <p class="read-dim">— 无署名</p>
             <p class="read-dim read-warn">（发件人一栏是空的。不是"隐藏发件人"，是真的空的。光标在上面停了两秒，像有什么东西在下面呼吸。）</p>
           </div>
@@ -130,11 +131,50 @@
     </div>
   </section>
 
+  <!-- ============ 1b. 序章 · 登录地球online ============ -->
+  <section class="screen" id="screen-login" data-screen="login">
+    <div class="lg-page">
+      <div class="lg-grid"></div>
+      <div class="lg-box">
+        <div class="lg-top">
+          <span class="lg-brand">地球online</span>
+          <span class="lg-ver">v0.1.0 (build 37)</span>
+        </div>
+        <div class="lg-sub">EARTH ONLINE · 记忆殿节点</div>
+        <form id="lg-form" autocomplete="off">
+          <div class="lg-row"><label>服务器</label><span class="lg-ro">记忆殿-01　<b>延迟 —　在线 1</b></span></div>
+          <div class="lg-row"><label>账号</label><span class="lg-ro">访客 036　<b>（未登记）</b></span></div>
+          <div class="lg-row"><label>口令</label>
+            <input type="text" id="lg-pass" placeholder="八位。邮件里有。" maxlength="24" autocomplete="off">
+          </div>
+          <div class="lg-err" id="lg-err"></div>
+          <div class="lg-btns">
+            <button type="submit" class="lg-btn" id="lg-btn">登 录</button>
+            <button type="button" class="lg-btn ghost" id="lg-guest">访客通道</button>
+          </div>
+        </form>
+        <div class="lg-status" id="lg-status">就绪。</div>
+        <div class="lg-foot">
+          <span id="lg-hint">忘记口令？</span>
+          <span>本节点不提供注册</span>
+        </div>
+        <div class="lg-loading" id="lg-loading">
+          <div class="lgl-line" id="lgl-line">正在连接……</div>
+          <div class="lgl-bar"><div class="lgl-fill" id="lgl-fill"></div></div>
+          <div class="lgl-pct" id="lgl-pct">0%</div>
+          <div class="lgl-incense"><i></i><i></i><i></i></div>
+        </div>
+      </div>
+      <div class="lg-copy">你确定这是你第一次登录吗？</div>
+    </div>
+  </section>
+
   <!-- ============ 2. 记忆殿 ============ -->
   <section class="screen" id="screen-hall" data-screen="hall">
     <div class="hall">
       <canvas id="code-rain" class="code-rain"></canvas>
       <div class="hall-glow" id="hall-glow"></div>
+      <div class="hall-black" id="hall-black" title="一块黑"></div>
       <div class="hall-inner">
         <h1 class="hall-title" id="hall-title" data-text="代码之下">代码之下</h1>
         <div class="hall-sub">UNDER&nbsp;THE&nbsp;CODE</div>
@@ -259,7 +299,7 @@
   <!-- ============ 5. 突脸 ============ -->
   <section class="screen" id="screen-doll" data-screen="doll">
     <div class="doll-stage" id="doll-stage">
-      <img class="doll-img" id="doll-img" src="assets/doll.png" alt="">
+      <img class="doll-img" id="doll-img" src="assets/characters/doll.png" alt="">
       <div class="doll-noise"></div>
     </div>
   </section>
@@ -272,7 +312,7 @@
       <!-- 长椅椅背 + 老爷爷 -->
       <div class="cs-bench" id="cs-bench"></div>
       <div class="cs-oldman" id="oldman">
-        <img src="assets/oldman.png" alt="" id="oldman-img">
+        <img src="assets/characters/ai.png" alt="" id="oldman-img">
         <div class="cs-oldman-shadow"></div>
       </div>
 
@@ -356,6 +396,14 @@
         <span class="om-cal-num">十五</span>
         <span class="om-tip">历</span>
       </div>
+      <div class="omen om-form" id="om-form" title="空白的抵押单">
+        <span class="om-form-paper"></span>
+        <span class="om-tip">单</span>
+      </div>
+      <div class="omen om-book" id="om-book" title="柜台角落的册子">
+        <span class="om-book-cover"></span>
+        <span class="om-tip">册</span>
+      </div>
       <div class="omen om-under" id="om-under" title="柜台底下">
         <span class="om-under-txt">柜台底下</span>
       </div>
@@ -377,6 +425,60 @@
           <div class="dlg-text" id="dlg-text"></div>
           <div class="dlg-choices" id="dlg-choices"></div>
           <div class="dlg-foot"><span id="dlg-tip">点击继续</span><span class="dlg-caret">▾</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6a. 抵押 · 记忆核验 ============ -->
+  <section class="screen" id="screen-verify" data-screen="verify">
+    <div class="vf-page">
+      <div class="vf-head">
+        <div class="vf-h-l">
+          <span class="vf-h-t">抵 押 · 记 忆 核 验</span>
+          <span class="vf-h-s">表单 036 ／ 三段以内，写细一点</span>
+        </div>
+        <button class="vf-back" id="vf-back">退 回 柜 台</button>
+      </div>
+      <div class="vf-body">
+        <div class="vf-left">
+          <div class="vf-paper">
+            <div class="vf-p-head">
+              <span>抵押物：一段记忆</span>
+              <span id="vf-count" class="vf-count">0 字</span>
+            </div>
+            <textarea id="vf-ta" spellcheck="false" placeholder="那年冬天特别冷，厨房的窗户上结了一层冰花……"></textarea>
+            <div class="vf-p-foot">
+              <div class="vf-samples">
+                <button class="vf-sample" data-i="0">样本·真的</button>
+                <button class="vf-sample" data-i="1">样本·太顺</button>
+                <button class="vf-sample" data-i="2">样本·对不上</button>
+                <button class="vf-wipe" id="vf-wipe">擦掉</button>
+              </div>
+              <button class="vf-run" id="vf-run">核 验</button>
+            </div>
+          </div>
+          <div class="vf-stage" id="vf-stage"></div>
+          <div class="vf-hist-wrap">
+            <div class="vf-hist-h">最近抵押</div>
+            <div id="vf-hist"></div>
+          </div>
+          <div class="vf-legend">
+            <div class="vf-l-h">核 验 三 段</div>
+            <div class="vf-l-row"><b>①</b><span>本地分析：感官密度 / 情感一致 / 独特性</span></div>
+            <div class="vf-l-row"><b>②</b><span>联网核验：把年份、地名、人名拿去搜一遍</span></div>
+            <div class="vf-l-row"><b>③</b><span>跨次比对：和你之前抵押过的记忆对不对得上</span></div>
+            <div class="vf-l-note">它不判断"是不是真的"。它判断"像不像一个人真的记得"。</div>
+          </div>
+        </div>
+        <div class="vf-right">
+          <div class="vf-grades">
+            <span style="--g:#ffd700">璀璨 ≥85</span>
+            <span style="--g:#8bc34a">鲜活 ≥65</span>
+            <span style="--g:#bcaaa4">褪色 ≥40</span>
+            <span style="--g:#6d6d6d">碎裂 &lt;40</span>
+          </div>
+          <div class="vf-result" id="vf-result"></div>
         </div>
       </div>
     </div>
@@ -704,6 +806,98 @@
     </div>
   </section>
 
+  <!-- ============ 9c. 墨韵 · 科技卷轴 ============ -->
+  <section class="screen" id="screen-moyun" data-screen="moyun">
+    <div class="my-page">
+      <div class="my-scroll">
+        <div class="my-head">
+          <div class="my-title-box">
+            <div class="my-title">墨 韵</div>
+            <div class="my-sub">科技卷轴　·　以古法落墨，以科技解迷</div>
+          </div>
+          <div class="my-seal">卷</div>
+          <button class="my-back" id="my-back">收 起</button>
+        </div>
+        <div class="my-body">
+          <aside class="my-left">
+            <div class="my-l-h">密 文 · 五</div>
+            <div id="my-list"></div>
+            <div class="my-l-note">解开的会自己回到世界里去。</div>
+          </aside>
+          <div class="my-mid">
+            <div class="my-m-title" id="my-title">—</div>
+            <div class="my-m-place" id="my-place">—</div>
+            <div class="my-cipher" id="my-cipher"></div>
+            <button class="my-copy" id="my-cipher-copy" hidden></button>
+            <div class="my-hint" id="my-hint"></div>
+            <div class="my-keys">
+              <button class="my-key on" data-k="base">基础码</button>
+              <button class="my-key" data-k="memory">记忆码</button>
+              <button class="my-key" data-k="action">行为码</button>
+              <button class="my-key" data-k="sigil">印记</button>
+            </div>
+            <div class="my-keyval" id="my-keyval"></div>
+            <div class="my-algs">
+              <button class="my-alg" data-a="caesar">凯撒</button>
+              <button class="my-alg" data-a="vigenere">维吉尼亚</button>
+              <button class="my-alg" data-a="rail">栅栏</button>
+              <button class="my-alg" data-a="aes">AES</button>
+              <button class="my-alg" data-a="ancient">古法五层</button>
+              <button class="my-alg" data-a="plain">原文</button>
+            </div>
+            <button class="my-solve" id="my-solve">一 键 智 能 解 密</button>
+            <div class="my-cands" id="my-cands"></div>
+            <div class="my-input-row">
+              <input type="text" id="my-input" placeholder="也可以写下你猜的明文，回车校验">
+              <button id="my-check">校</button>
+            </div>
+            <div class="my-alg-tip" id="my-alg-tip"></div>
+          </div>
+          <div class="my-right">
+            <div class="my-r-h">回 写</div>
+            <div class="my-out" id="my-output">
+              <div class="my-plain" id="my-plain"></div>
+              <div class="my-reward" id="my-reward"></div>
+              <button class="my-clip" id="my-copy">抄 下</button>
+            </div>
+            <div class="my-r-note">
+              真名是密钥。<br>层级不对，解出来全是乱码。<br><br>
+              基础码 → 凯撒 / 维吉尼亚<br>
+              记忆码 → AES-GCM<br>
+              行为码 → 栅栏<br>
+              印记 → 古法五层
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 9d. 终章 · 回响 ============ -->
+  <section class="screen" id="screen-final" data-screen="final">
+    <div class="fn-page" id="fn-wrap" data-stage="text">
+      <div class="fn-inner">
+        <div class="fn-cap">终 章 · 回 响</div>
+        <div class="fn-text" id="fn-text"></div>
+        <div class="fn-choice" id="fn-choice"></div>
+        <div class="fn-end" id="fn-end">
+          <div class="fn-end-top">
+            <span class="fn-end-no" id="fn-end-no">结局 01 / 18</span>
+            <span class="fn-end-name" id="fn-end-name">传承者</span>
+            <span class="fn-end-tone" id="fn-end-tone">悲壮的浪漫</span>
+          </div>
+          <div class="fn-end-text" id="fn-end-text"></div>
+          <div class="fn-card" id="fn-card"></div>
+          <div class="fn-btns">
+            <button class="fn-b" id="fn-file">拿走桌面上的文件</button>
+            <button class="fn-b" id="fn-archive">打开档案册</button>
+            <button class="fn-b ghost" id="fn-restart">重 开</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ 全局覆盖层 ============ -->
   <div class="overlay" id="ov-alert">
     <div class="win-alert" id="win-alert">
@@ -765,6 +959,37 @@
     <div class="break-screen" id="break-screen"></div>
   </div>
 
+  <!-- 代码透视 / 弹幕 -->
+  <div class="persp" id="persp"></div>
+  <div class="danmaku" id="danmaku"></div>
+
+  <!-- 玩家手册：柜台角落那本被人翻烂的册子 -->
+  <div class="manual" id="manual">
+    <div class="mn-page">
+      <div class="mn-head">
+        <span class="mn-t">玩家手册</span>
+        <span class="mn-s">第 36 版 · 唯一一册 · 不许带走</span>
+        <button class="mn-x" id="mn-x">×</button>
+      </div>
+      <div class="mn-body">
+        <p class="mn-lead">如果你在读这个，说明你已经进来了。以下几条，是前人用三十五次失败换的。</p>
+        <ol class="mn-list">
+          <li><b>不要问这是哪。</b>问得越多，它越像你记得的地方。</li>
+          <li><b>抵押的记忆不能重复用。</b>同一段押两次，第二次它就不认了。</li>
+          <li><b>写细。</b>光、声音、手上的触感。它分辨不了真假，只分辨像不像一个人真的记得。</li>
+          <li><b>他说的每句话都有一件东西对不上。</b>对不上不是破绽，是提示。</li>
+          <li><b>锁在键盘上，不在门上。</b>紫光只照一次。</li>
+          <li><b>不要在原路返回的时候回头。</b>长廊会原谅你一次，第二次不会。</li>
+          <li><b>卷轴要两层才开。</b>密钥分四层：基础、记忆、行动、印记。同一把钥匙换不同的门试试。</li>
+          <li><b>代码能改。</b>你在透视里看见的那些节点，有的能删，有的删了你也不在。</li>
+          <li><b>37 是个陷阱。</b>你会在任何地方看到它，包括这一页的行号。</li>
+          <li><b>没有结局。</b>只有你停在哪一格。</li>
+        </ol>
+        <p class="mn-foot">— 第 35 位留下的批注：<i>看到这里就走吧。真的。</i></p>
+      </div>
+    </div>
+  </div>
+
   <!-- 背包 -->
   <div class="inventory" id="inventory">
     <div class="inv-title">持有</div>
@@ -777,7 +1002,13 @@
 
 <script src="js/audio.js"></script>
 <script src="js/fx.js"></script>
+<script src="js/cipher.js"></script>
 <script src="js/data.js"></script>
+<script src="js/truename.js"></script>
+<script src="js/verify.js"></script>
+<script src="js/endings.js"></script>
+<script src="js/easter.js"></script>
+<script src="js/quests.js"></script>
 <script src="js/devconsole.js"></script>
 <script src="js/folklore.js"></script>
 <script src="js/story.js"></script>
@@ -793,6 +1024,13 @@
 <script src="js/scene-ch4.js"></script>
 <script src="js/scene-ch5.js"></script>
 <script src="js/scene-win98.js"></script>
+<script src="js/scene-ch0.js"></script>
+<script src="js/scene-verify.js"></script>
+<script src="js/scene-moyun.js"></script>
+<script src="js/scene-final.js"></script>
+<script src="js/codepersp.js"></script>
+<script src="js/codeeditor.js"></script>
+<script src="js/archive.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

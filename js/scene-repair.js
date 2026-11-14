@@ -477,7 +477,7 @@
         const ov = document.createElement('div');
         ov.className = 'doll-note';
         ov.innerHTML =
-          '<div class="dn-doll"><img src="assets/doll.png" alt=""></div>' +
+          '<div class="dn-doll"><img src="assets/characters/doll.png" alt=""></div>' +
           '<div class="dn-paper"><div class="dn-text">快走　不要回头</div></div>';
         document.body.appendChild(ov);
         requestAnimationFrame(() => ov.classList.add('on'));
@@ -702,6 +702,7 @@
         Snd.tone(520, 0.5, { type: 'triangle', gain: 0.08 });
         Snd.tone(780, 0.7, { type: 'triangle', gain: 0.06, delay: 0.12 });
         State.seq = this.input;
+        document.dispatchEvent(new CustomEvent('lockOpen'));
         setTimeout(async () => {
           await Fade.through(() => { App.show('win98'); Win98.start(); });
         }, 900);

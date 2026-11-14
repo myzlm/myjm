@@ -183,7 +183,7 @@
       await wait(600);
       const f = document.createElement('div');
       f.className = 'rt-face';
-      f.innerHTML = '<img src="assets/doll.png" alt="">';
+      f.innerHTML = '<img src="assets/characters/doll.png" alt="">';
       $('#screen-root').appendChild(f);
       Snd.boo();
       await wait(1400);
@@ -198,6 +198,7 @@
     openRecord() {
       State.recordFound = true;
       State.ch5 = 2;
+      document.dispatchEvent(new CustomEvent('recordFound', { detail: 36 }));
       Snd.tone(70, 2.6, { type: 'sine', gain: 0.06, attack: .6 });
       const json = [
         '{',

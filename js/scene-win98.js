@@ -264,6 +264,23 @@
       await wait(600);
       $('#end-restart').classList.add('on');
       $('#end-restart').onclick = () => location.reload();
+
+      // 第五章之后还有终章：回响
+      let echo = document.getElementById('end-echo');
+      if (!echo) {
+        echo = document.createElement('button');
+        echo.id = 'end-echo';
+        echo.className = 'end-restart end-echo';
+        echo.textContent = '回 响';
+        $('#end-restart').parentNode.insertBefore(echo, $('#end-restart'));
+      }
+      echo.classList.add('on');
+      echo.onclick = () => {
+        if (global.Final) {
+          App.show('final');
+          global.Final.start();
+        }
+      };
     },
   };
 

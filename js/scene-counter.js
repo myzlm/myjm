@@ -67,6 +67,14 @@
         if (el) el.addEventListener('click', (e) => { e.stopPropagation(); this.clickOmen(k); });
       });
 
+      // 柜台上那张空白的抵押单 → 记忆核验
+      const form = $('#om-form');
+      if (form) form.addEventListener('click', (e) => { e.stopPropagation(); this.clickForm(); });
+
+      // 柜台角落那本册子 →《玩家手册》
+      const book = $('#om-book');
+      if (book) book.addEventListener('click', (e) => { e.stopPropagation(); this.openManual(); });
+
       // 空白处：跳过独白
       $('#counter-scene').addEventListener('click', () => {
         if (Dlg.active) return;
@@ -99,11 +107,42 @@
       const id = this.talked ? 'menu' : 'intro';
       this.talked = true;
       await Dlg.open(id);
+      if (global.State.sys) {
+        State.sys.talks = (State.sys.talks || 0) + 1;
+        document.dispatchEvent(new CustomEvent('eteTalked', { detail: State.sys.talks }));
+      }
       this.updateHint();
+    },
+
+    /* ---------------- 抵押单 ---------------- */
+    async clickForm() {
+      if (Dlg.active) return;
+      Snd.init(); Snd.click();
+      await Fade.through(() => {
+        App.show('verify');
+        global.Ver.start();
+      });
     },
 
     hideNarration() {
       $('#cs-dialogue').classList.remove('on');
+    },
+
+    /* 柜台角落那本被人翻烂的册子 */
+    openManual() {
+      if (Dlg.active) return;
+      Snd.init(); Snd.click();
+      const m = $('#manual');
+      if (!m) return;
+      m.classList.add('on');
+      if (m.dataset.bound !== '1') {
+        m.dataset.bound = '1';
+        const x = $('#mn-x');
+        if (x) x.addEventListener('click', () => m.classList.remove('on'));
+        m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('on'); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') m.classList.remove('on'); });
+      }
+      document.dispatchEvent(new CustomEvent('manualOpen'));
     },
 
     /* ---------------- 状态 ---------------- */
