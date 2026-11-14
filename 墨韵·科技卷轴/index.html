@@ -315,7 +315,7 @@
       var key = window.TrueName.key(keyLevel);
       var t = alg === 'plain' ? ct : await window.Cipher.dec(ct, key, alg);
       accept({ alg: alg, text: t, score: window.Cipher.readability(t || '') });
-      if (alg === 'ancient') $('#msg').innerHTML += '<br><span style="color:#8b0000">古法显影：先反写，再隔字，再维吉尼亚，再凯撒，最后才是 Base64。</span>';
+      if (alg === 'ancient') $('#msg').innerHTML += '<br><span style="color:#8b0000">古法显影：先反写，再隔一位交错，再按钥匙挪字母，再按键盘行序错排，再报成两位数字，再报成点划，最后把连着的划压成一个数。</span>';
     };
   });
 

@@ -9,7 +9,7 @@
      morse     摩斯（汉字的五位码）
      bacon     培根（AB 五位）
      aes       AES-GCM（WebCrypto；无 crypto.subtle 时降级为流异或）
-     ancient   古法五层（反写 → 隔字换位 → 维吉尼亚 → 凯撒 → Base64）
+     ancient   古法五层（反写 → 交错 → 匙移 → 错排 → 九宫 → 摩斯 → 游程）
      plain     原文（对照用）
    后三种不必用钥匙，谁拿到都能试。
    + SHA-256 / Base64 / 可读性打分 / 一键智能检测
@@ -173,33 +173,182 @@
     return pattern.map((x) => rows[x][idx[x]++]).join('');
   }
 
-  /* 古法五层：反写 → 隔字换位 → 维吉尼亚 → 凯撒 → Base64 */
-  function ancientEnc(text, key) {    const a = Array.from(text);
-    let out = a.reverse().join('');
-    // 隔字换位：奇数位串 + 偶数位串
-    const odd = [], even = [];
-    Array.from(out).forEach((c, i) => (i % 2 ? odd : even).push(c));
-    out = odd.join('') + even.join('');
-    out = vigenere(out, key, 1);
-    out = caesar(out, keyShift(key));
-    return b64enc(out);
+  /* ================= 古法五层 =================
+     反写 → 交错 → 匙移 → 错排 → 九宫 → 摩斯 → 游程
+     ------------------------------------------------------------
+     每一道都是手能拆的活儿：字翻过来、隔一位错开、字母按键盘行序错排、
+     一个字报成两位数字、数字再报成点划、最后把连着的划压成一个数。
+     汉字、标点、换行先写成 ¤u4e00¤ 这样的记号，所以整条路上只剩 ASCII，
+     落到纸上是一长串 0—9 与 A—J。
+     它要钥匙：错排之前先按钥匙把字母挪一遍。 */
+
+  /* 错排：字母按键盘从上到下、从左到右重排一遍 */
+  const KEYROW = 'qwertyuiopasdfghjklzxcvbnm';
+  const ROWKEY = (() => {
+    const enc = {}, dec = {};
+    for (let i = 0; i < 26; i++) {
+      const lo = String.fromCharCode(97 + i);
+      const up = String.fromCharCode(65 + i);
+      enc[lo] = KEYROW[i]; enc[up] = KEYROW[i].toUpperCase();
+      dec[KEYROW[i]] = lo; dec[KEYROW[i].toUpperCase()] = up;
+    }
+    return { enc, dec };
+  })();
+
+  /* 九宫：可打印字符各占两位，从 01 排到 96 */
+  const ESC = '\u00a4';
+  const GRID = (() => {
+    const enc = {}, dec = {}, list = [];
+    for (let c = 32; c <= 126; c++) list.push(String.fromCharCode(c));
+    list.push(ESC);
+    list.forEach((ch, i) => {
+      const code = String(i + 1).padStart(2, '0');
+      enc[ch] = code; dec[code] = ch;
+    });
+    return { enc, dec };
+  })();
+
+  /* 摩斯数字（点用 *，划用 -），五位一数 */
+  const MDIG = {
+    0: '-----', 1: '*----', 2: '**---', 3: '***--', 4: '****-',
+    5: '*****', 6: '-****', 7: '--***', 8: '---**', 9: '----*',
+  };
+  const MDIG_REV = {};
+  Object.keys(MDIG).forEach((d) => { MDIG_REV[MDIG[d]] = d; });
+
+  /* 游程：连着的点写数字，连着的划写 A—J（一位对一位十进制） */
+  const AJ = 'JABCDEFGHI';                        // 0→J, 1→A … 9→I
+  const toAJ = (n) => String(n).split('').map((d) => AJ[+d]).join('');
+
+  function escText(t) {
+    const out = [];
+    for (const ch of t) {
+      const cp = ch.codePointAt(0);
+      if (cp < 32 || cp > 126 || ch === ESC) {
+        out.push(cp <= 0xFFFF
+          ? ESC + 'u' + cp.toString(16).padStart(4, '0') + ESC
+          : ESC + 'U' + cp.toString(16).padStart(8, '0') + ESC);
+      } else out.push(ch);
+    }
+    return out.join('');
+  }
+
+  /* strict 版：记号写坏了就当这把钥匙不对，别把乱码当答案端出去 */
+  function unescText(t, strict) {
+    let out = '';
+    for (let i = 0; i < t.length; i++) {
+      const ch = t[i];
+      if (ch !== ESC) { out += ch; continue; }
+      const m = /^\u00a4([uU])([0-9a-fA-F]+)\u00a4/.exec(t.slice(i));
+      if (!m) { if (strict) return null; out += ch; continue; }
+      try { out += String.fromCodePoint(parseInt(m[2], 16)); }
+      catch (e) { if (strict) return null; out += ch; continue; }
+      i += m[0].length - 1;
+    }
+    return out;
+  }
+
+  /* 交错：前半、后半各取一位，轮着来 */
+  function cross(s) {
+    const a = Array.from(s);
+    const mid = Math.ceil(a.length / 2);
+    const p1 = a.slice(0, mid), p2 = a.slice(mid), out = [];
+    for (let i = 0; i < mid; i++) {
+      out.push(p1[i]);
+      if (i < p2.length) out.push(p2[i]);
+    }
+    return out.join('');
+  }
+  function uncross(s) {
+    const p1 = [], p2 = [];
+    Array.from(s).forEach((c, i) => (i % 2 ? p2 : p1).push(c));
+    return p1.join('') + p2.join('');
+  }
+
+  function rle(sym) {
+    if (!sym) return '';
+    const runs = [];
+    let n = 1;
+    for (let i = 1; i < sym.length; i++) {
+      if (sym[i] === sym[i - 1]) n++;
+      else { runs.push([sym[i - 1], n]); n = 1; }
+    }
+    runs.push([sym[sym.length - 1], n]);
+    return runs.map(([s, c]) => (s === '*' ? String(c) : toAJ(c))).join('');
+  }
+
+  /* 拆游程：认两种写法——只写长度的（3A2B），前面带符号的（*3-1）
+     中间夹空格不要紧，进来之前已经抹掉了 */
+  function unrle(raw) {
+    const out = [];
+    let i = 0;
+    while (i < raw.length) {
+      let sym = null;
+      if (raw[i] === '*' || raw[i] === '-') sym = raw[i++];
+      if (sym !== '-') {
+        let num = '';
+        while (i < raw.length && raw[i] >= '0' && raw[i] <= '9') num += raw[i++];
+        if (num) { out.push('*'.repeat(Math.min(4096, parseInt(num, 10)))); continue; }
+        if (sym === '*') return null;
+      }
+      if (sym !== '*') {
+        let alpha = '';
+        while (i < raw.length && raw[i] >= 'A' && raw[i] <= 'J') alpha += raw[i++];
+        if (alpha) {
+          const n = parseInt(alpha.split('').map((c) => AJ.indexOf(c)).join(''), 10);
+          if (!(n > 0 && n < 4096)) return null;
+          out.push('-'.repeat(n));
+          continue;
+        }
+      }
+      return null;
+    }
+    return out.join('');
+  }
+
+  function ancientEnc(text, key) {
+    const k = keyShift(key);
+    let s = Array.from(escText(text)).reverse().join('');
+    s = cross(s);
+    s = caesar(s, k);
+    s = Array.from(s).map((c) => ROWKEY.enc[c] || c).join('');
+
+    let digits = '';
+    for (const ch of s) {
+      const code = GRID.enc[ch];
+      if (!code) return '';
+      digits += code;
+    }
+    let sym = '';
+    for (const d of digits) sym += MDIG[d];
+    return rle(sym);
   }
 
   function ancientDec(text, key) {
-    const s = b64dec(text);
-    if (s == null) return null;
-    let out = caesar(s, -keyShift(key));
-    out = vigenere(out, key, -1);
-    // 还原隔字换位（加密时是 奇数位串 + 偶数位串）
-    const arr = Array.from(out);
-    const oddLen = Math.floor(arr.length / 2);
-    const odd = arr.slice(0, oddLen), even = arr.slice(oddLen);
-    let inter = '';
-    for (let i = 0; i < even.length; i++) {
-      inter += even[i];
-      if (i < odd.length) inter += odd[i];
+    const raw = String(text == null ? '' : text).replace(/\s+/g, '');
+    if (!raw) return '';
+    const sym = /^[*-]+$/.test(raw) ? raw : unrle(raw);
+    if (!sym || sym.length % 5) return null;
+
+    let digits = '';
+    for (let i = 0; i < sym.length; i += 5) {
+      const d = MDIG_REV[sym.slice(i, i + 5)];
+      if (d == null) return null;
+      digits += d;
     }
-    return Array.from(inter).reverse().join('');
+    if (digits.length % 2) return null;
+
+    let s = '';
+    for (let i = 0; i < digits.length; i += 2) {
+      const ch = GRID.dec[digits.slice(i, i + 2)];
+      if (ch == null) return null;
+      s += ch;
+    }
+    s = Array.from(s).map((c) => ROWKEY.dec[c] || c).join('');
+    s = caesar(s, -keyShift(key));
+    s = uncross(s);
+    s = Array.from(s).reverse().join('');
+    return unescText(s, true);
   }
 
   /* ================= 摩斯 · 电报 =================
@@ -235,7 +384,7 @@
   }
 
   function morseDec(text) {
-    const tk = String(text).trim().split(/\s+/);
+    const tk = String(text == null ? '' : text).trim().split(/\s+/);
     let out = '';
     for (let i = 0; i < tk.length; i++) {
       const t = tk[i];
@@ -416,7 +565,7 @@
       if (alg.id === 'plain') continue;
       let text = null;
       try { text = await dec(ciphertext, key, alg.id); } catch (e) { text = null; }
-      if (text == null) continue;
+      if (text == null || text === '') continue;
       out.push({ alg: alg.id, name: alg.name, text, score: +readability(text).toFixed(1) });
     }
     out.sort((a, b) => b.score - a.score);
@@ -431,5 +580,6 @@
     // 给自检用
     _caesar: caesar, _vigenere: vigenere, _rail: rail,
     _morse: morseEnc, _bacon: baconEnc, _atbash: atbash,
+    _ancient: ancientEnc, _ancientDec: ancientDec, _grid: GRID, _rowkey: ROWKEY,
   };
 })(window);

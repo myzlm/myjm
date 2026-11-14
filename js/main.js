@@ -148,6 +148,13 @@
         const back = Cipher.decSync(ct, key, alg);
         if (back !== pt) throw new Error(alg + ' roundtrip: ' + String(back).slice(0, 20));
       });
+      // 古法五层：键盘上打得出来的一切都要能来回，落到纸上是 0—9 与 A—J
+      const hard = 'a\tb\r\nc 100% ¤ 与 emoji 😀';
+      const anc = Cipher.enc(hard, key, 'ancient');
+      if (!/^[0-9A-J]+$/.test(anc)) throw new Error('ancient 字表不对');
+      if (Cipher.decSync(anc, key, 'ancient') !== hard) throw new Error('ancient 转义往返');
+      if (Cipher.decSync(anc, key + 'x', 'ancient') !== null) throw new Error('ancient 错钥匙不该解出东西');
+      if (Cipher.decSync(anc.replace(/(.{7})/g, '$1 '), key, 'ancient') !== hard) throw new Error('ancient 容错空格');
       const bad = Cipher.solve('随便一段话', key);
       if (!bad || !bad.then) log.push('aes=async');
     });

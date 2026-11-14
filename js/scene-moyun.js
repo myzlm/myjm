@@ -257,7 +257,9 @@
       }
       this.solved[it.id] = true;
       if (cand.alg === 'ancient' && global.Eggs) global.Eggs.unlock(53, true);
-      $('#my-alg-tip').textContent = '解开了。';
+      $('#my-alg-tip').textContent = cand.alg === 'ancient'
+        ? '解开了。古法显影：反写 · 交错 · 匙移 · 错排 · 九宫 · 摩斯 · 游程。'
+        : '解开了。';
       $('#my-reward').textContent = it.reward;
       this.renderList();
       this.applyUnlock(it);
