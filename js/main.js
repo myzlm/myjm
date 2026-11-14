@@ -15,6 +15,7 @@
     pry: 'counter', lock: 'counter', print: 'counter',
     ledger: 'ch2', film: 'ch2', scale: 'ch2',
     oil: 'ch2', clock: 'ch2', scratch: 'ch2',
+    hands: 'ch2',
     win98: 'ch2',
     layer: 'chase',
     rhythm: null,
@@ -288,6 +289,34 @@
         if (!document.querySelector('#screen-' + s)) throw new Error('missing screen ' + s);
       });
       log.push('new screens ok');
+    });
+
+    /* ---- 柜台底下的木箱 ---- */
+    run('Hands', () => {
+      if (!global.Hands) throw new Error('no Hands');
+      const K = global.Hands.KIT;
+      if (K.length !== 6) throw new Error('件数=' + K.length);
+      const chs = K.map((k) => k.ch).join(',');
+      if (chs !== '1,2,3,4,5,6') throw new Error('章不对 ' + chs);
+      const ids = new Set(K.map((k) => k.id));
+      if (ids.size !== 6) throw new Error('重名');
+      K.forEach((k) => {
+        if (!k.no || !k.name) throw new Error('缺号 ' + k.id);
+        if (!k.solve || k.solve.length < 60) throw new Error('补记太短 ' + k.id);
+        if (!k.hints || k.hints.length < 3) throw new Error('提示不够 ' + k.id);
+        ['give', 'keep', 'burn'].forEach((a) => {
+          if (!k.acts || !k.acts[a] || !k.acts[a].text) throw new Error('缺处置 ' + k.id + '/' + a);
+        });
+      });
+      if (!document.querySelector('#screen-hands')) throw new Error('no screen');
+      if (!document.querySelector('#hx-grid') || !document.querySelector('#hx-stage')) throw new Error('no grid');
+      // 解锁：第几章就开几件
+      const S0 = { ch2: 1 };
+      if (!global.Hands.need('candle', S0)) throw new Error('第一章该开蜡');
+      if (global.Hands.need('punch', S0)) throw new Error('第五章不该开');
+      if (!global.Hands.need('punch', { ch5: 1 })) throw new Error('第五章该开纸带');
+      if (!global.Hands.need('roster', { ch6: 1 })) throw new Error('第六章该开表');
+      log.push('hands=6 蜡/纸/带/片/孔/表 ok');
     });
 
     /* ---- 里间 / 二十二个结局 ---- */

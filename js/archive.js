@@ -37,6 +37,13 @@
         if (e.key === 'p' || e.key === 'P') { e.preventDefault(); if (global.Persp) global.Persp.toggle(); }
         if (e.key === 'k' || e.key === 'K') { e.preventDefault(); if (global.Moyun) global.Moyun.show(); }
         if (e.key === 'v' || e.key === 'V') { e.preventDefault(); this.toggle(); }
+        if (e.key === 'y' || e.key === 'Y') {
+          const cur = global.App && global.App.current;
+          if (cur === 'lock' || cur === 'login' || cur === 'win98' ||
+              cur === 'final' || cur === 'end' || cur === 'moyun' || this.open) return;
+          e.preventDefault();
+          if (global.Hands) global.Hands.enter();
+        }
         if (e.key === 'Escape' && this.open) this.close();
       });
     },
@@ -47,12 +54,16 @@
       d.className = 'dock';
       d.id = 'dock';
       d.innerHTML =
+        '<button class="dock-b" id="dock-hands" title="柜台底下的木箱（Y）"><span>箱</span><i>Y</i></button>' +
         '<button class="dock-b" id="dock-persp" title="代码透视（P）"><span>视</span><i>P</i></button>' +
         '<button class="dock-b" id="dock-moyun" title="墨韵·科技卷轴（K）"><span>卷</span><i>K</i></button>' +
         '<button class="dock-b" id="dock-arch" title="档案册（V）"><span>档</span><i>V</i><b id="dock-badge">0</b></button>';
       document.body.appendChild(d);
       d.querySelector('#dock-persp').onclick = () => {
         if (global.Persp) global.Persp.toggle();
+      };
+      d.querySelector('#dock-hands').onclick = () => {
+        if (global.Hands) global.Hands.enter();
       };
       d.querySelector('#dock-moyun').onclick = () => {
         if (!global.Moyun) return Toast.show('卷轴还没有被找到。', 2200);

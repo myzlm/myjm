@@ -230,7 +230,10 @@
       if (State.selectedItem === 'crowbar') { h.textContent = '撬棍已拿起 —— 去点机箱'; return; }
       if (State.hasUV && !State.hasCrowbar) { h.textContent = '试试那台电脑'; return; }
       if (!State.hasUV) { h.textContent = '房间里还有别的东西'; return; }
-      h.textContent = '点击画面中的物件';
+      const hp = (global.Hands && global.Hands.undone) ? global.Hands.undone() : 0;
+      h.textContent = hp
+        ? '柜台底下那只木箱还有 ' + hp + ' 件 —— 按 Y'
+        : '点击画面中的物件';
     },
 
     /* ---------------- 柜子 ---------------- */

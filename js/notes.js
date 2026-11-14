@@ -34,6 +34,7 @@
       goal: [
         ['跟殿里站着的那个人说话', (S) => (S.sys.talks || 0) > 0],
         ['选「前往」，不是「离开」', (S) => !!S.leftClicked || !!S.gavePaper],
+        ['柜下木箱：那截蜡（按 Y，可做可不做）', (S) => !!(S.hands && S.hands.candle && S.hands.candle.done)],
       ],
       keys: '点一下继续 · 空格 / 回车同效',
       warn: '「离开」按下去不会退出游戏。它会从选项里消失，然后你只能选另一个。',
@@ -45,6 +46,7 @@
         ['修电脑：先撬机箱', (S) => !!S.pryOpened],
         ['装上系统，进那台老机器', (S) => !!S.pcFixed],
         ['拿到钥匙，开柜台后面那扇门', (S) => !!S.doorOpened],
+        ['柜下木箱：那支铅笔（按 Y）', (S) => !!(S.hands && S.hands.paper && S.hands.paper.done)],
       ],
       keys: '点击 · 撬机箱要连点 · 抽屉里是账本和胶片',
       warn: '抽屉锁的是账，不是数字：三行旧账各缺一个品级，页脚有三条线索，只有一个解。',
@@ -55,6 +57,7 @@
         ['在店里找出物证（长明灯、水碗、黄纸、黄历、柜台底下）', (S) => Object.keys(S.proofs || {}).length >= 1],
         ['拿物证顶回艾的话，一处一处拆', (S) => (S.exposed || 0) >= 1],
         ['六处拆完，或者一处不拆直接开门', (S) => !!S.doorOpened],
+        ['柜下木箱：那盘磁带（按 Y）', (S) => !!(S.hands && S.hands.tape && S.hands.tape.done)],
       ],
       keys: '点击物件 · 点击对话里的物件名对质',
       warn: '一处也不拆也能走到门口。只是门后是什么，会不一样。',
@@ -65,6 +68,7 @@
         ['按 Tab 打开检查器，把那面墙降到人后面', (S) => (S.wallZ || 9) < 4],
         ['按 P 打断点，看清两帧之间跟着你的东西', (S) => !!S.runDone],
         ['找到那扇没有 onclick 的门', (S) => !!S.figureSeen],
+        ['柜下木箱：三张透卡（按 Y）', (S) => !!(S.hands && S.hands.cards && S.hands.cards.done)],
       ],
       keys: 'Tab 检查器 · P 断点 · 方向键走 · 点门',
       warn: '这里所有东西都只有一面。侧面零像素，所以它会跟着你转。',
@@ -75,6 +79,7 @@
         ['在三十七行里找出编号 036 那一行', (S) => !!S.recordFound],
         ['读懂七个假行是怎么假的', (S) => Object.keys(S.clues || {}).length >= 7],
         ['给自己那一行填上名字', (S) => (S.ch5 || 0) >= 3],
+        ['柜下木箱：那条纸带（按 Y）', (S) => !!(S.hands && S.hands.punch && S.hands.punch.done)],
       ],
       keys: '点击行 · 名单会自己加速 · 点错三次会有东西闪出来',
       warn: '名单在跑。二十五秒后它会更快。慢下来只有一种办法：看准了再点。',
@@ -85,6 +90,7 @@
         ['七位客人，一人写一笔', (S) => ((S.sys.duty || {}).picks || []).length >= 7],
         ['每写一笔都要烧你自己那九格油', (S) => ((S.sys.duty || {}).picks || []).length >= 7],
         ['灯灭之前把这一班收完', (S) => !!S.ch6],
+        ['柜下木箱：那张值夜表（按 Y）', (S) => !!(S.hands && S.hands.roster && S.hands.roster.done)],
       ],
       keys: '点击选项 · 掀开手 / 划掉一行 / 拿自己的东西抵，都会花油',
       warn: '七个人全保住要十四格油，你只有九格。这不是算错了，是做不到。',
@@ -108,6 +114,7 @@
     ['空格 · 回车', '对话继续（和点击一样）'],
     ['Esc', '关掉当前这层浮窗'],
     ['H', '这张纸：该做什么、说过什么、键在哪'],
+    ['Y', '柜台底下的木箱：六件手上的活'],
     ['L', '回看刚才的对话'],
     ['M', '静音 / 恢复'],
     ['Tab', '第四章：检查器（改元素层级）'],
@@ -152,6 +159,10 @@
         out.push(['油', (d.oil === undefined ? '—' : d.oil) + ' 格' + (d.lamp ? ' · 灯还亮' : ' · 灯灭了')]);
       }
       if (S.sys && S.sys.linf) out.push(['写权限', 'L∞ 已拿到']);
+      if (S.hands) {
+        const hn = Object.keys(S.hands).filter((k) => S.hands[k] && S.hands[k].done).length;
+        if (hn) out.push(['手上的活', hn + ' / 6']);
+      }
       /* 支线一直在，只是没人告诉过玩家。这里常驻一行，别让他觉得店里就这点事。 */
       const qq = global.Quests;
       if (qq && qq.doneCount) out.push(['替前任办完的事', qq.doneCount() + ' / ' + qq.count()]);

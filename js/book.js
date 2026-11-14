@@ -141,6 +141,19 @@
           (dd.lamp ? '灯续上了。' : '灯灭了。'));
       }
 
+      const hh = (S && S.hands) || null;
+      if (hh) {
+        const all = Object.keys(hh).filter((k) => hh[k] && hh[k].done);
+        if (all.length) {
+          const n = (a) => all.filter((k) => hh[k].act === a).length;
+          const bits = [];
+          if (n('give')) bits.push('交回去 ' + n('give'));
+          if (n('keep')) bits.push('收进册子 ' + n('keep'));
+          if (n('burn')) bits.push('烧掉 ' + n('burn'));
+          out.push('你修好了 ' + all.length + ' 件东西' + (bits.length ? '：' + bits.join('，') + '。' : '。'));
+        }
+      }
+
       if (d.sealed > 0) out.push('上一次，你把这本册子合上了。');
       return out;
     },
