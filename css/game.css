@@ -5289,8 +5289,8 @@ body.egg-fx-51::after {
 
 /* 章 */
 .cc-stamp {
-  position: absolute; right: -34px; top: 20px;
-  width: 78px; height: 78px; border: 2px solid rgba(190,52,34,.6); border-radius: 3px;
+  position: absolute; right: -32px; top: 38px;
+  width: 74px; height: 74px; border: 2px solid rgba(190,52,34,.6); border-radius: 3px;
   display: flex; align-items: center; justify-content: center;
   transform: rotate(-9deg) scale(1.55); opacity: 0;
   box-shadow: 0 0 0 1px rgba(190,52,34,.22), inset 0 0 18px rgba(190,52,34,.12);
