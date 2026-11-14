@@ -10,14 +10,15 @@
   const { $, $$, wait, Fade, Toast } = global.G;
 
   const CHOICES = [
-    { id: 'overwrite', t: '在 #036 那一行写下自己的名字', s: '盖掉它。你就是第三十六个。', to: 'nightwatch' },
-    { id: 'cross', t: '把自己从名单上划掉', s: '不是离开，是"从来没有来过"。', to: 'revolutionary' },
-    { id: 'delete', t: '把整个记录库删掉', s: '三十六行，一起。', to: 'eraser' },
-    { id: 'logout', t: '登出地球online', s: '退出登录。回到"外面"。', to: 'awakened' },
-    { id: 'fail', t: '不换', s: '把纸推回去。什么都不拿。', to: 'inherit' },
-    { id: 'nothing', t: '什么都不做', s: '坐着。等灯灭。', to: 'observer' },
-    { id: 'core', t: '删掉核心程序', s: '这一层之下的那一层。', to: 'brain', need: 'linf' },
-    { id: 'write', t: '拿一张空白的，自己写', s: '不选它们给的路。', to: 'compiler', need: 'linf' },
+    { id: 'overwrite', t: '在 #036 那一行写下自己的名字', s: '盖掉它。你就是第三十六个。' },
+    { id: 'cross', t: '把自己从名单上划掉', s: '不是离开，是"从来没有来过"。' },
+    { id: 'delete', t: '把整个记录库删掉', s: '三十六行，一起。' },
+    { id: 'logout', t: '登出地球online', s: '退出登录。回到"外面"。' },
+    { id: 'fail', t: '不换', s: '把纸推回去。什么都不拿。' },
+    { id: 'nothing', t: '什么都不做', s: '坐着。等灯灭。' },
+    { id: 'core', t: '删掉核心程序', s: '这一层之下的那一层。', need: 'linf' },
+    { id: 'write', t: '拿一张空白的，自己写', s: '不选它们给的路。', need: 'linf' },
+    { id: 'later', t: '还不想写', s: '先回去。灯还够烧一会儿。' },
   ];
 
   const Final = {
@@ -51,6 +52,7 @@
 
       const S = global.State;
       S.sys = S.sys || {};
+      S.sys.sawFinal = true;
 
       // 在编辑器里删掉自己的，不再给选择
       if (S.sys.selfDeleted) { await this.play('recycler'); return; }
@@ -59,6 +61,10 @@
       await this.say('灯芯只剩一小截了。\n\n柜台上的纸，还是那几张。');
       await wait(2200);
       await this.say('艾把笔推过来。\n\n"这一次，"他说，"你自己写。"');
+      if (!S.sys.sawSpace) {
+        await wait(1800);
+        await this.say('（柜台后面那道缝还开着。你一次也没有进去过。）\n（里面还站着六个人。他们不催。）');
+      }
 
       this.showChoices();
       this.resetIdle();
@@ -73,14 +79,19 @@
 
     showChoices() {
       this.stage = 'choice';
-      const linf = global.State.sys && global.State.sys.linf;
-      const prev = global.State.finalChoice;
+      $('#fn-wrap').dataset.stage = 'choice';
+      const S = global.State;
+      const linf = S.sys && S.sys.linf;
+      const prev = S.finalChoice;
       const box = $('#fn-choice');
+      const rows = global.Endings.hint(S);
       box.innerHTML = '<div class="fn-q">你要怎么处置这一行？' +
         (prev ? '（刚才在记录里，你按的是另一张。要改，也可以。）' : '') + '</div>' +
         CHOICES.filter((c) => !c.need || (c.need === 'linf' && linf))
           .map((c) => '<button class="fn-opt' + (c.id === prev ? ' pre' : '') + '" data-c="' + c.id + '">' +
             '<b>' + c.t + '</b><span>' + c.s + '</span></button>').join('') +
+        '<div class="fn-state">' + rows.map((r) =>
+          '<span><i>' + r[0] + '</i><b>' + r[1] + '</b></span>').join('') + '</div>' +
         '<div class="fn-idle">（你还有 <b id="fn-idle-n">120</b> 秒。之后它会替你选。）</div>';
       box.classList.add('on');
       $$('.fn-opt').forEach((b) => {
@@ -106,41 +117,30 @@
 
     async choose(c, silent) {
       if (this.stage !== 'choice') return;
-      this.stage = 'play';
-      clearInterval(this.idleT);
       const S = global.State;
-      S.finalChoice = c;
       S.sys = S.sys || {};
 
-      // 覆盖 / 划掉 / 删除：先把统计味道算进去
-      let id = (CHOICES.find((x) => x.id === c) || {}).to || 'observer';
-      if (c === 'overwrite') {
-        if (S.sys.relics >= 8) id = 'collector';
-        else if (S.sys.copy7) id = 'imitator';
-        else if ((S.sys.endings || []).length >= 3) id = 'nightwatch';
+      /* 还没想好：回柜台。灯还够烧一会儿。 */
+      if (c === 'later') {
+        clearInterval(this.idleT);
+        await Fade.through(() => { App.show('counter'); global.Counter.init(); });
+        global.Toast && global.Toast.show('（想好了再回来。从平面图上还能找到这里。）', 3200);
+        return;
       }
-      if (c === 'cross') {
-        if (S.sys.readAll && S.sys.verified === 0) id = 'bystander';
-        else if (S.sys.deleted >= 10) id = 'destroyer';
-        else if (S.sys.mercy && S.sys.talks >= 6) id = 'revolutionary';
-        else if (S.sys.wins >= 7) id = 'conqueror';
-        else id = 'nameless';
-      }
-      if (c === 'delete') {
-        id = S.sys.linf ? 'eraser' : 'destroyer';
-      }
-      if (c === 'logout') {
-        id = S.sys.outside >= 3 ? 'awakened' : 'awakened';
-        S.sys.outside++;
-      }
-      if (c === 'write') {
-        id = S.sys.rebooted ? 'rebel' : 'compiler';
-        if (!S.sys.newWorld) S.sys.newWorld = true;
-      }
-      if (c === 'core') S.sys.coreDeleted = true;
 
-      S.sys.ending = id;
-      await this.play(id, silent);
+      this.stage = 'play';
+      clearInterval(this.idleT);
+      S.finalChoice = c;
+
+      // 选择本身也是一种动作，先落到 sys 上
+      if (c === 'core') S.sys.coreDeleted = true;
+      if (c === 'write') S.sys.newWorld = true;
+      if (c === 'logout') S.sys.outside = Math.max(S.sys.outside || 0, 3);
+
+      // 身份与动作，统一交给 Endings 判
+      const e = global.Endings.evaluate(S);
+      S.sys.ending = e ? e.id : 'nameless';
+      await this.play(S.sys.ending, silent);
     },
 
     async play(id, silent) {
@@ -210,7 +210,10 @@
         '<div class="fnc-row"><span>结局</span><b style="color:' + e.color + '">' + e.name + '</b></div>' +
         '<div class="fnc-row"><span>真名印记</span><b class="fnc-sig">' + rec.sigil + '</b></div>' +
         '<div class="fnc-row"><span>彩蛋 / 融合</span><b>' + rec.eggs + ' / ' + rec.fusions + '</b></div>' +
+        '<div class="fnc-row"><span>记忆物件</span><b>' + (S.sys.memRelics || 0) + ' / 35</b></div>' +
+        '<div class="fnc-row"><span>对局胜场</span><b>' + ((S.sys.boss && S.sys.boss.ai) || 0) + ' / 7</b></div>' +
         '<div class="fnc-row"><span>删除节点</span><b>' + rec.deleted + '</b></div>' +
+        '<div class="fnc-row"><span>这一周目</span><b>第 ' + (S.sys.played || 1) + ' 次</b></div>' +
         '<div class="fnc-foot">已记录。这一格不再是空的。</div>';
       $('#fn-card').classList.add('on');
     },

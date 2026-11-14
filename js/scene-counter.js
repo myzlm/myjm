@@ -85,6 +85,20 @@
       $('#counter-scene').addEventListener('click', () => {
         if (Dlg.active) return;
       });
+
+      // L 进里间 / K 跟他对一局
+      document.addEventListener('keydown', (e) => {
+        if (!App.isCurrent('counter')) return;
+        const tag = (e.target && e.target.tagName) || '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        if (e.key === 'l' || e.key === 'L') {
+          if (State.ch2 >= 1 && global.Space) { Snd.init(); global.Space.open(); }
+          else this.say('（柜台后面是墙。墙后面没有东西——现在还没有。）', 2600);
+        }
+        if (e.key === 'd' || e.key === 'D') {
+          if (global.Duel) { Snd.init(); global.Duel.open(); }
+        }
+      });
     },
 
     /* ---------------- 独白 ---------------- */
@@ -113,10 +127,8 @@
       const id = this.talked ? 'menu' : 'intro';
       this.talked = true;
       await Dlg.open(id);
-      if (global.State.sys) {
-        State.sys.talks = (State.sys.talks || 0) + 1;
-        document.dispatchEvent(new CustomEvent('eteTalked', { detail: State.sys.talks }));
-      }
+      if (global.Sys) global.Sys.talk('ai');
+      document.dispatchEvent(new CustomEvent('eteTalked', { detail: State.sys.talks }));
       this.updateHint();
     },
 
@@ -182,6 +194,10 @@
 
     updateHint() {
       const h = $('#cs-hint');
+      if (!h) return;
+      const sys = State.sys || {};
+      if (State.ch2 >= 4 && !sys.sawSpace) { h.textContent = '柜台后面那道缝比看起来深 —— L 走进去'; return; }
+      if (State.ch2 >= 1 && !sys.sawSpace) { h.textContent = '柜台后面有一道缝 —— L 走进去'; return; }
       if (State.ch2 >= 5) { h.textContent = '门在你身后合上了'; return; }
       if (State.ch2 >= 4 && !State.soulDone) { h.textContent = '门缝里有声音 —— 先听清楚'; return; }
       if (State.ch2 >= 4) { h.textContent = '钥匙在手上 —— 去开那扇门'; return; }

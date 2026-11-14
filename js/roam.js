@@ -20,6 +20,9 @@
       go: () => { global.App.show('hall'); global.Hall.init(); } },
     { zone: '店里', id: 'counter', name: '柜台', desc: '艾在后面坐着。灯一直亮。', ok: () => true,
       go: () => { global.App.show('counter'); global.Counter.init(); } },
+    { zone: '店里', id: 'space', name: '里间', desc: '七只柜子，三十五个人的东西，六个还站着的人。', ok: (S) => !!((S.ch2 || 0) >= 1 || (S.sys && S.sys.linf)),
+      no: '得先把抽屉拉开。那道缝在柜台后面，要先有理由往里走。',
+      go: () => { if (global.Space) global.Space.open(); } },
     { zone: '店里', id: 'verify', name: '抵押 · 记忆核验', desc: '柜台上那张空白单子。', ok: () => true,
       go: () => { global.App.show('verify'); global.Ver.start(); } },
 
@@ -52,7 +55,7 @@
     { zone: '下面', id: 'anomaly', name: '七行假记录', desc: '三十七行里有七行不对。', ok: (S) => !!((S.ch5 || 0) >= 1 || S.recordFound),
       no: '得先在记录库里找到自己那一行。',
       go: () => { global.App.show('anomaly'); global.Anomaly.start(); } },
-    { zone: '下面', id: 'final', name: '终章 · 回响', desc: '八张纸，十八个结局。', ok: (S) => !!(S.sys && (S.sys.endings || []).length > 0),
+    { zone: '下面', id: 'final', name: '终章 · 回响', desc: '九张纸，十八个结局。', ok: (S) => !!((S.sys && ((S.sys.endings || []).length > 0 || S.sys.sawFinal))),
       no: '先走完任何一个结局。',
       go: () => { global.App.show('final'); global.Final.start(); } },
   ];

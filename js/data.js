@@ -97,6 +97,18 @@
       editorRuns: 0,
       moyunSolved: [],
       cipherFinal: false,
+
+      /* ---------- 里间：三十五件东西与六个没走的人 ---------- */
+      sawSpace: false,
+      shifted: false,        // 在倒吊视角把第七、第八只柜子接上了
+      memRead: 0,            // 读过几个人的记忆
+      memRelics: 0,          // 拿走几件抵押物
+      npcs: {},              // 说过话的纸人
+      torn: {},              // 撕掉的纸人
+      hurt: 0,               // 伤害过的 NPC 数
+      boss: {},              // 每个对手的胜场 {ai: 3}
+      played: 0,             // 这是第几周目
+      sameAsLast: false,     // 这一周目是否完全复刻上一周目
     },
   };
 

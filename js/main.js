@@ -20,6 +20,7 @@
     rhythm: null,
     root: 'deep', anomaly: 'deep',
     moyun: 'moyun',
+    space: 'deep',
     end: 'final', final: 'final',
   };
   const TENSION_OF = {
@@ -39,7 +40,7 @@
       if (name === 'counter' || name === 'lock') inv.classList.add('on');
       else inv.classList.remove('on');
       // 侧边坞只在这间屋子里出现（序章、下载页、终章、卷轴里都不该有）
-      const outside = ['mail', 'download', 'login', 'contract', 'dark', 'doll', 'final', 'moyun', 'end'];
+      const outside = ['mail', 'download', 'login', 'contract', 'dark', 'doll', 'final', 'moyun', 'end', 'space'];
       document.body.classList.toggle('in-game', outside.indexOf(name) < 0);
 
       // 配乐：同一首不重起，换首就交叉淡变
@@ -57,6 +58,42 @@
   };
 
   global.App = App;
+
+  /* ---------- 记账：说过话的人、动过手的人 ---------- */
+  global.Sys = {
+    /* 说过话：同一个人只算一次。艾 + 六个纸人 = 7 */
+    talk(id) {
+      const S = global.State;
+      if (!S) return 0;
+      S.sys = S.sys || {};
+      S.sys.npcs = S.sys.npcs || {};
+      S.sys.npcs[id] = true;
+      S.sys.talks = Object.keys(S.sys.npcs).length;
+      return S.sys.talks;
+    },
+    /* 动过手：撕掉一个，仁慈就没了 */
+    hurt(id) {
+      const S = global.State;
+      if (!S) return 0;
+      S.sys = S.sys || {};
+      S.sys.torn = S.sys.torn || {};
+      S.sys.torn[id] = true;
+      S.sys.hurt = Object.keys(S.sys.torn).length;
+      S.sys.mercy = false;
+      return S.sys.hurt;
+    },
+    /* 对局：同一个对手的胜场 */
+    win(id, d) {
+      const S = global.State;
+      if (!S) return 0;
+      S.sys = S.sys || {};
+      S.sys.boss = S.sys.boss || {};
+      S.sys.boss[id] = Math.max(0, (S.sys.boss[id] || 0) + (d || 1));
+      S.sys.wins = Math.max(S.sys.wins || 0, S.sys.boss[id]);
+      S.sys.bossMax = Math.max(S.sys.bossMax || 0, S.sys.boss[id]);
+      return S.sys.boss[id];
+    },
+  };
 
   /* ---------- 自检（?selftest=1）---------- */
   function selftest() {
@@ -248,7 +285,87 @@
       log.push('new screens ok');
     });
 
-    /* ---- 配乐 ---- */
+    /* ---- 里间 / 十八个结局 ---- */
+    run('Memory', () => {
+      if (!global.Memory || Memory.total !== 35) throw new Error('total=' + (global.Memory ? Memory.total : 0));
+      const nos = Memory.list.map((m) => m.no);
+      if (new Set(nos).size !== 35) throw new Error('dup no');
+      if (nos.some((n, i) => n !== i + 1)) throw new Error('编号不连续');
+      Memory.list.forEach((m) => {
+        if (!m.name || !m.relic || !m.last || !m.icon) throw new Error('缺字段 ' + m.no);
+        if (!m.logs || m.logs.length !== 3) throw new Error('日志数 ' + m.no);
+        if (m.logs.some((t) => !t || t.length < 6)) throw new Error('日志太短 ' + m.no);
+      });
+      const c7 = Memory.copy7();
+      if (!c7 || c7.length !== 3) throw new Error('copy7');
+      c7.forEach((q) => { if (q.opts.indexOf(q.a) < 0) throw new Error('copy7 选项不含答案'); });
+      log.push('mem=35 copy7=3');
+    });
+    run('Reach18', () => {
+      const mk = (patch, choice) => {
+        const S = { playerName: '测试', finalChoice: choice || 'nothing', sys: { endings: [], npcs: {}, boss: {}, bossMax: 0 } };
+        Object.assign(S.sys, patch || {});
+        return S;
+      };
+      const cases = [
+        ['recycler', mk({ selfDeleted: true })],
+        ['eraser', mk({ allDeleted: true })],
+        ['brain', mk({ coreDeleted: true })],
+        ['compiler', mk({ newWorld: true })],
+        ['rebel', mk({ rebooted: true })],
+        ['cooperator', mk({ taughtAI: true })],
+        ['recursive', mk({ printed: true })],
+        ['collector', mk({ memRelics: 35, memRead: 35 })],
+        ['imitator', mk({ copy7: true })],
+        ['destroyer', mk({ deleted: 12 })],
+        ['bystander', mk({ readAll: true, verified: 0, memRelics: 0 })],
+        ['revolutionary', mk({ talks: 7, hurt: 0 })],
+        ['conqueror', mk({ bossMax: 7 })],
+        ['awakened', mk({ outside: 3 })],
+        ['nightwatch', mk({ played: 2, sameAsLast: true })],
+        ['inherit', mk({}, 'fail')],
+        ['observer', mk({}, 'nothing')],
+        ['nameless', mk({}, 'overwrite')],
+      ];
+      const bad = [];
+      cases.forEach(([id, S]) => {
+        const e = Endings.evaluate(S);
+        if (!e || e.id !== id) bad.push(id + '→' + (e ? e.id : 'null'));
+      });
+      if (bad.length) throw new Error(bad.join(' , '));
+      // 18 个都得有文案
+      Endings.list.forEach((e) => {
+        const t = e.text({ playerName: '测试', sys: {} });
+        if (!t || t.length < 120) throw new Error('文案太短 ' + e.id);
+      });
+      log.push('reach=18/18');
+    });
+    run('Space', () => {
+      if (!global.Space) throw new Error('no Space');
+      App.show('space');
+      Space.init();
+      Space.build();
+      const n = document.querySelectorAll('.sp-relic').length;
+      const figs = document.querySelectorAll('.sp-fig').length;
+      if (n !== 35) throw new Error('物件=' + n);
+      if (figs !== 6) throw new Error('纸人=' + figs);
+      if (document.querySelectorAll('.sp-case').length !== 8) throw new Error('柜子数');
+      Space.setView('hang', true);
+      if (!document.querySelector('#sp-shift')) throw new Error('no shift');
+      log.push('relics=35 figs=6 cases=8');
+    });
+    run('Duel', () => {
+      if (!global.Duel) throw new Error('no Duel');
+      for (let i = 0; i < 24; i++) {
+        const q = Duel.pick();
+        if (!q || !q.q || !q.opts.length) throw new Error('空题');
+        if (q.opts.indexOf(q.ans) < 0) throw new Error('答案不在选项里：' + q.q);
+        if (new Set(q.opts).size !== q.opts.length) throw new Error('选项重复');
+      }
+      log.push('duel pick ok');
+    });
+
+
     run('Music', () => {
       if (!global.Music) throw new Error('no Music');
       const ids = ['mail', 'login', 'hall', 'void', 'counter', 'ch2', 'chase', 'deep', 'moyun', 'final'];

@@ -239,6 +239,7 @@
       if (global.State) {
         global.State.sys = global.State.sys || {};
         global.State.sys.ending = id;
+        global.State.sys.endings = global.State.sys.endings || [];
         if (global.State.sys.endings.indexOf(id) < 0) global.State.sys.endings.push(id);
       }
       if (global.TrueName) global.TrueName.bump('end', 1);
@@ -248,44 +249,87 @@
 
     get(id) { return ENDINGS.find((e) => e.id === id) || null; },
 
-    /* 评估：先看玩家亲手按下的，再看统计出来的 */
+    /* ============================================================
+       判定
+       ------------------------------------------------------------
+       先看"不可撤销的动作"（编辑器改写了世界 / 终局按了哪张纸），
+       再看"你这一个星期目把自己活成了什么样"。
+       动作压过身份——但身份会改判终局的选择。
+       ============================================================ */
     evaluate(S) {
-      const sys = (S && S.sys) || {};
-      // 1. 编辑器 / 终局直接触发的
-      const direct = ['brain', 'recycler', 'eraser', 'recursive', 'rebel', 'compiler',
-        'cooperator', 'imitator', 'collector', 'destroyer', 'bystander', 'nightwatch',
-        'conqueror', 'awakened', 'revolutionary', 'observer', 'inherit'];
-      if (sys.ending) {
-        const e = this.get(sys.ending);
-        if (e) return e;
-      }
-      for (const id of direct) {
-        const e = this.get(id);
-        try { if (e.test(S)) return e; } catch (err) {}
-      }
-      return this.get('nameless');
+      const s = (S && S.sys) || {};
+      const get = (id) => this.get(id);
+      const boss = Math.max(s.bossMax || 0, (s.boss && s.boss.ai) || 0, s.wins || 0);
+      const relics = s.memRelics || 0;
+      const hurts = s.hurt || 0;
+      const deleted = s.deleted || 0;
+
+      /* ---- 1. 改写了世界的（编辑器里已经发生，不容反悔） ---- */
+      if (s.selfDeleted) return get('recycler');       // deleteNode('player')
+      if (s.allDeleted) return get('eraser');          // deleteAllNodes()
+      if (s.coreDeleted) return get('brain');          // 删掉核心
+      if (s.newWorld) return get('compiler');          // 新世界生成器
+      if (s.rebooted) return get('rebel');             // restart
+      if (s.taughtAI) return get('cooperator');        // 教会它学习
+      if (s.printed) return get('recursive');          // 打印整页文档
+
+      /* ---- 2. 终局那张纸：删库 ---- */
+      if (S.finalChoice === 'delete') return get(s.linf ? 'eraser' : 'destroyer');
+
+      /* ---- 3. 身份：你活成了谁 ---- */
+      if (relics >= 35) return get('collector');                 // 三十五件都在身上
+      if (s.copy7) return get('imitator');                       // 照 7 号抄完了
+      if (hurts >= 6) return get('destroyer');                   // 六个纸人全撕了
+      if (deleted >= 10 && !s.restored) return get('destroyer');  // 删了十个，一个没修
+      if (s.readAll && !(s.verified > 0) && relics === 0) return get('bystander');
+      if (boss >= 7) return get('conqueror');
+      if ((s.talks || 0) >= 7 && hurts === 0) return get('revolutionary');
+      if ((s.outside || 0) >= 3) return get('awakened');
+      if ((s.played || 1) >= 2 && s.sameAsLast) return get('nightwatch');
+
+      /* ---- 4. 剩下的按终局那张纸 ---- */
+      if (S.finalChoice === 'fail') return get('inherit');
+      if (S.finalChoice === 'nothing' || s.idleEnd) return get('observer');
+      if (S.finalChoice === 'logout') return get((s.outside || 0) >= 3 ? 'awakened' : 'nameless');
+      if (S.finalChoice === 'overwrite') return get(relics >= 8 ? 'collector' : 'nameless');
+      if (S.finalChoice === 'cross') return get('nameless');
+
+      /* ---- 5. 什么都没做的 ---- */
+      return get('nameless');
+    },
+
+    /* 一条短句，用来在档案册里说"你还差什么" */
+    hint(S) {
+      const s = (S && S.sys) || {};
+      const boss = Math.max(s.bossMax || 0, (s.boss && s.boss.ai) || 0, s.wins || 0);
+      const rows = [
+        ['记忆物件', (s.memRelics || 0) + ' / 35'],
+        ['读过的人', (s.memRead || 0) + ' / 35'],
+        ['说过话的人', (s.talks || 0) + ' / 7'],
+        ['撕掉的纸人', String(s.hurt || 0)],
+        ['对局胜场', boss + ' / 7'],
+        ['外面的触碰', (s.outside || 0) + ' / 3'],
+        ['删除节点', String(s.deleted || 0)],
+        ['这一周目', '第 ' + (s.played || 1) + ' 次'],
+      ];
+      return rows;
     },
 
     /* 二周目：上一次的完整选择序列 */
     signature(S) {
-      const sys = (S && S.sys) || {};
-      return [sys.finalChoice || '-', sys.deleted || 0, sys.modified || 0,
-        (sys.endings || []).length, sys.mercy ? 1 : 0].join('/');
+      if (global.Meta) return global.Meta.signature(S);
+      const s = (S && S.sys) || {};
+      return [S.finalChoice || '-', s.verified || 0, s.deleted || 0, s.memRelics || 0, s.hurt || 0].join('/');
     },
 
     checkLoop(S) {
-      try {
-        const prev = localStorage.getItem('code_echo_sig');
-        const now = this.signature(S);
-        if (prev && prev === now) {
-          S.sys.loop = true;
-        }
-        localStorage.setItem('code_echo_sig', now);
-      } catch (e) {}
+      if (global.Meta) return global.Meta.commit(S);
+      return 0;
     },
 
     galleryHTML() {
       const got = this.reached();
+      const st = global.Memory ? global.Memory.stats() : { read: 0, relics: 0, total: 35 };
       return '<div class="en-list">' + ENDINGS.map((e) => {
         const on = got.indexOf(e.id) >= 0;
         return '<div class="en-row ' + (on ? 'on' : '') + '" style="--en:' + e.color + '">' +
@@ -295,7 +339,8 @@
           '<em>' + (on ? e.trig : '未抵达') + '</em></span>' +
           '</div>';
       }).join('') + '</div>' +
-        '<div class="en-count">已抵达 ' + got.length + ' / 18</div>';
+        '<div class="en-count">已抵达 ' + got.length + ' / 18　·　记忆物件 ' +
+        st.relics + ' / ' + st.total + '　·　读过 ' + st.read + ' / ' + st.total + '</div>';
     },
   };
 
