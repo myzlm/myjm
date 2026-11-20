@@ -354,15 +354,17 @@
       log.push('street=5 五个门 · 四档此刻 · 四句台词 ok');
     });
 
-    /* ---- 四层空间：三个字在明处，第四个字在墙皮底下 ---- */
+    /* ---- 五层空间：两个在源码里，第三个在记录里，第四个在墙皮下 ---- */
     run('Strata', () => {
       if (!global.Strata) throw new Error('no Strata');
       const L = global.Strata.layers();
-      if (L.length !== 4) throw new Error('层数=' + L.length);
-      if (L.map((x) => x.ch).join('') !== '无人认领') throw new Error('四个字不对');
+      if (L.length !== 5) throw new Error('层数=' + L.length);
+      if (L[0].key !== 'earth' || !L[0].outer) throw new Error('第 0 层丢了');
+      const inner = L.filter((x) => !x.outer);
+      if (inner.map((x) => x.ch).join('') !== '无人认领') throw new Error('四个字不对');
       if (global.Strata.password() !== '无人认领') throw new Error('口令不对');
       ['shop', 'render', 'root', 'src'].forEach((k, i) => {
-        const l = L[i];
+        const l = inner[i];
         if (l.key !== k || !l.hint || !l.at) throw new Error('层定义缺 ' + k);
       });
       /* 三处 data-st 要在 DOM 上，第四层要有一块能被删的墙皮 */
@@ -371,14 +373,24 @@
       });
       if (!document.querySelector('#strata-under')) throw new Error('no under');
       if (!document.querySelector('#screen-counter .cs-wall')) throw new Error('no wall');
-      /* 墙在的时候不算揭开，也不给口令 */
+
       const S = global.State;
       const bak = (S.sys || {}).strata;
       S.sys = S.sys || {};
-      S.sys.strata = { peel: false, chars: [], open: false };
-      if (global.Strata.isPeeled()) throw new Error('墙还在就说揭开了');
-      const r1 = global.Strata.open('test');
-      if (r1.ok) throw new Error('没揭墙也能念');
+      S.sys.strata = { peel: false, rootRead: false, chars: [], open: false };
+
+      /* 第 37 行：押品那一栏是「认」 */
+      const t37 = global.__mv.records(37);
+      if (!/"collateral": "认"/.test(t37)) throw new Error('37 行没有「认」');
+      if (!/待认领/.test(t37)) throw new Error('37 行状态不对');
+      if (global.Strata.isRootRead()) throw new Error('还没读就说读过了');
+      if (global.Strata.open('test').ok) throw new Error('墙还在、字不齐也能念');
+
+      /* 读一次 37 → 第三个字到手，但墙还盖着第四个 */
+      global.Strata.markRoot('test');
+      if (!global.Strata.isRootRead()) throw new Error('读了 37 还不算');
+      if (global.Strata.open('test').ok) throw new Error('墙还在也能念');
+
       /* 把墙藏起来，看它认不认 */
       const w = document.querySelector('#screen-counter .cs-wall');
       const prev = w.style.display;
@@ -386,10 +398,12 @@
       global.Strata.watch();
       if (!global.Strata.isPeeled()) throw new Error('墙没了还说不算');
       const r2 = global.Strata.open('test');
-      if (!r2.ok) throw new Error('揭开了却不开');
+      if (!r2.ok) throw new Error('字齐了却不开');
+      if (!/第五层/.test(r2.text)) throw new Error('没提第 0 层');
+      if (!/已认领/.test(global.__mv.records(37))) throw new Error('念完了 37 行没认领');
       w.style.display = prev;
       S.sys.strata = bak;
-      log.push('strata=4 无人认领 · 墙皮可删 ok');
+      log.push('strata=5 无人认领 · 37 行认领 ok');
     });
 
     /* ---- 守夜 · 七则：七件旧事，一条街的来历 ---- */
@@ -845,7 +859,7 @@
     run('DevFS', () => {
       const need = ['/app/hall.js', '/app/render.css', '/app/memory.js', '/etc/mount.conf',
         '/log/build.log', '/log/access.log', '/var/records/1', '/var/records/14',
-        '/var/records/35', '/var/records/36'];
+        '/var/records/22', '/var/records/35', '/var/records/36', '/var/records/37'];
       const miss = need.filter((p) => !global.Dev || !Dev.cmds || !p);
       if (!global.CLUES) throw new Error('no clues');
       const ids = Object.keys(global.CLUES);

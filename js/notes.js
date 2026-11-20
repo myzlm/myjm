@@ -77,6 +77,7 @@
       no: '第五章', name: '根目录',
       goal: [
         ['在三十七行里找出编号 036 那一行', (S) => !!S.recordFound],
+        ['翻到第 037 行：名字空着、押品只有一个「认」字', (S) => !!(S.sys && S.sys.strata && S.sys.strata.rootRead)],
         ['读懂七个假行是怎么假的', (S) => Object.keys(S.clues || {}).length >= 7],
         ['给自己那一行填上名字', (S) => (S.ch5 || 0) >= 3],
         ['柜下木箱：那条纸带（按 Y）', (S) => !!(S.hands && S.hands.punch && S.hands.punch.done)],

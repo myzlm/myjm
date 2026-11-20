@@ -39,6 +39,8 @@
       this.wrong = 0;
       this.speed = 190;
       this.paused = false;
+      this.targetEl = null;
+      this.selfEl = null;
       $('#rt-wrap').dataset.stage = 'list';
       $('#rt-detail').classList.remove('on');
       $('#rt-confirm').classList.remove('on');
@@ -85,21 +87,26 @@
       box.innerHTML = '';
       box.scrollTop = 0;
       // 36 号只能有一行：其余位置遇到 36 就改成 35，再在靠前的位置放唯一的一行
+      // 37 号同理——那是账本自己的那一行，整个库里只有一行
       const list = [];
       for (let i = 0; i < 260; i++) {
         let id = (i % 37) + 1;
         if (id === 36) id = 35;
+        if (id === 37) id = 34;
         list.push(id);
       }
       list[24] = 36;
+      list[141] = 37;
 
+      const claimed = !!(global.Strata && global.Strata.isOpen());
       list.forEach((id, i) => {
         const isMe = id === 36;
-        const thing = isMe ? '身' : THINGS[(id * 3 + i) % THINGS.length];
-        const state = isMe ? '待覆盖' : '已释放';
-        const name = isMe ? '████' : NAMES[(id * 7 + i) % NAMES.length];
+        const isOwn = id === 37;
+        const thing = isMe ? '身' : (isOwn ? '认' : THINGS[(id * 3 + i) % THINGS.length]);
+        const state = isMe ? '待覆盖' : (isOwn ? (claimed ? '已认领' : '待认领') : '已释放');
+        const name = isMe ? '████' : (isOwn ? (claimed ? String(State.playerName || '你') : '（空）') : NAMES[(id * 7 + i) % NAMES.length]);
         const d = document.createElement('button');
-        d.className = 'rt-row' + (isMe ? ' me' : '');
+        d.className = 'rt-row' + (isMe ? ' me' : '') + (isOwn ? ' own' : '');
         d.dataset.id = id;
         d.dataset.state = state;
         d.innerHTML = '<span class="rt-no">#' + String(id).padStart(3, '0') + '</span>'
@@ -108,6 +115,7 @@
           + '<span class="rt-st">' + state + '</span>';
         d.addEventListener('click', (e) => { e.stopPropagation(); this.pick(d, id, state); });
         if (isMe) this.targetEl = d;
+        if (isOwn) this.selfEl = d;
         box.appendChild(d);
       });
 
@@ -151,14 +159,15 @@
     },
 
     jumpTo(n) {
-      if (!this.targetEl || n !== 36) {
+      const el = n === 36 ? this.targetEl : (n === 37 ? this.selfEl : null);
+      if (!el) {
         Toast.show('（这里没有第 ' + n + ' 行。）');
         return;
       }
       const box = $('#rt-list');
-      this.scrollTo(this.targetEl, box.clientHeight / 2);
+      this.scrollTo(el, box.clientHeight / 2);
       this.paused = true;
-      this.targetEl.classList.add('found');
+      el.classList.add('found');
       Snd.ok();
       setTimeout(() => { this.paused = false; }, 2200);
       Toast.show('（控制台替你停了一下列表。就一下。）', 3600);
@@ -166,6 +175,16 @@
 
     async pick(el, id, state) {
       if (this.stage !== 'list') return;
+      if (id === 37) {
+        /* 账本自己那一行。它不叫，也不抬头——它只是空着。 */
+        Snd.ok();
+        el.classList.add('found');
+        const first = global.Strata && global.Strata.markRoot ? global.Strata.markRoot('root') : false;
+        await this.say(first
+          ? '（这一行没有名字。\n押品那一栏只有一个字：认。）\n（三十七行里，只有这一行是空的。）'
+          : '（这一行已经认了。\n认领栏写着你的名字。）', 4600);
+        return;
+      }
       if (id === 36 && state === '待覆盖') {
         this.stage = 'record';
         this.paused = true;

@@ -2518,6 +2518,14 @@ body.dlging .cs-hint { opacity: 0; }
 .rt-row.found .rt-nm { color: #f0dcb4; }
 .rt-row.found .rt-st { color: #e6cf92; }
 
+/* 账本自己那一行：名字是空的，押品只有一个字。
+   它不该抢眼——它只是比别的行少一点东西。 */
+.rt-row.own { border-bottom-style: dashed; border-bottom-color: rgba(201, 164, 92, .16); }
+.rt-row.own .rt-nm { color: #6b6152; letter-spacing: .3em; }
+.rt-row.own .rt-th { color: #b08a53; }
+.rt-row.own .rt-st { color: #7a6a52; }
+.rt-row.own:hover { background: rgba(201, 164, 92, .06); }
+
 .rt-nar {
   width: min(700px, 92vw); margin-top: 18px; min-height: 54px;
   font-family: var(--serif); font-size: 14px; line-height: 2; letter-spacing: .1em;

@@ -99,7 +99,7 @@
       const sr = (S.sys && S.sys.strata) || null;
       if (sr && sr.open) {
         await wait(1900);
-        await this.say('（这间屋子是四层。最下面那层，页脚印着一行小字：这一层不该被看见。）\n（写它的人，也没打算让谁看见。）');
+        await this.say('（这间屋子一共五层。最底下一层在页面里，页脚印着一行小字：这一层不该被看见。）\n（最上面那一层不在页面里。灯开着，桌上有杯水。）');
       }
       if (!S.sys.sawSpace) {
         await wait(1800);

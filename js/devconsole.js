@@ -164,6 +164,45 @@
     ].join('\n'),
   };
 
+  /* ---------------- 第 37 行 ----------------
+     账本自己的那一行。三十六行都有人押着，这一行没人押。
+     押品一栏写着一个字：认。
+     念过「无人认领」之后，这一行会自己亮——names 那一栏就填上了。 */
+  function record37() {
+    const st = global.Strata;
+    const open = !!(st && st.isOpen && st.isOpen());
+    const nm = String(S().playerName || '').trim() || '（空）';
+    const q = JSON.stringify(nm);
+    if (!open) {
+      return [
+        '{',
+        '  "id": 37,',
+        '  "name": "（空）",',
+        '  "collateral": "认",',
+        '  "state": "待认领",',
+        '  "owner": null,',
+        '  "visits": 0,',
+        '  "note": "这一行是账本自己的那一行。上面三十六行都有人押着，这一行没人押。",',
+        '  "note2": "押名字的人换了一间店，押「身」的人换了一次重来。押「认」的人换什么，账本没写。",',
+        '  "note3": "空着不是没人要。空着是因为认领栏要一个活人来签。"',
+        '}',
+      ].join('\n');
+    }
+    return [
+      '{',
+      '  "id": 37,',
+      '  "name": ' + q + ',',
+      '  "collateral": "认",',
+      '  "state": "已认领",',
+      '  "owner": ' + q + ',',
+      '  "visits": 1,',
+      '  "note": "有人在终端里念了四个字。这一行自己亮了。",',
+      '  "note2": "账本从第三十六行往后翻，翻到这一行，停住：它上面第一次有了名字。",',
+      '  "note3": "从今天起这一行归你。你走的时候，它跟着走。"',
+      '}',
+    ].join('\n');
+  }
+
   const FILES = {
     '/app/hall.js': { text: HALL_JS },
     '/app/render.css': { text: CSS_TXT },
@@ -183,6 +222,7 @@
           : '读取中…… 权限不足：这条记录正在被写入。\n（它正在被写。写它的是你。）';
       },
     },
+    '/var/records/37': { get: record37 },
   };
 
   const DIRS = {
@@ -355,7 +395,7 @@
           ['ps', '看进程'],
           ['whoami', '你是谁'],
           ['clue', '已找到的线索'],
-          ['strata', '四层空间，你走到第几层'],
+          ['strata', '五层空间，你走到第几层'],
           ['open <选择器>', '点一个元素（需要写权限）'],
           ['patch <键>=<值>', '改内存（需要写权限）'],
           ['find <编号>', '定位记录（需要写权限）'],
@@ -371,7 +411,7 @@
 
       strata() {
         const S = global.Strata;
-        if (!S) { this.print('E: 这一层没有四层。', 'dev-err'); return; }
+        if (!S) { this.print('E: 这一层没有五层。', 'dev-err'); return; }
         const r = S.report(false);
         this.print(r.head);
         r.rows.forEach((x) => this.print('  ' + x));
@@ -383,7 +423,7 @@
       /* 四个字：打不出来就照抄——无 人 认 领 */
       '无人认领'() {
         const S = global.Strata;
-        if (!S) { this.print('E: 这一层没有四层。', 'dev-err'); return; }
+        if (!S) { this.print('E: 这一层没有五层。', 'dev-err'); return; }
         const r = S.open('dev');
         this.printLines(r.text, r.ok ? 'dev-dim' : 'dev-err');
       },
@@ -397,13 +437,25 @@
         if (p.length > 1) p = p.replace(/\/+$/, '');
         if (p === '/var/records') {
           const rows = [];
+          const claimed = !!(global.Strata && global.Strata.isOpen());
           for (let i = 1; i <= 37; i++) {
-            const nm = i === 36 ? '████' : (i === 35 ? '（空）' : (i === 1 ? '艾' : (i === 22 ? '李知远' : '…')));
-            const st = i === 36 ? '待覆盖' : (i === 22 ? '未取' : '已释放');
+            let nm = '…'; let st = '已释放';
+            if (i === 1) { nm = '艾'; st = '运行中'; }
+            else if (i === 22) { nm = '李知远'; st = '未取'; }
+            else if (i === 35) { nm = '（空）'; st = '已删除'; }
+            else if (i === 36) { nm = '████'; st = '待覆盖'; }
+            else if (i === 37) {
+              nm = claimed ? (String(S().playerName || '').trim() || '（空）') : '（空）';
+              st = claimed ? '已认领' : '待认领';
+            }
             rows.push(String(i).padStart(4, '0') + '  ' + nm + '  ' + st);
           }
-          this.print('共 37 行（其中 1 行没有名字）');
+          this.print(claimed ? '共 37 行（都有名字了）' : '共 37 行（其中 1 行没有名字）');
           rows.forEach((r) => this.print('  ' + r));
+          this.print('');
+          this.print(claimed
+            ? '（第 37 行归你了。你走的时候，它跟着走。）'
+            : '（第 37 行是账本自己的那一行。cat 一下。）', 'dev-dim');
           return;
         }
         const d = DIRS[p];
@@ -426,6 +478,16 @@
         if (a === '/var/records/36' && S().recordFound) {
           this.print('');
           this.print('（这条记录正在被你读。读它的是它自己。）', 'dev-dim');
+        }
+        if (a === '/var/records/37') {
+          this.print('');
+          if (global.Strata && global.Strata.isOpen()) {
+            this.print('（这一行刚才还是空的。现在它有名字了。）', 'dev-dim');
+          } else {
+            const first = global.Strata && global.Strata.markRoot ? global.Strata.markRoot('dev') : false;
+            this.print('（三十六行押的是东西。这一行押的是「认」。）', 'dev-dim');
+            if (first) this.print('（押品那一栏只有一个字。记下它。）', 'dev-dim');
+          }
         }
       },
 
@@ -550,14 +612,17 @@
           st, 'color:#8d7a5e;background:#0b0906;font-family:monospace', st2);
         console.log('%c这一层只是外壳。库在 /var/records。',
           'color:#6d5c44;font-family:monospace');
-        console.log('%c试试 __mv.records(36)，或者按 F2。',
+        console.log('%c第 37 行没有名字。它有押品：认。',
+          'color:#6d5c44;font-family:monospace');
+        console.log('%c试试 __mv.records(37)，或者按 F2。',
           'color:#4e7a63;font-family:monospace');
       } catch (e) {}
 
       global.__mv = {
         build: '0.9.36',
         records(n) {
-          if (n == null) return Object.keys(RECORDS).map(Number);
+          if (n == null) return Object.keys(RECORDS).map(Number).concat([37]);
+          if (Number(n) === 37) return record37();
           if (!RECORDS[n]) return 'no such record: ' + n;
           if (n === 36 && !S().recordFound) return 'EACCES: 记录正在被写入';
           return RECORDS[n];
