@@ -335,6 +335,7 @@
         this.print('记录 #36 · 会话已恢复 · 无退出记录');
         this.print('');
         this.print('你不是第一个打开这里的人。');
+        if (S().jobIsCode) this.print('（登记表上职业那一栏，红笔写着：不必教。）');
         this.print('输入 help 看命令。');
         this.print('');
       }

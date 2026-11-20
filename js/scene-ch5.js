@@ -37,7 +37,8 @@
       State.ch5 = Math.max(State.ch5, 1);
       this.stage = 'list';
       this.wrong = 0;
-      this.speed = 190;
+      /* 登记表上写着「不必教」的人，名单跑得快一点。它不解释为什么。 */
+      this.speed = State.jobIsCode ? 250 : 190;
       this.paused = false;
       this.targetEl = null;
       this.selfEl = null;
@@ -48,6 +49,12 @@
       $('#rt-list').classList.remove('slow');
       $('#rt-nar').textContent = '';
       $('#rt-sub').textContent = '— 记录库 · 37 行 —';
+      const hintEl = $('#rt-list-hint');
+      if (hintEl) {
+        hintEl.textContent = State.jobIsCode
+          ? '（F2。）'
+          : '（F2 可以打开控制台。有些行，用 grep 找更快。）';
+      }
 
       // 「七行假记录」的入口：只在列表这一层出现一次
       if (!this.anomBound) {
@@ -151,7 +158,7 @@
       // 25 秒之后它会快起来
       setTimeout(() => {
         if (this.stage === 'list') {
-          this.speed = 330;
+          this.speed = State.jobIsCode ? 400 : 330;
           box.classList.add('fast');
           this.say('（列表开始自己往下跑。）', 2600);
         }

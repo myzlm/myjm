@@ -217,11 +217,15 @@
   transform: rotate(-2deg); pointer-events: none;
 }
 
+/* 职业那一栏的红笔字。不是系统提示，是坐在对面那个人随手添的两个字——
+   和「三十六」同一支笔。它不解释自己。 */
 .job-flag {
-  display: none; margin-left: 10px; font-size: 10.5px; color: #b8201c;
-  letter-spacing: .14em; font-family: var(--ui);
+  display: none; margin: 1px 0 3px 4px; font-size: 17px; color: #b8201c;
+  letter-spacing: .1em; font-family: "KaiTi", "STKaiti", var(--serif);
+  transform: rotate(-5deg); transform-origin: left center;
+  text-shadow: 0 0 2px rgba(184, 32, 28, .35);
 }
-.job-flag.on { display: inline; animation: flickIn .6s both; }
+.job-flag.on { display: inline-block; animation: flickIn .6s both; }
 
 /* 指纹 */
 .fp-box {
