@@ -355,6 +355,7 @@
           ['ps', '看进程'],
           ['whoami', '你是谁'],
           ['clue', '已找到的线索'],
+          ['strata', '四层空间，你走到第几层'],
           ['open <选择器>', '点一个元素（需要写权限）'],
           ['patch <键>=<值>', '改内存（需要写权限）'],
           ['find <编号>', '定位记录（需要写权限）'],
@@ -366,6 +367,25 @@
         rows.forEach((r) => this.print('  ' + r[0].padEnd(20, ' ') + r[1]));
         this.print('');
         this.print('提示：这一层只有正面。侧面是 0px。');
+      },
+
+      strata() {
+        const S = global.Strata;
+        if (!S) { this.print('E: 这一层没有四层。', 'dev-err'); return; }
+        const r = S.report(false);
+        this.print(r.head);
+        r.rows.forEach((x) => this.print('  ' + x));
+        this.print('');
+        this.print(r.tail, 'dev-dim');
+        if (!S.isOpen()) this.print('（四个字连起来是一句话。念出来。）', 'dev-dim');
+      },
+
+      /* 四个字：打不出来就照抄——无 人 认 领 */
+      '无人认领'() {
+        const S = global.Strata;
+        if (!S) { this.print('E: 这一层没有四层。', 'dev-err'); return; }
+        const r = S.open('dev');
+        this.printLines(r.text, r.ok ? 'dev-dim' : 'dev-err');
       },
 
       clear() { this.out.innerHTML = ''; },

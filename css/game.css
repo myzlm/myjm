@@ -6596,3 +6596,282 @@ body.egg-fx-51::after {
   .st-text { max-height: 21vh; }
   .st-text .st-l { line-height: 1.95; }
 }
+
+/* ============================================================
+   材质层 —— 给干净的矢量补上脏、旧、不匀
+   纯渐变 + 均匀发光 = 一眼生成。木头要有丝，墙要有水渍，
+   灯要有油烟，照片要有年代。
+   ============================================================ */
+
+/* 柜台：木纹按年轮走，不是每 42px 一根等距线 */
+.counter-scene .cs-counter-face {
+  background:
+    repeating-linear-gradient(91.4deg, rgba(0,0,0,.28) 0 1px, transparent 1px 17px),
+    repeating-linear-gradient(89.1deg, rgba(255,214,160,.028) 0 2px, transparent 2px 41px),
+    radial-gradient(ellipse 46% 30% at 14% 70%, rgba(0,0,0,.5), transparent 72%),
+    radial-gradient(ellipse 34% 24% at 86% 34%, rgba(0,0,0,.42), transparent 76%),
+    linear-gradient(180deg, #1d140d, #0b0706 62%, #050303);
+}
+
+/* 墙：抹灰 + 潮气从地脚往上爬 */
+.counter-scene .cs-wall {
+  background:
+    radial-gradient(ellipse 24% 40% at 72% 18%, rgba(0,0,0,.46), transparent 74%),
+    radial-gradient(ellipse 30% 22% at 8% 74%, rgba(0,0,0,.52), transparent 78%),
+    repeating-linear-gradient(90.6deg, rgba(255,220,170,.026) 0 2px, transparent 2px 71px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.14) 0 3px, transparent 3px 88px),
+    linear-gradient(180deg, #0d0a08, #14100c 70%, #0c0908);
+}
+
+/* 柜子：门板有缝，缝里有灰，漆掉了露白茬 */
+.cabinet-body {
+  background:
+    repeating-linear-gradient(92deg, rgba(0,0,0,.34) 0 1px, transparent 1px 13px),
+    radial-gradient(ellipse 60% 12% at 50% 100%, rgba(0,0,0,.6), transparent 70%),
+    linear-gradient(100deg, #35261a, #201610 60%, #2c2016);
+}
+.cab-door {
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,.32) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(0deg, rgba(255,220,170,.03) 0 6px, transparent 6px 15px);
+}
+
+/* 老人那张照片：压一层年代。太干净的脸放在暗屋子里最假 */
+.cs-oldman img {
+  filter: sepia(.2) contrast(1.22) brightness(.82) saturate(.82);
+}
+.cs-oldman::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 40% 46% at 50% 58%, transparent 40%, rgba(0,0,0,.55) 92%),
+    linear-gradient(180deg, rgba(20,14,8,.35), transparent 34%, rgba(10,7,4,.5));
+  mix-blend-mode: multiply;
+}
+
+/* 里间的柜子：木色有深有浅，不是一排同款色块 */
+.sp-case:nth-child(2n) .sp-case-body { filter: brightness(.94) }
+.sp-case:nth-child(3n) .sp-case-body { filter: brightness(1.05) }
+.sp-case:nth-child(5n) .sp-case-body { filter: brightness(.88) }
+.sp-case-body {
+  background:
+    repeating-linear-gradient(91.6deg, rgba(0,0,0,.3) 0 1px, transparent 1px 15px),
+    radial-gradient(ellipse 70% 16% at 50% 100%, rgba(0,0,0,.55), transparent 72%),
+    linear-gradient(180deg, rgba(214,206,180,.05), rgba(214,206,180,.01) 40%, rgba(0,0,0,.4)),
+    rgba(10,12,10,.55);
+}
+
+/* 柜里的东西：别摆成矩阵。歪一点，旧一点 */
+.sp-relic:nth-child(3n) { rotate: -1.6deg; opacity: .92 }
+.sp-relic:nth-child(4n) { rotate: 1.3deg }
+.sp-relic:nth-child(5n) { rotate: -.7deg; translate: 0 -1px }
+.sp-relic.read { box-shadow: 0 0 0 1px rgba(214,206,180,.08) inset }
+
+/* 磷火收一点：鬼火是冷白带青，不是霓虹灯 */
+.sp-case[data-joint] .sp-case-body::before {
+  background: linear-gradient(90deg, transparent, rgba(206,224,206,.86), transparent);
+  box-shadow: 0 0 18px rgba(150,196,176,.5), 0 0 4px rgba(214,232,214,.5);
+}
+
+/* 六个人不该是一个模子倒出来的：高矮、胖瘦、站姿各差一点 */
+.sp-fig:nth-child(1) { height: 240px; width: 62px }
+.sp-fig:nth-child(2) { height: 256px; width: 58px; opacity: .54 }
+.sp-fig:nth-child(3) { height: 232px; width: 67px; opacity: .68 }
+.sp-fig:nth-child(4) { height: 262px; width: 60px; opacity: .5 }
+.sp-fig:nth-child(5) { height: 246px; width: 65px; opacity: .6 }
+.sp-fig:nth-child(6) { height: 236px; width: 57px; opacity: .56 }
+.sp-fig:nth-child(4) .sp-fig-body { clip-path: polygon(22% 0, 78% 0, 90% 44%, 82% 44%, 92% 100%, 8% 100%, 18% 44%, 10% 44%) }
+.sp-fig:nth-child(6) .sp-fig-body { clip-path: polygon(30% 0, 70% 0, 82% 48%, 76% 48%, 84% 100%, 16% 100%, 24% 48%, 18% 48%) }
+
+/* 柜里的东西：圆的方的、大的小的，别一格一格像打印出来的 */
+.sp-relic:nth-child(2n) { width: 45px; height: 45px; border-radius: 46% 54% 52% 48% / 50% 47% 53% 50% }
+.sp-relic:nth-child(3n) { border-radius: 52% 48% 45% 55% / 47% 52% 48% 53% }
+.sp-relic:nth-child(4n) { width: 51px; height: 51px }
+.sp-relic:nth-child(5n) { width: 46px; height: 46px; border-radius: 3px 3px 6px 6px }
+
+/* ============================================================
+   R. 守夜 · 七则
+   一间关了门的屋子，一盏不熄的灯，一个人慢慢讲。
+   ============================================================ */
+#screen-night { background: #050403; }
+.ng-wrap {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  padding: 4.4vh max(6vw, calc((100% - 720px) / 2)) 2.6vh;
+  background:
+    radial-gradient(ellipse 46% 40% at 50% 4%, rgba(255,196,120,.13), transparent 72%),
+    radial-gradient(ellipse 90% 70% at 50% 120%, #0d0906 0%, #050403 62%, #000 100%);
+}
+/* 灯：一小团，不亮，只够照见字 */
+.ng-lamp {
+  position: absolute; left: 50%; top: -2vh; width: 3px; height: 3px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: rgba(255,206,140,.9);
+  box-shadow:
+    0 0 18px 6px rgba(255,186,108,.28),
+    0 0 90px 34px rgba(255,170,90,.12),
+    0 0 260px 120px rgba(255,150,70,.05);
+  animation: ntFlicker 5.5s ease-in-out infinite;
+}
+@keyframes ntFlicker {
+  0%, 100% { opacity: .82; transform: translateX(-50%) scale(1) }
+  22% { opacity: .95; transform: translateX(-50%) scale(1.08) }
+  47% { opacity: .74; transform: translateX(-50%) scale(.96) }
+  61% { opacity: .9; transform: translateX(-50%) scale(1.04) }
+}
+
+.ng-head {
+  display: flex; align-items: baseline; gap: 18px;
+  justify-content: center; margin-bottom: 4px;
+}
+.ng-no {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .42em;
+  color: #6d5a3c;
+}
+.ng-name {
+  font-family: "KaiTi", "STKaiti", var(--serif); font-size: 27px;
+  letter-spacing: .34em; color: #d9c39a; text-indent: .34em;
+  text-shadow: 0 0 30px rgba(220,180,110,.18);
+}
+
+.ng-dots { display: flex; gap: 9px; justify-content: center; margin-bottom: 1.6vh }
+.ng-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(214,190,150,.16); transition: all .5s;
+}
+.ng-dot.on { background: rgba(226,196,140,.62); box-shadow: 0 0 8px rgba(226,196,140,.4) }
+.ng-dot.cur { transform: scale(1.5); background: rgba(240,214,164,.9) }
+
+.ng-text {
+  flex: 1 1 auto; overflow-y: auto; padding: 0;
+  display: flex; flex-direction: column; justify-content: flex-start;
+  scrollbar-width: thin; scrollbar-color: rgba(160,130,90,.3) transparent;
+}
+/* 短则居中，长则从顶上排下来 —— 内容多的时候居中会把开头裁掉 */
+.ng-text.ng-mid { justify-content: center }
+.ng-text::-webkit-scrollbar { width: 3px }
+.ng-text::-webkit-scrollbar-thumb { background: rgba(160,130,90,.3) }
+
+.ng-l {
+  font-family: var(--serif); font-size: var(--nt-fs, 15.2px); line-height: 2.1;
+  color: #a89a80; letter-spacing: .07em; margin-bottom: .42em;
+  opacity: 0; transform: translateY(5px);
+  animation: ntIn .72s cubic-bezier(.2,.8,.25,1) forwards;
+}
+.ng-l.ng-st { color: #8a7d66; padding-left: 1.2em }
+.ng-l.ng-q {
+  font-family: "KaiTi", "STKaiti", var(--serif);
+  font-size: calc(var(--nt-fs, 14.2px) * 1.08);
+  color: #d3c3a0; letter-spacing: .1em;
+  margin: .12em 0 .52em 1.3em; padding-left: .9em;
+  border-left: 1px solid rgba(200,168,116,.22);
+}
+.ng-l.ng-end { margin-bottom: 0 }
+@keyframes ntIn {
+  to { opacity: 1; transform: translateY(0) }
+}
+
+.ng-acts {
+  display: flex; gap: 12px; justify-content: center;
+  padding-top: 1.8vh; border-top: 1px solid rgba(180,150,105,.08);
+  margin-top: 1.1vh;
+}
+.ng-b {
+  background: transparent; border: 1px solid #3a3024; color: #b7a684;
+  font-family: var(--serif); font-size: 11.5px; letter-spacing: .28em;
+  padding: 9px 22px; cursor: pointer; transition: all .25s;
+  text-indent: .28em;
+}
+.ng-b:hover { border-color: #7a6547; color: #ecdcbc; background: rgba(120,96,60,.1) }
+.ng-b.ghost { border-color: #261f18; color: #6d6152 }
+.ng-b.ghost:hover { border-color: #4d4232; color: #a3937a }
+
+.ng-foot { text-align: center; padding-top: .7vh }
+.ng-hint {
+  font-family: var(--serif); font-size: 9.5px; letter-spacing: .18em; color: #4a4133;
+}
+
+/* 说破那一屏：字要更沉，留白更少 */
+.ng-wrap[data-stage="reveal"] .ng-l { color: #9c9077 }
+.ng-wrap[data-stage="reveal"] .ng-l.ng-q { color: #dccdae }
+
+@media (max-height: 760px) {
+  .ng-wrap { padding: 3.2vh max(5vw, calc((100% - 700px) / 2)) 2vh }
+  .ng-name { font-size: 23px }
+  .ng-dots { margin-bottom: 1.8vh }
+  .ng-l { font-size: 13px; line-height: 2.1 }
+  .ng-l.ng-q { font-size: 14.5px }
+  .ng-acts { padding-top: 2vh; margin-top: 1.2vh }
+  .ng-b { padding: 7px 18px; font-size: 10.5px }
+}
+
+/* 一屏没说完：底下给一个几乎看不见的提示 */
+.ng-more {
+  position: absolute; left: 50%; bottom: 11.5vh; transform: translateX(-50%);
+  font-family: var(--serif); font-size: 9px; letter-spacing: .34em;
+  color: rgba(206,180,130,.5); pointer-events: none;
+  opacity: 0; transition: opacity .5s;
+}
+.ng-more.on { opacity: 1; animation: ngMore 2.6s ease-in-out infinite }
+@keyframes ngMore {
+  0%, 100% { transform: translate(-50%, 0); opacity: .32 }
+  50% { transform: translate(-50%, 4px); opacity: .72 }
+}
+
+/* ============================================================
+   S. 第四层 · 墙皮底下
+   这一层一直在，只是被 .cs-wall 盖着。
+   删掉那块墙皮，才看得见三十五张写好的路引。
+   ============================================================ */
+#strata-under {
+  position: absolute; inset: 0 0 46% 0; z-index: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; overflow: hidden;
+  background:
+    radial-gradient(ellipse 66% 56% at 50% 42%, rgba(48,36,22,.5), transparent 76%),
+    linear-gradient(180deg, #0a0705, #100b07 68%, #080605);
+}
+/* 三十六格，格子里压着纸。最后一格空着 */
+.su-grid {
+  position: absolute; inset: 9% 7%;
+  background:
+    repeating-linear-gradient(90deg, rgba(226,210,168,.2) 0 1px, transparent 1px 27px),
+    repeating-linear-gradient(0deg, rgba(226,210,168,.2) 0 1px, transparent 1px 33px);
+  -webkit-mask-image: radial-gradient(ellipse 78% 80% at 50% 42%, #000 34%, transparent 92%);
+  mask-image: radial-gradient(ellipse 78% 80% at 50% 42%, #000 34%, transparent 92%);
+  opacity: .6;
+}
+/* 格子里有纸：每格一块淡淡的白，不是纯线框 */
+.su-grid::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(ellipse 11px 13px at 13px 16px, rgba(226,210,168,.12), transparent 72%);
+  background-size: 27px 33px;
+  opacity: .8;
+}
+.su-grid::after {
+  content: ''; position: absolute; right: 0; bottom: 0; width: 27px; height: 33px;
+  border: 1px dashed rgba(226,210,168,.34);
+  background: rgba(0,0,0,.4);
+}
+.su-cap {
+  position: relative; z-index: 2;
+  font-family: "KaiTi", "STKaiti", var(--serif);
+  font-size: 12.5px; letter-spacing: .2em; color: #8d7c5e; text-indent: .2em;
+  text-shadow: 0 0 20px rgba(0,0,0,.9);
+}
+.su-ch {
+  position: relative; z-index: 2;
+  font-family: var(--serif); font-size: 56px; line-height: 1;
+  color: rgba(226,200,146,.2);
+  text-shadow: 0 0 42px rgba(226,180,110,.22);
+  letter-spacing: .1em;
+}
+.su-tag {
+  position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 7.5px; letter-spacing: .34em;
+  color: rgba(160,140,105,.3); white-space: nowrap;
+}
+#strata-under.on .su-ch { animation: suGlow 6s ease-in-out infinite }
+@keyframes suGlow {
+  0%, 100% { color: rgba(226,200,146,.2); text-shadow: 0 0 42px rgba(226,180,110,.22) }
+  50% { color: rgba(240,214,160,.4); text-shadow: 0 0 60px rgba(240,190,120,.38) }
+}

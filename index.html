@@ -307,8 +307,27 @@
   </section>
 
   <!-- ============ 6. 柜台 / 大厅 ============ -->
+  <!-- ============================================================
+       第一层 · 店 面 —— 无
+       你在这里摸到的每一样东西，都是别人放下的。
+       看得见的这一层，最容易被当成全部。
+       下面还有三层：里间（L）／渲染层（Tab）／根目录（F2 里 ls /var/records）
+       最后一层在页面底下。删掉 .cs-wall 才看得见。
+       ============================================================ -->
   <section class="screen" id="screen-counter" data-screen="counter">
-    <div class="counter-scene" id="counter-scene">
+    <div class="counter-scene" id="counter-scene" data-st="无">
+
+      <!-- 第四层 · 源 码 —— 领
+           这一层不该被看见。它被 .cs-wall 盖着。
+           在检查器里把 .cs-wall 删掉，或者给它加一句 display:none。
+           （删之前先看清楚：这块墙皮下面贴的是什么。） -->
+      <div id="strata-under" aria-hidden="true">
+        <div class="su-grid"></div>
+        <div class="su-cap">三十五张写好了。第三十六张，空着。</div>
+        <div class="su-ch">领</div>
+        <div class="su-tag">这一层不该被看见</div>
+      </div>
+
       <div class="cs-wall"></div>
 
       <!-- 长椅椅背 + 老爷爷 -->
@@ -733,8 +752,11 @@
 
   <!-- ============ 10. 结束 ============ -->
   <!-- ============ 8. 第四章 · 渲染层 ============ -->
+  <!-- 第二层 · 渲 染 —— 人
+       这面墙是 div。影子是一层 clip-path。人也是。
+       展开 #screen-layer，注释节点里还有半个字。 -->
   <section class="screen" id="screen-layer" data-screen="layer">
-    <div class="ly-wrap" id="ly-wrap" data-stage="room">
+    <div class="ly-wrap" id="ly-wrap" data-stage="room" data-st="人">
 
       <div class="ly-room">
         <div class="ly-backwall" id="ly-backwall"></div>
@@ -778,8 +800,11 @@
   </section>
 
   <!-- ============ 9. 第五章 · 根目录 ============ -->
+  <!-- 第三层 · 根 目 录 —— 认
+       三十七行。三十六行有名字，一行没有。
+       那一行不是空的。它是还没被写的那一行。 -->
   <section class="screen" id="screen-root" data-screen="root">
-    <div class="rt-wrap" id="rt-wrap" data-stage="list">
+    <div class="rt-wrap" id="rt-wrap" data-stage="list" data-st="认">
 
       <div class="rt-head">
         <div class="rt-title">/var/records</div>
@@ -1107,6 +1132,27 @@
     </div>
   </section>
 
+  <section class="screen" id="screen-night" data-screen="night">
+    <div class="ng-wrap" id="ng-wrap" data-stage="intro">
+      <div class="ng-lamp"></div>
+      <div class="ng-head">
+        <span class="ng-no" id="ng-no">守 夜</span>
+        <span class="ng-name" id="ng-name">七 则</span>
+      </div>
+      <div class="ng-dots" id="ng-dots"></div>
+      <div class="ng-text" id="ng-text"></div>
+      <div class="ng-more" id="ng-more">往 下</div>
+      <div class="ng-acts">
+        <button class="ng-b ghost" id="nt-prev">上 一 则</button>
+        <button class="ng-b" id="nt-next">听 他 说</button>
+        <button class="ng-b ghost" id="nt-out">回 柜 台</button>
+      </div>
+      <div class="ng-foot">
+        <span class="ng-hint">柜台上那张纸钱，压在灯底下</span>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="screen-final" data-screen="final">
     <div class="fn-page" id="fn-wrap" data-stage="text">
       <div class="fn-inner">
@@ -1279,6 +1325,8 @@
 <script src="js/chapter.js"></script>
 <script src="js/save.js"></script>
 <script src="js/scene-street.js"></script>
+<script src="js/night.js"></script>
+<script src="js/strata.js"></script>
 <script src="js/pause.js"></script>
 <script src="js/hands.js"></script>
 <script src="js/notes.js"></script>

@@ -149,6 +149,20 @@
         out.push('打烊以后你出过一次门，走过 ' + stt.seen.length + ' 个门' + endTx + '。');
       }
 
+      const sr = (S && S.sys && S.sys.strata) || null;
+      if (sr && sr.peel) {
+        out.push(sr.open
+          ? '你把柜台那面墙揭开过。后面贴着三十五张路引，第三十六张空着。四个字你念过了：无人认领。'
+          : '你把柜台那面墙揭开过。后面贴着三十五张路引，第三十六张空着。');
+      }
+
+      const nt = (S && S.sys && S.sys.night) || null;
+      if (nt && nt.read && nt.read.length) {
+        out.push(nt.done
+          ? '你守过一夜，听完七则。他给了你一张路引，你收进了兜里。'
+          : '你听过 ' + nt.read.length + ' 则。剩下的，他还肯讲。');
+      }
+
       const c36 = (S && S.sys && S.sys.case36) || null;
       if (c36) {
         if (c36.k === 'relic') out.push('你在里间第三十六只柜里，放回了「' + (c36.what || '一件东西') + '」。');

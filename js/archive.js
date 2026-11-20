@@ -37,6 +37,16 @@
         if (e.key === 'p' || e.key === 'P') { e.preventDefault(); if (global.Persp) global.Persp.toggle(); }
         if (e.key === 'k' || e.key === 'K') { e.preventDefault(); if (global.Moyun) global.Moyun.show(); }
         if (e.key === 'v' || e.key === 'V') { e.preventDefault(); this.toggle(); }
+        if (e.key === 't' || e.key === 'T') {
+          const cur = global.App && global.App.current;
+          if (!global.Night) return;
+          if (cur === 'night' || cur === 'lock' || cur === 'login' || cur === 'win98' ||
+              cur === 'duty' || cur === 'final' || cur === 'end' || cur === 'moyun' ||
+              cur === 'street' || this.open) return;
+          if (!global.Night.can()) return;
+          e.preventDefault();
+          global.Night.start();
+        }
         if (e.key === 'q' || e.key === 'Q') {
           const cur = global.App && global.App.current;
           const S = global.State || {};
@@ -69,6 +79,7 @@
         '<button class="dock-b" id="dock-hands" title="柜台底下的木箱（Y）"><span>箱</span><i>Y</i></button>' +
         '<button class="dock-b" id="dock-persp" title="代码透视（P）"><span>视</span><i>P</i></button>' +
         '<button class="dock-b" id="dock-moyun" title="墨韵·科技卷轴（K）"><span>卷</span><i>K</i></button>' +
+        '<button class="dock-b" id="dock-night" title="守夜 · 七则（T）"><span>夜</span><i>T</i></button>' +
         '<button class="dock-b" id="dock-arch" title="档案册（V）"><span>档</span><i>V</i><b id="dock-badge">0</b></button>';
       document.body.appendChild(d);
       d.querySelector('#dock-persp').onclick = () => {
@@ -80,6 +91,11 @@
       d.querySelector('#dock-moyun').onclick = () => {
         if (!global.Moyun) return Toast.show('卷轴还没有被找到。', 2200);
         global.Moyun.show();
+      };
+      d.querySelector('#dock-night').onclick = () => {
+        if (!global.Night) return;
+        if (!global.Night.can()) return Toast.show('还没打烊。', 1800);
+        global.Night.start();
       };
       d.querySelector('#dock-arch').onclick = () => this.toggle();
       this.refreshDock();
@@ -293,6 +309,12 @@
           : '灯亮着。你把纸对折，塞进柜台的抽屉里。');
       h += '<div class="ar-note">这是那张纸。上面的字是你写的，不是别人替你写的。<br>' +
         tail.replace(/</g, '&lt;') + '</div>';
+      const nt = (S.sys && S.sys.night) || null;
+      if (nt && nt.done) {
+        h += '<div class="ar-note ar-pass">守过一夜。七则听完了。<br>' +
+          '柜台上那张纸钱，现在在你兜里。上面写着你的名字，' +
+          '可它不是给你的。</div>';
+      }
       return h;
     },
 

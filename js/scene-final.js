@@ -86,10 +86,21 @@
           : stt && stt.end === 'keep'
             ? '\n\n（那张纸还在兜里。折了四折，硌着腿。）'
             : '';
-      await this.say('灯芯只剩一小截了。\n\n柜台上的纸，还是那几张。' + stTx +
+      const nt = (S.sys && S.sys.night) || null;
+      const passTx = nt && nt.done ? '\n\n（兜里那张纸钱硌着腿。你还想不好，把它算在谁头上。）' : '';
+      await this.say('灯芯只剩一小截了。\n\n柜台上的纸，还是那几张。' + stTx + passTx +
         (flipped ? '\n\n（柜台底下那块地方，比别处暗一点。你上次把手伸进去过。）' : ''));
       await wait(2200);
       await this.say('艾把笔推过来。\n\n"这一次，"他说，"你自己写。"');
+      if (nt && nt.done) {
+        await wait(2000);
+        await this.say('（守夜那晚他说过：路引得别人写。）\n（这张桌上，只有你一个人还写得动字。）');
+      }
+      const sr = (S.sys && S.sys.strata) || null;
+      if (sr && sr.open) {
+        await wait(1900);
+        await this.say('（这间屋子是四层。最下面那层，页脚印着一行小字：这一层不该被看见。）\n（写它的人，也没打算让谁看见。）');
+      }
       if (!S.sys.sawSpace) {
         await wait(1800);
         await this.say('（柜台后面那道缝还开着。你一次也没有进去过。）\n（里面还站着六个人。他们不催。）');

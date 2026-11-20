@@ -17,6 +17,7 @@
     oil: 'ch2', clock: 'ch2', scratch: 'ch2',
     hands: 'ch2',
     street: 'final',
+    night: 'counter',
     win98: 'ch2',
     layer: 'chase',
     rhythm: null,
@@ -43,7 +44,7 @@
       if (name === 'counter' || name === 'lock') inv.classList.add('on');
       else inv.classList.remove('on');
       // 侧边坞只在这间屋子里出现（序章、下载页、终章、卷轴里都不该有）
-      const outside = ['mail', 'download', 'login', 'contract', 'dark', 'doll', 'final', 'moyun', 'end', 'space', 'duty', 'street'];
+      const outside = ['mail', 'download', 'login', 'contract', 'dark', 'doll', 'final', 'moyun', 'end', 'space', 'duty', 'street', 'night'];
       document.body.classList.toggle('in-game', outside.indexOf(name) < 0);
 
       // 配乐：同一首不重起，换首就交叉淡变
@@ -351,6 +352,80 @@
       if (global.Street.kindOf('zhao') !== 'refuse') throw new Error('缺 kind 应兜底 refuse');
       S.sys.duty = bak;
       log.push('street=5 五个门 · 四档此刻 · 四句台词 ok');
+    });
+
+    /* ---- 四层空间：三个字在明处，第四个字在墙皮底下 ---- */
+    run('Strata', () => {
+      if (!global.Strata) throw new Error('no Strata');
+      const L = global.Strata.layers();
+      if (L.length !== 4) throw new Error('层数=' + L.length);
+      if (L.map((x) => x.ch).join('') !== '无人认领') throw new Error('四个字不对');
+      if (global.Strata.password() !== '无人认领') throw new Error('口令不对');
+      ['shop', 'render', 'root', 'src'].forEach((k, i) => {
+        const l = L[i];
+        if (l.key !== k || !l.hint || !l.at) throw new Error('层定义缺 ' + k);
+      });
+      /* 三处 data-st 要在 DOM 上，第四层要有一块能被删的墙皮 */
+      ['无', '人', '认'].forEach((c) => {
+        if (!document.querySelector('[data-st="' + c + '"]')) throw new Error('缺藏字 ' + c);
+      });
+      if (!document.querySelector('#strata-under')) throw new Error('no under');
+      if (!document.querySelector('#screen-counter .cs-wall')) throw new Error('no wall');
+      /* 墙在的时候不算揭开，也不给口令 */
+      const S = global.State;
+      const bak = (S.sys || {}).strata;
+      S.sys = S.sys || {};
+      S.sys.strata = { peel: false, chars: [], open: false };
+      if (global.Strata.isPeeled()) throw new Error('墙还在就说揭开了');
+      const r1 = global.Strata.open('test');
+      if (r1.ok) throw new Error('没揭墙也能念');
+      /* 把墙藏起来，看它认不认 */
+      const w = document.querySelector('#screen-counter .cs-wall');
+      const prev = w.style.display;
+      w.style.display = 'none';
+      global.Strata.watch();
+      if (!global.Strata.isPeeled()) throw new Error('墙没了还说不算');
+      const r2 = global.Strata.open('test');
+      if (!r2.ok) throw new Error('揭开了却不开');
+      w.style.display = prev;
+      S.sys.strata = bak;
+      log.push('strata=4 无人认领 · 墙皮可删 ok');
+    });
+
+    /* ---- 守夜 · 七则：七件旧事，一条街的来历 ---- */
+    run('Night', () => {
+      if (!global.Night) throw new Error('no Night');
+      const T = global.Night.data();
+      if (T.length !== 7) throw new Error('则数=' + T.length);
+      const ids = T.map((x) => x.id).join(',');
+      if (ids !== 'pass,sev,double,call,wed,corpse,cave') throw new Error('顺序不对 ' + ids);
+      T.forEach((t) => {
+        if (!t.no || !t.name) throw new Error('缺名 ' + t.id);
+        if (!t.lines || t.lines.length < 14) throw new Error('太短 ' + t.id + '=' + (t.lines || []).length);
+        ['old', 'street', 'thing', 'back'].forEach((k) => {
+          if (!t.lines.some((l) => l.k === k)) throw new Error('缺段 ' + t.id + '/' + k);
+        });
+        if (!t.lines.some((l) => l.k === 'back' && l.q)) throw new Error('缺艾的话 ' + t.id);
+      });
+      const R = global.Night.revealLines();
+      if (R.length < 20) throw new Error('说破太短 ' + R.length);
+      if (!document.querySelector('#screen-night')) throw new Error('no screen');
+      if (!document.querySelector('#ng-text') || !document.querySelector('#ng-more')) throw new Error('no dom');
+      if (!document.querySelector('#nt-next')) throw new Error('no next');
+
+      /* 打烊之前不开讲 */
+      const S = global.State;
+      const bak = { ch6: S.ch6, ch7: S.ch7, night: (S.sys || {}).night };
+      S.sys = S.sys || {};
+      S.ch6 = 0; S.ch7 = 0; S.sys.night = null;
+      if (global.Night.can()) throw new Error('没打烊也能进');
+      S.ch6 = 2;
+      if (!global.Night.can()) throw new Error('打烊了进不去');
+      if (global.Night.mix('寄：{NAME} 收') !== '寄：' + (S.playerName || '陈默') + ' 收') throw new Error('名字没进');
+      S.ch6 = bak.ch6; S.ch7 = bak.ch7; S.sys.night = bak.night;
+      const chars = T.reduce((n, t) => n + t.lines.reduce((m, l) => m + l.t.length, 0), 0)
+        + R.reduce((n, l) => n + (typeof l === 'string' ? l.length : l.t.length), 0);
+      log.push('night=7 四段式 · ' + chars + ' 字 ok');
     });
 
     /* ---- 档案册「当班」页：那张纸翻得到 ---- */
@@ -850,6 +925,7 @@
     if (global.Save) Save.boot();
     if (global.Notes) global.Notes.boot();
     if (global.Pause) global.Pause.init();
+    if (global.Night) global.Night.init();
 
     // 开发者模式：F2 / ~ 打开；同时往真·控制台里打一行横幅（用 DevTools 的人会看见）
     if (global.Dev) Dev.boot();

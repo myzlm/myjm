@@ -127,6 +127,7 @@
     ['Esc', '关掉当前这层浮窗；没有浮窗时＝先放着，退回上一步'],
     ['H', '这张纸：该做什么、说过什么、键在哪'],
     ['Y', '柜台底下的木箱：六件手上的活'],
+    ['T', '守夜：打烊以后，柜台上的七则民间说法'],
     ['Q', '第七章：从柜台再出门（打烊以后才有）'],
     ['L', '回看刚才的对话'],
     ['M', '静音 / 恢复'],
@@ -365,7 +366,7 @@
       const el = this.hint();
       const cur = (global.App && global.App.current) || '';
       /* 开篇几屏不放，别一进门就贴广告 */
-      const hide = ['mail', 'download', 'login', 'end', ''].indexOf(cur) >= 0;
+      const hide = ['mail', 'download', 'login', 'end', 'night', 'street', 'final', 'moyun', ''].indexOf(cur) >= 0;
       el.classList.toggle('on', !hide && !this.on);
     },
 

@@ -43,6 +43,7 @@
   /* 街上有自己的退法：站里退回街，街上退回柜台 */
   const SPECIAL = {
     street: () => { if (global.Street && global.Street.escBack) global.Street.escBack(); },
+    night: () => { if (global.Night && global.Night.escBack) global.Night.escBack(); },
   };
 
   /* 中途真走不开的：按了 Esc 得有一句话，别让人以为键盘坏了 */

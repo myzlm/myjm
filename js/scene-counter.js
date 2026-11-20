@@ -217,9 +217,12 @@
       const h = $('#cs-hint');
       if (!h) return;
       const sys = State.sys || {};
-      /* 打烊以后，柜台只剩一件事：出门 */
+      /* 打烊以后，柜台只剩两件事：出门，或者听他说 */
       if ((State.ch6 >= 2 || State.ch7) && global.Street) {
-        h.textContent = '打烊了 —— 按 Q 出门，街上还有人';
+        const nd = sys.night && sys.night.done;
+        h.textContent = nd
+          ? '打烊了 —— 按 Q 出门，街上还有人'
+          : '打烊了 —— 按 T 守夜，按 Q 出门';
         return;
       }
       if (State.ch2 >= 4 && !sys.sawSpace) { h.textContent = '柜台后面那道缝比看起来深 —— L 走进去'; return; }
