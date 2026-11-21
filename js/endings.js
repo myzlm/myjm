@@ -224,7 +224,11 @@
     {
       id: 'clerk', no: 19, name: '掌柜', tone: '温柔的替身', color: '#c9a45c',
       trig: '最后一班里，七笔里有五笔照规矩写，把账写平了',
-      test: (S) => S.sys && S.sys.duty && (S.sys.duty.rule || 0) >= 5 && (S.sys.duty.total || 0) >= 7,
+      test: (S) => {
+        const d = (S.sys && S.sys.duty) || {};
+        /* 笔数是 picks 的长度；total 是账面净值，不能拿来当笔数 */
+        return !!(d.rule >= 5 && (d.picks || []).length >= 7);
+      },
       text: (S) => {
         const d = (S.sys && S.sys.duty) || {};
         return '你把最后一张纸叠好，压进抽屉。\n\n' +
@@ -409,11 +413,15 @@
 
       /* ---- 3. 身份：你活成了谁 ---- */
       if (s.duty && s.duty.seat) return get('lastguest');        // 把位子让出去了
+      /* 加押：核验通过以后又推了一张纸的人 */
+      if (s.gaveName && S.finalChoice === 'overwrite') return get('nameless'); // 名字押掉了，盖不上
+      if ((s.morePledges || 0) >= 2) return get('collector');     // 押了两件：什么都想留着
+      if ((s.moreRefused || 0) >= 2 && hurts === 0) return get('inherit'); // 两次都推回去
       if (relics >= 35) return get('collector');                 // 三十五件都在身上
       if (s.duty && (s.duty.oil === 0) && !s.duty.seat && (s.duty.voided || 0) === 0
         && ((s.duty.kept || 0) + (s.duty.hurt || 0) + (s.duty.paid || 0)) >= 7) return get('nightkeeper');
       if (s.duty && (s.duty.peek || 0) >= 5 && (s.duty.kept || 0) <= 2 && !s.duty.seat) return get('insider');
-      if (s.duty && (s.duty.rule || 0) >= 5 && (s.duty.total || 0) >= 7) return get('clerk');
+      if (s.duty && (s.duty.rule || 0) >= 5 && (s.duty.picks || []).length >= 7) return get('clerk');
       if (s.copy7) return get('imitator');                       // 照 7 号抄完了
       if (hurts >= 6) return get('destroyer');                   // 六个纸人全撕了
       if (deleted >= 10 && !s.restored) return get('destroyer');  // 删了十个，一个没修
@@ -487,12 +495,17 @@
       const st = global.Memory ? global.Memory.stats() : { read: 0, relics: 0, total: 35 };
       return '<div class="en-list">' + ENDINGS.map((e) => {
         const on = got.indexOf(e.id) >= 0;
-        return '<div class="en-row ' + (on ? 'on' : '') + '" style="--en:' + e.color + '">' +
+        /* 此刻这一局，走这条路还走得到吗 */
+        let ready = false;
+        try { ready = !!(e.test && global.State && e.test(global.State)); } catch (err) { ready = false; }
+        return '<div class="en-row ' + (on ? 'on' : '') + (ready && !on ? ' reach' : '') +
+          '" style="--en:' + e.color + '">' +
           '<span class="en-no">' + String(e.no).padStart(2, '0') + '</span>' +
           '<span class="en-body"><b>' + (on ? e.name : '？？？') + '</b>' +
           '<i>' + e.tone + '</i>' +
-          '<em>' + (on ? e.trig : '未抵达') + '</em></span>' +
-          '</div>';
+          '<em>' + (on ? e.trig : '未抵达') + '</em>' +
+          (ready && !on ? '<u>此刻可达</u>' : '') +
+          '</span></div>';
       }).join('') + '</div>' +
         '<div class="en-count">已抵达 ' + got.length + ' / ' + ENDINGS.length + '　·　记忆物件 ' +
         st.relics + ' / ' + st.total + '　·　读过 ' + st.read + ' / ' + st.total + '</div>' +

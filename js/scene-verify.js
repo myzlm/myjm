@@ -337,6 +337,159 @@
         if (res.detail > (global.State.detail || 0)) global.State.detail = res.detail;
         global.State.sys.verified = global.State.sys.verified;
       }
+
+      /* 通过了，才有下一张纸。不通过的人，只有一次求的机会。 */
+      if (ok) this.offerMore(res);
+      else this.offerBeg(res);
+    },
+
+    /* ============================================================
+       再押一件
+       ------------------------------------------------------------
+       章盖下去了。这一格够了。
+       但他没有把凭证推过来 —— 他先推了一张新的白纸。
+
+          「你要是再押一件，换的东西不一样。」
+
+       这不是奖励，是加价。你可以押一个名字，也可以押一件你
+       还没说过的；也可以推回去。
+       推回去不要钱，只是下一次他念你名字的时候，会慢一点。
+       ============================================================ */
+    offerMore(res) {
+      const S = global.State;
+      if (!res || !res.ok || !S) return;
+      const sys = (S.sys = S.sys || {});
+      const box = $('#vf-result');
+      const card = box && box.querySelector('.vf-card');
+      if (!card) return;
+      /* 一局里这一问最多出现两次。第三次他就不问了。 */
+      if ((sys.moreAsked || 0) >= 2) return;
+      sys.moreAsked = (sys.moreAsked || 0) + 1;
+
+      const nm = String(S.playerName || '').trim();
+      const wrap = document.createElement('div');
+      wrap.className = 'vf-more';
+      wrap.innerHTML =
+        '<div class="vm-line">章盖下去了。他没有把凭证推过来，先推了一张新的白纸。</div>' +
+        '<div class="vm-q">「这一格够了。你要是再押一件，换的东西不一样。」</div>' +
+        '<div class="vm-h">押一个名字，或者押一件你还没说过的。</div>' +
+        '<div class="vm-btns">' +
+        '<button data-m="name"' + (nm ? '' : ' disabled') + '>押一个名字</button>' +
+        '<button data-m="thing">押一件还没说过的</button>' +
+        '<button data-m="no">够了</button>' +
+        '</div>' +
+        (nm ? '' : '<div class="vm-h vm-h2">（你手里没有名字可押了。）</div>');
+      card.appendChild(wrap);
+
+      const closeRow = (html) => {
+        wrap.innerHTML = html +
+          '<div class="vm-btns"><button data-m="ok">收下凭证</button></div>';
+        const ok2 = wrap.querySelector('[data-m="ok"]');
+        if (ok2) ok2.addEventListener('click', () => {
+          wrap.remove();
+          if (global.Save && global.Save.touch) global.Save.touch();
+        });
+      };
+
+      wrap.querySelectorAll('button').forEach((b) => {
+        b.addEventListener('click', () => {
+          if (b.disabled) return;
+          const m = b.dataset.m;
+          let low = 0;
+          if (m === 'name') {
+            sys.moreName = nm;
+            sys.gaveName = true;
+            S.playerName = '';
+            low = 300;
+            closeRow(
+              '<div class="vm-line">你把名字推过去。</div>' +
+              '<div class="vm-q">「' + nm + '。」他念了一半，停住。</div>' +
+              '<div class="vm-h">名字从他嘴里出来，就不算你的了。' +
+              '登记簿上那一行，现在只剩一个号码。</div>'
+            );
+          } else if (m === 'thing') {
+            sys.morePledges = (sys.morePledges || 0) + 1;
+            sys.memRelics = Math.max(0, (sys.memRelics || 0) - 1);
+            low = 260;
+            closeRow(
+              '<div class="vm-line">你押了一件。</div>' +
+              '<div class="vm-q">「哪一件？」</div>' +
+              '<div class="vm-h">你想说，张了张嘴，发现已经想不起是哪一件了。' +
+              '——押出去的意思，是它先于你消失。</div>'
+            );
+          } else if (m === 'no') {
+            sys.moreRefused = (sys.moreRefused || 0) + 1;
+            low = 200;
+            closeRow(
+              '<div class="vm-line">你把新纸推回去。</div>' +
+              '<div class="vm-q">「不押。」</div>' +
+              '<div class="vm-h">「……行。」他把纸收回抽屉，动作比刚才慢了一点。</div>'
+            );
+          }
+          if (global.Snd && global.Snd.tone) global.Snd.tone(low, 0.14, { type: 'sine', gain: 0.035 });
+          if (global.Save && global.Save.touch) global.Save.touch();
+        });
+      });
+    },
+
+    /* ============================================================
+       求他一次
+       ------------------------------------------------------------
+       没通过。墙后面有东西在动。
+       他本可以把单子收进抽屉，让它烂在那儿。
+
+       但他说：「你可以求我一次。」
+       求，不是白求。抽屉里那些东西，每一件都是别人押下的。
+       ============================================================ */
+    offerBeg(res) {
+      const S = global.State;
+      if (!res || res.ok || !S) return;
+      const sys = (S.sys = S.sys || {});
+      const box = $('#vf-result');
+      const card = box && box.querySelector('.vf-card');
+      if (!card) return;
+      if (sys.begged) return;          /* 一局只求一次，求完就不灵了 */
+
+      const canPay = !!(global.Memory && global.Memory.read
+        && (global.Memory.read().relics || []).length);
+      const wrap = document.createElement('div');
+      wrap.className = 'vf-more vf-beg';
+      wrap.innerHTML =
+        '<div class="vm-line">单子被推回来了。墙后面那个东西，又动了一下。</div>' +
+        '<div class="vm-q">「……能不能，就这一次。」</div>' +
+        '<div class="vm-h">他没说不行。他只是把抽屉拉开了一条缝。' +
+        (canPay ? '里面是别人押下的东西。' : '里面是空的。') + '</div>' +
+        '<div class="vm-btns">' +
+        '<button data-m="pay"' + (canPay ? '' : ' disabled') + '>拿一件别人的东西，换它过</button>' +
+        '<button data-m="no">算了</button>' +
+        '</div>';
+      card.appendChild(wrap);
+
+      wrap.querySelector('[data-m="pay"]').addEventListener('click', (ev) => {
+        if (ev.currentTarget.disabled) return;
+        const spent = global.Memory.spend();
+        if (!spent) return;
+        sys.begged = 1;
+        /* 求来的不是通过：凭证给你，章不盖 */
+        const order = ['broken', 'plain', 'fine', 'perfect'];
+        const now = order.indexOf(global.State.keyQ || 'broken');
+        if (now < 2) global.State.keyQ = order[now + 1];
+        wrap.innerHTML =
+          '<div class="vm-line">你把「' + (spent.relic || '那件东西') + '」推过柜台。' +
+          '那是' + (spent.name || '别人') + '押下的。</div>' +
+          '<div class="vm-q">他没有问为什么。把凭证从抽屉里拿出来，推过来，没盖章。</div>' +
+          '<div class="vm-h">「这张不算通过。」他说，「但门会开。」</div>' +
+          '<div class="vm-btns"><button data-m="ok">收下</button></div>';
+        const ok2 = wrap.querySelector('[data-m="ok"]');
+        if (ok2) ok2.addEventListener('click', () => wrap.remove());
+        if (global.Snd && global.Snd.tone) global.Snd.tone(240, 0.2, { type: 'sine', gain: 0.03 });
+        if (global.Save && global.Save.touch) global.Save.touch();
+      });
+
+      wrap.querySelector('[data-m="no"]').addEventListener('click', () => {
+        wrap.remove();
+        if (global.Save && global.Save.touch) global.Save.touch();
+      });
     },
 
     async back() {

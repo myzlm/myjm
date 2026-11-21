@@ -182,6 +182,7 @@
       /* 还没想好：回柜台。灯还够烧一会儿。 */
       if (c === 'later') {
         clearInterval(this.idleT);
+        S.sys.later = (S.sys.later || 0) + 1;
         await Fade.through(() => { App.show('counter'); global.Counter.init(); });
         global.Toast && global.Toast.show('（想好了再回来。从平面图上还能找到这里。）', 3200);
         return;

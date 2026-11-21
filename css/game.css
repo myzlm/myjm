@@ -3137,6 +3137,27 @@ body.penetrate #app { animation: penetrate 1.1s cubic-bezier(.6, 0, .3, 1); }
 @keyframes vfIn { from { opacity: 0; transform: translateY(10px); } }
 .vf-card.ok { border-color: #3d3520; }
 .vf-card.no { border-color: #4a1a16; }
+/* ---- 再押一件：通过了才有资格拿到的那张纸 ---- */
+.vf-more {
+  padding: 14px 14px 12px; border: 1px dashed #3a2f1c;
+  background: rgba(42, 33, 18, .5);
+  display: flex; flex-direction: column; gap: 8px;
+  animation: vfMore .55s cubic-bezier(.2, 1, .3, 1) both;
+}
+@keyframes vfMore { from { opacity: 0; transform: translateY(6px); } }
+.vm-line { font-family: var(--serif); font-size: 11.5px; line-height: 1.9; color: #7d6b4d; letter-spacing: .03em; }
+.vm-q { font-family: var(--serif); font-size: 13px; line-height: 1.95; color: #c9a961; letter-spacing: .05em; }
+.vm-h { font-family: var(--serif); font-size: 10.5px; line-height: 1.85; color: #5c4c36; letter-spacing: .03em; }
+.vm-h2 { color: #4a3d2a; }
+.vm-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 3px; }
+.vm-btns button {
+  font-family: var(--serif); font-size: 11.5px; letter-spacing: .1em;
+  padding: 7px 12px; background: transparent; color: #a89268;
+  border: 1px solid #3a2f1c; cursor: pointer; transition: background .2s, color .2s, border-color .2s;
+}
+.vm-btns button:hover:not(:disabled) { color: #e0c78d; border-color: #6b5730; background: rgba(201, 169, 97, .08); }
+.vm-btns button:disabled { opacity: .3; cursor: default; }
+.vm-btns button[data-m="no"] { color: #6b5c44; }
 /* 卡片撑满右栏时，把真名压到底部，中间不空出一截 */
 .vf-card .vf-name { margin-top: auto; }
 .vf-score { display: flex; align-items: center; gap: 14px; }
@@ -3737,6 +3758,12 @@ body.glitch-once #app { animation: glitchOnce .42s steps(3) 2; }
 .en-row.on .en-body b { color: var(--en, #e8d8b4); }
 .en-body i { font-style: normal; font-family: var(--serif); font-size: 9.5px; color: #6b5c44; letter-spacing: .14em; }
 .en-body em { font-style: normal; font-family: var(--serif); font-size: 10px; color: #4a4136; }
+.en-body u {
+  text-decoration: none; font-family: var(--serif); font-size: 9.5px;
+  letter-spacing: .18em; color: #c9a45c; opacity: .8;
+}
+.en-row.reach { opacity: .72; }
+.en-row.reach .en-no { color: #c9a45c; }
 .en-count { margin-top: 14px; text-align: center; font-family: var(--mono); font-size: 9.5px; letter-spacing: .24em; color: #5c5040; }
 .perm-list { display: flex; flex-direction: column; gap: 6px; }
 .perm-row { display: grid; grid-template-columns: 40px 70px 1fr 1fr; gap: 8px; align-items: center; padding: 8px 10px; border: 1px solid #1f1912; opacity: .4; }

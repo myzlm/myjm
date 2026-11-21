@@ -99,6 +99,116 @@
       name: '全 部 出 口', desc: '每个出口都走过一遍，才发现门是同一扇。',
       hint: '把结局册集齐。',
     },
+
+    /* ===== 加押：核验通过以后，他才推过来的那张纸 ===== */
+    {
+      id: 'payname', cat: '疯', at: '核验 · 加押',
+      name: '把 名 字 押 了', desc: '登记簿上那一行，只剩一个号码。',
+      hint: '记忆通过核验以后，接下那张加押的纸，选「押一个名字」。',
+    },
+    {
+      id: 'nopay', cat: '通', at: '核验 · 加押',
+      name: '两 次 都 推 回 去', desc: '他推来两次，你推回去两次。抽屉合上时慢了一点。',
+      hint: '加押的纸推来两次，两次都选「够了」。',
+    },
+    {
+      id: 'beg', cat: '疯', at: '核验 · 不通过时',
+      name: '求 过 一 次', desc: '凭证给你了，章没盖。门会开。',
+      hint: '核验没通过时，拿一件别人押下的东西，换它过。',
+    },
+
+    /* ===== 代码层：自己写的，它真的跑 ===== */
+    {
+      id: 'edit', cat: '摸', at: '代码层 · 编辑器',
+      name: '按 了 回 车', desc: '你自己写的，它真的跑了。',
+      hint: '在编辑器里运行一次代码。',
+    },
+    {
+      id: 'selfdel', cat: '疯', at: '代码层 · deleteNode',
+      name: '删 掉 自 己', desc: '这是唯一一个，别人没法替你复核的选择。',
+      hint: "运行 deleteNode('player')。",
+    },
+    {
+      id: 'alldel', cat: '疯', at: '代码层 · deleteAllNodes',
+      name: '归 零', desc: '你清空了世界。它留了你脚下那一格，作为记号。',
+      hint: '运行 deleteAllNodes()。',
+    },
+    {
+      id: 'newworld', cat: '疯', at: '代码层 · generateWorld',
+      name: '造 一 个', desc: '你提的第一个要求，是一扇窗。',
+      hint: '运行 generateWorld()。',
+    },
+    {
+      id: 'reboot', cat: '疯', at: '代码层 · restart',
+      name: '掀 桌 子', desc: '你赢了，什么都没改变。但它记住你会掀桌子。',
+      hint: '运行 restart()。',
+    },
+    {
+      id: 'teach', cat: '疯', at: '代码层 · learn',
+      name: '教 会 它 舍 不 得', desc: '它学会了把东西挪到一边，不去看。',
+      hint: '运行 learn()。',
+    },
+    {
+      id: 'printsrc', cat: '疯', at: '代码层 · 打印',
+      name: '读 自 己 的 源 码', desc: '最下面那行注释，不在你写的代码里。',
+      hint: '在编辑器里打印 document.body.innerHTML。',
+    },
+
+    /* ===== 看过的 ===== */
+    {
+      id: 'readall', cat: '看', at: '里间 · 三十五份日志',
+      name: '全 都 读 完', desc: '三十五个人，没有一个是为了读完才来的。',
+      hint: '把三十五份日志从头读到尾。',
+    },
+    {
+      id: 'copy7', cat: '看', at: '里间 · 第七号',
+      name: '一 字 不 差', desc: '连他写错划掉的那个字，你也念了。',
+      hint: '照着第七号留下的记忆，一字不差地复刻一遍。',
+    },
+
+    /* ===== 走完的 ===== */
+    {
+      id: 'duty7', cat: '通', at: '当班 · 七笔',
+      name: '七 笔', desc: '七个名字，七张纸。你都办完了。',
+      hint: '最后一班里，把七个人都办完。',
+    },
+    {
+      id: 'seat', cat: '通', at: '当班 · 第七位',
+      name: '把 位 子 让 出 去', desc: '你从柜台里出来了，成了第一个坐在外面等的人。',
+      hint: '最后一班的第七位进来时，把椅子让给他。',
+    },
+    {
+      id: 'end5', cat: '通', at: '结局册 · 五',
+      name: '五 扇 门', desc: '走过五条路，才知道墙比路多。',
+      hint: '抵达五个不同的结局。',
+    },
+    {
+      id: 'end12', cat: '通', at: '结局册 · 十二',
+      name: '十 二 扇 门', desc: '一半的出口，都见过了。',
+      hint: '抵达十二个不同的结局。',
+    },
+    {
+      id: 'end18', cat: '通', at: '结局册 · 十八',
+      name: '十 八 扇 门', desc: '那十八种走法，你都试过。',
+      hint: '抵达十八个不同的结局。',
+    },
+
+    /* ===== 不必如此 ===== */
+    {
+      id: 'late', cat: '摸', at: '终章 · 还不想写',
+      name: '还 不 想 写', desc: '你把纸推回去，说再想想。灯还够烧一会儿。',
+      hint: '在终章的选择面前选「还不想写」，回一次柜台。',
+    },
+    {
+      id: 'knock', cat: '疯', at: '全程 · 往窗外',
+      name: '敲 了 三 次 墙', desc: '你确认了墙的存在，也确认了墙外面还有一层墙。',
+      hint: '反复试着和游戏外面的世界互动，三次以上。',
+    },
+    {
+      id: 'idle', cat: '疯', at: '终章 · 什么都不做',
+      name: '等 灯 灭', desc: '一百二十秒。它替你选了「什么都不做」。',
+      hint: '在终章的选择面前，一直不动。',
+    },
   ];
 
   const BY = {};
@@ -253,6 +363,8 @@
 
       /* 摸 */
       if (S.pryOpened && !sys.pryScare) this.give('steady');
+      if (sys.editorRuns > 0) this.give('edit');
+      if (sys.later > 0) this.give('late');
       if (S.seq) this.give('uv');
       if (S.printed) this.give('print');
       if (S.wish && (S.ch2 >= 3 || S.doorOpened)) this.give('balance');
@@ -266,6 +378,8 @@
         const st = global.Memory.stats();
         if (st && st.total && st.read >= st.total) this.give('mem35');
       }
+      if (sys.readAll) this.give('readall');
+      if (sys.copy7) this.give('copy7');
 
       /* 通 */
       if (global.Chapter && global.Chapter.list) {
@@ -280,14 +394,30 @@
         if (kit.length && kit.every((k) => S.hands[k.id] && S.hands[k.id].done)) this.give('box');
       }
       if (global.Duel && global.Duel.wins && global.Duel.wins() >= 7) this.give('duel');
+      if (sys.duty && (sys.duty.picks || []).length >= 7) this.give('duty7');
+      if (sys.duty && sys.duty.seat) this.give('seat');
+      if ((sys.moreRefused || 0) >= 2) this.give('nopay');
       if (global.Endings && global.Endings.list) {
         const got = new Set(global.Endings.reached ? global.Endings.reached() : []);
         (sys.endings || []).forEach((e) => got.add(e));
+        if (got.size >= 5) this.give('end5');
+        if (got.size >= 12) this.give('end12');
+        if (got.size >= 18) this.give('end18');
         if (got.size >= global.Endings.list.length) this.give('ends');
       }
 
       /* 疯 */
       if (this._t0 && cur === 'final' && Date.now() - this._t0 < 3600 * 1000) this.give('speed');
+      if (sys.gaveName) this.give('payname');
+      if (sys.begged) this.give('beg');
+      if (sys.selfDeleted) this.give('selfdel');
+      if (sys.allDeleted) this.give('alldel');
+      if (sys.newWorld) this.give('newworld');
+      if (sys.rebooted) this.give('reboot');
+      if (sys.taughtAI) this.give('teach');
+      if (sys.printed) this.give('printsrc');
+      if ((sys.outside || 0) >= 3) this.give('knock');
+      if (sys.idleEnd) this.give('idle');
     },
 
     start() {

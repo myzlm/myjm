@@ -529,7 +529,7 @@
         ['conqueror', mk({ bossMax: 7 })],
         ['awakened', mk({ outside: 3 })],
         ['nightwatch', mk({ played: 2, sameAsLast: true })],
-        ['clerk', mk({ duty: { rule: 5, total: 11, truth: 1, theirs: 1 } })],
+        ['clerk', mk({ duty: { rule: 5, truth: 1, theirs: 1, picks: [{}, {}, {}, {}, {}, {}, {}] } })],
         ['lastguest', mk({ duty: { seat: true, rule: 2, total: 6 } })],
         ['nightkeeper', mk({ duty: { oil: 0, kept: 2, hurt: 5, paid: 0, voided: 0,
           picks: [{}, {}, {}, {}, {}, {}, {}] } })],
