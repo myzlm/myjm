@@ -142,6 +142,7 @@
     /* ---------------- 与艾交谈 ---------------- */
     async talk() {
       if (Dlg.active) return;
+      if (global.Carry && global.Carry.tryUse('cs-npc')) return;
       Snd.init();
       this.hideNarration();
       const id = this.talked ? 'menu' : 'intro';
@@ -291,6 +292,8 @@
 
     async clickOmen(k) {
       if (Dlg.active) return;
+      /* 手里拿着东西时，先问它认不认得这个物件。认得就归它管。 */
+      if (global.Carry && global.Carry.tryUse('om-' + k)) return;
       Snd.init();
       const late = State.ch2 >= 1;
       const F = global.FOLK;
@@ -326,6 +329,8 @@
         }
         this.sayLong(Lies.proofText('joss'));
         Lies.gain('joss');
+        /* 纸太脆，捏过一次，手上就留了一撮灰 */
+        if (global.Carry) global.Carry.give('ash');
         return;
       }
 
@@ -359,6 +364,8 @@
           this.say('（地板有一条缝。踩上去会响。）');
           return;
         }
+        /* 缝里卡着的那一小块，摸一次就摸到了 */
+        if (global.Carry) global.Carry.give('brass');
         if (State.sys && State.sys.scratch) {
           this.say('（暗格开着。铜片还在里面。）');
           return;
@@ -386,6 +393,8 @@
           Lies.gain('carving');
         } else {
           this.sayLong(F.under.after);
+          /* 翻到第三回，指头碰到一枚凉的、尖的 */
+          if (global.Carry) global.Carry.give('nail');
         }
         return;
       }
@@ -415,6 +424,7 @@
     /* ---------------- 门 ---------------- */
     async clickDoor() {
       if (Dlg.active) return;
+      if (global.Carry && global.Carry.tryUse('cs-door')) return;
       if (State.ch2 < 3) {
         Snd.deny();
         this.say(State.ch2 >= 1 ? TEXT.ch2DoorNoKey : TEXT.ch2DoorLocked);
@@ -521,6 +531,7 @@
     /* ---------------- 电脑 ---------------- */
     clickPC() {
       if (Dlg.active) return;
+      if (global.Carry && global.Carry.tryUse('pc-monitor')) return;
       Snd.init();
       if (State.pcFixed) {
         Snd.ok();

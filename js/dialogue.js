@@ -57,6 +57,12 @@
       this.lineIdx = 0;
       this.lines = typeof node.lines === 'function' ? (node.lines() || []) : (node.lines || []);
 
+      /* 有些话一开口就已经发生了（给东西、记账）。
+         每个 enter 自己管幂等，这里不做记忆，免得新周目被上一次的标记卡住。 */
+      if (node.enter) {
+        try { node.enter(); } catch (e) {}
+      }
+
       // 对话一开，先把场景里的独白收掉，免得两行字压在一起
       const nar = $('#cs-dialogue');
       if (nar) nar.classList.remove('on');

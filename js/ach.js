@@ -209,6 +209,58 @@
       name: '等 灯 灭', desc: '一百二十秒。它替你选了「什么都不做」。',
       hint: '在终章的选择面前，一直不动。',
     },
+
+    /* ===== 岔口：手里拿着什么，眼睛看见什么 ===== */
+    {
+      id: 'use1', cat: '摸', at: '柜台 · 手里那件',
+      name: '认 得 它', desc: '你把手里的东西用在别的东西上。它认得。',
+      hint: '从背包里拿起一件东西，去点柜台上的器物。',
+    },
+    {
+      id: 'ashname', cat: '看', at: '柜台 · 水碗',
+      name: '半 个 名 字', desc: '灰浮在水面上，散成两笔。一笔断了。',
+      hint: '把纸灰倒进水碗。',
+    },
+    {
+      id: 'punch7', cat: '看', at: '柜台 · 旧屏幕',
+      name: '工 号 007', desc: '十一天，七个孔，最后只认得一个「停」字。',
+      hint: '把打孔的黄纸举到修好的屏幕前。',
+    },
+    {
+      id: 'clock', cat: '通', at: '柜台 · 挂钟',
+      name: '让 它 走', desc: '十七年停在三点十三。你给它上了劲，灯矮了一截。',
+      hint: '把铜片塞进钟背。',
+    },
+    {
+      id: 'broke', cat: '摸', at: '柜台 · 门',
+      name: '不 用 钥 匙', desc: '木头裂开的声音比想的轻。以后这扇门谁都能进。',
+      hint: '拿撬棍硬撬那扇门，别用钥匙。',
+    },
+    {
+      id: 'prick', cat: '疯', at: '柜台 · 他',
+      name: '渗 出 来 的 是 墨', desc: '你扎了他一下。针眼上没有血。',
+      hint: '拿锈钉点他。',
+    },
+    {
+      id: 'papereye', cat: '看', at: '柜台 · 换一只眼',
+      name: '另 半 间 屋 子', desc: '名字、墙里、柜台底下、你自己的头顶。四处都看过了。',
+      hint: '按 P 换纸的眼睛，把四处都点一遍。',
+    },
+    {
+      id: 'lied', cat: '疯', at: '柜台 · 一句话',
+      name: '我 是 来 赎 人 的', desc: '这店里没有赎。可他还是给了你一把钥匙。',
+      hint: '对他说一句不是真的话。',
+    },
+    {
+      id: 'claimed', cat: '通', at: '柜台 · 他还记得',
+      name: '要 赎 谁', desc: '他记着那句话。你得答一个。',
+      hint: '等他把那句话还回来，答「赎谁」。',
+    },
+    {
+      id: 'fill36', cat: '通', at: '柜台 · 第三十六行',
+      name: '替 他 写 完', desc: '押品栏有了字。他站起来了一次，又坐回去。',
+      hint: '纸眼里看过第 36 张，再选一个填法。',
+    },
   ];
 
   const BY = {};
@@ -418,6 +470,19 @@
       if (sys.printed) this.give('printsrc');
       if ((sys.outside || 0) >= 3) this.give('knock');
       if (sys.idleEnd) this.give('idle');
+
+      /* 岔口：手里拿过什么，眼睛看见过什么，嘴上说过什么 */
+      const used = sys.used || {};
+      if (Object.keys(used).length >= 1) this.give('use1');
+      if (sys.ashBowl) this.give('ashname');
+      if (sys.record7) this.give('punch7');
+      if (sys.clockMoved) this.give('clock');
+      if (sys.doorBroken) this.give('broke');
+      if (sys.pricked) this.give('prick');
+      if (sys.paperAll) this.give('papereye');
+      if (sys.lied) this.give('lied');
+      if (sys.claimed) this.give('claimed');
+      if (sys.filled36 || sys.heFilled) this.give('fill36');
     },
 
     start() {

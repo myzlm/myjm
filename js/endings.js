@@ -426,8 +426,12 @@
       if (hurts >= 6) return get('destroyer');                   // 六个纸人全撕了
       if (deleted >= 10 && !s.restored) return get('destroyer');  // 删了十个，一个没修
       if (s.readAll && !(s.verified > 0) && relics === 0) return get('bystander');
+      if (s.paperAll && !(s.verified > 0) && relics === 0) return get('bystander'); // 只换眼睛看过，一件没押
       if (boss >= 7) return get('conqueror');
       if ((s.talks || 0) >= 7 && hurts === 0) return get('revolutionary');
+      if (s.claimed === 'they' && s.claimPay && hurts === 0) return get('revolutionary'); // 说要赎三十五个，还了第一笔
+      if (s.filled36 && hurts === 0) return get('inherit');   // 替他把第 36 行填完，位子让出去了
+      if (s.doorBroken && hurts >= 1 && !s.restored) return get('destroyer'); // 撬了锁，也伤了人
       if ((s.outside || 0) >= 3) return get('awakened');
       if ((s.played || 1) >= 2 && s.sameAsLast) return get('nightwatch');
 

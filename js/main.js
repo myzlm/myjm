@@ -193,6 +193,27 @@
       log.push('ach=' + A.total() + ' ever=' + A.everCount());
     });
 
+    /* 岔口：组合表、纸眼四处、那句谎的三个答法 */
+    run('Branch', () => {
+      const B = global.BRANCH;
+      if (!B || !global.Carry || !global.PaperEye) throw new Error('no branch');
+      const U = B.USES;
+      let n = 0;
+      const dead = [];
+      Object.keys(U).forEach((it) => Object.keys(U[it]).forEach((t) => {
+        n++;
+        if (typeof U[it][t].run !== 'function') dead.push(it + '/' + t);
+      }));
+      if (n < 8) throw new Error('combos=' + n);
+      if (dead.length) throw new Error('no run: ' + dead.join(','));
+      ['pp-toggle', 'pp-name', 'pp-wall', 'pp-under', 'pp-self'].forEach((id) => {
+        if (!document.getElementById(id)) throw new Error('missing #' + id);
+      });
+      ['lie1', 'lieCall', 'lieSelf', 'lieThey', 'lieDun', 'liePay', 'fill36', 'watchFill']
+        .forEach((id) => { if (!DLG[id]) throw new Error('DLG ' + id); });
+      log.push('branch combos=' + n);
+    });
+
     /* ---- v11 新系统 ---- */
     run('Cipher', () => {
       const key = global.TrueName.key('base');

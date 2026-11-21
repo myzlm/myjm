@@ -7140,3 +7140,86 @@ body.egg-fx-51::after {
   .vf-l-row { font-size: 10.5px; line-height: 1.62; }
   .vf-l-note { display: none; }
 }
+
+/* ============================================================
+   纸的眼睛（branch.js）
+   ------------------------------------------------------------
+   活人看见的是「他」，纸看见的是「名」。
+   换眼的时候不重画这间屋子，只把颜色往旧纸上挪一层：
+   灰、旧、纤维、四边发暗。人的东西淡下去，名字浮上来。
+   ============================================================ */
+.pp-toggle {
+  position: absolute; right: 2.2%; bottom: 4.2%; z-index: 22;
+  width: 44px; height: 44px; padding: 0; border-radius: 2px;
+  border: 1px solid rgba(201, 164, 92, .3);
+  background: rgba(12, 10, 8, .78);
+  color: #8a7a5e; font-family: var(--serif); font-size: 20px;
+  line-height: 42px; text-align: center; letter-spacing: 0;
+  cursor: pointer; transition: border-color .3s, color .3s, background .3s, box-shadow .3s;
+}
+.pp-toggle:hover { border-color: #c9a45c; color: #e6cf92; }
+.pp-toggle.on {
+  border-color: #c9a45c; color: #e6cf92;
+  background: rgba(56, 42, 20, .7); box-shadow: 0 0 22px rgba(201, 164, 92, .22);
+}
+.pp-toggle span { display: block; }
+
+.pp-layer { position: absolute; inset: 0; z-index: 20; display: none; pointer-events: none; }
+.paper-view .pp-layer { display: block; }
+.pp-grain {
+  position: absolute; inset: 0; pointer-events: none;
+  backdrop-filter: grayscale(.82) sepia(.32) contrast(.94) brightness(1.1);
+  -webkit-backdrop-filter: grayscale(.82) sepia(.32) contrast(.94) brightness(1.1);
+  background:
+    repeating-linear-gradient(0deg, rgba(120, 96, 60, .05) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(91deg, rgba(120, 96, 60, .032) 0 1px, transparent 1px 8px),
+    radial-gradient(ellipse 78% 74% at 50% 44%, rgba(226, 210, 178, .07), rgba(38, 28, 16, .34) 100%);
+}
+.pp-note {
+  position: absolute; left: 2.2%; top: 4.6%; width: 200px;
+  text-align: left; line-height: 1.9;
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em;
+  color: #a89a7c; text-shadow: 0 1px 10px rgba(0, 0, 0, .95);
+}
+.pp-spot {
+  position: absolute; width: 116px; height: 52px;
+  border: 1px dashed rgba(214, 196, 158, .34);
+  background: rgba(226, 210, 178, .045);
+  display: grid; place-items: center; pointer-events: auto;
+  cursor: pointer; transition: border-color .25s, background .25s, transform .25s;
+}
+.pp-spot:hover {
+  border-color: #e2d2ac; background: rgba(226, 210, 178, .13);
+  transform: translateY(-2px);
+}
+.pp-spot.seen { border-style: solid; border-color: rgba(201, 164, 92, .5); }
+.pp-spot.seen .pp-cap { color: #c9a45c; }
+.pp-cap {
+  font-family: var(--serif); font-size: 11px; letter-spacing: .24em;
+  color: #cbbd9c; text-shadow: 0 1px 8px rgba(0, 0, 0, .9);
+}
+.pp-name { left: 50%; top: 32%; transform: translateX(-50%); }
+.pp-name:hover { transform: translateX(-50%) translateY(-2px); }
+.pp-wall { left: 9%; top: 24%; }
+.pp-under { left: 50%; bottom: 7%; transform: translateX(-50%); }
+.pp-under:hover { transform: translateX(-50%) translateY(-2px); }
+.pp-self { right: 15%; bottom: 19%; }
+
+/* 纸眼看人已经看不清了：人的东西淡下去，别抢那四处 */
+.paper-view .cs-npc,
+.paper-view .omen,
+.paper-view .cs-door,
+.paper-view #cs-drawer,
+.paper-view #hs-cabinet,
+.paper-view #pc-case,
+.paper-view #pc-monitor,
+.paper-view #pc-crowbar,
+.paper-view .cs-bench {
+  opacity: .2; pointer-events: none; transition: opacity .5s;
+}
+.paper-view .cs-oldman { opacity: .5; filter: grayscale(1) contrast(.8); transition: opacity .5s; }
+.paper-view .pp-toggle { opacity: 1; }
+
+/* 手上拿着东西：给背包那一行一点分量 */
+.inv-item.sel { box-shadow: inset 0 0 0 1px rgba(201, 164, 92, .55); }
+.om-lamp.low .om-flame { opacity: .55; box-shadow: 0 0 16px rgba(255, 195, 95, .4); }
