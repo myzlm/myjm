@@ -3010,6 +3010,61 @@ body.penetrate #app { animation: penetrate 1.1s cubic-bezier(.6, 0, .3, 1); }
 .vf-st.run { color: #b9a67e; }
 .vf-st.dim { color: #4a3f2c; }
 .vf-st.warn { color: #a8743a; }
+
+/* ---------------- 追问：柜台后面递过来的一张纸条 ----------------
+   它不该长得像系统提示。它是一块纸，压在单子上面，
+   字是手写的，边上还有一点点歪。 */
+.vf-ask {
+  display: none; flex: 0 0 auto;
+  background: linear-gradient(172deg, #efe7d2, #dfd2b4);
+  border: 1px solid #8c7a56; box-shadow: 0 10px 28px rgba(0, 0, 0, .5);
+  padding: 11px 14px 10px; transform: rotate(.3deg);
+  animation: vfAskIn .4s ease both;
+}
+.vf-ask.on { display: block; }
+@keyframes vfAskIn { from { opacity: 0; transform: rotate(.3deg) translateY(-6px); } }
+/* 追问的时候先把「最近抵押」让开，别把单子挤爆 */
+.vf-ask.on + .vf-hist-wrap { display: none; }
+.vf-ask-head { display: flex; justify-content: space-between; align-items: baseline; }
+.vf-ask-who {
+  font-family: var(--serif); font-size: 10px; letter-spacing: .3em; color: #7a6440;
+}
+.vf-ask-skip {
+  background: transparent; border: none; cursor: pointer; padding: 0;
+  font-family: var(--serif); font-size: 10px; letter-spacing: .2em; color: #8a7250;
+  border-bottom: 1px dotted rgba(120, 96, 60, .5);
+}
+.vf-ask-skip:hover { color: #4a3826; }
+.vf-ask-q {
+  font-family: var(--serif); font-size: 14px; line-height: 1.95; letter-spacing: .05em;
+  color: #201a10; margin: 6px 0 8px;
+  text-shadow: 0 0 1px rgba(60, 44, 24, .18);
+}
+.vf-ask-row { display: flex; align-items: stretch; gap: 8px; }
+#vf-ask-ta {
+  flex: 1; height: 46px; resize: none; outline: none;
+  background: rgba(255, 252, 240, .5); border: none;
+  border-bottom: 1px solid rgba(90, 70, 40, .55);
+  font-family: var(--serif); font-size: 13px; line-height: 1.8; letter-spacing: .05em;
+  color: #1e1810; padding: 2px 4px;
+}
+#vf-ask-ta::placeholder { color: #9c8862; }
+.vf-ask-ok {
+  background: #2a2014; color: #e8dcc0; border: 1px solid #4a3a22;
+  font-family: var(--serif); font-size: 12px; letter-spacing: .24em;
+  padding: 0 18px; cursor: pointer; transition: .25s;
+}
+.vf-ask-ok:hover { background: #3a2c1a; color: #fff6e0; }
+.vf-ask-ok:disabled { opacity: .45; cursor: default; }
+.vf-ask-note {
+  font-family: var(--serif); font-size: 10px; color: #7d6845;
+  letter-spacing: .06em; margin-top: 6px;
+}
+/* 追问时把左栏让一让：纸条、日志、图例都缩一点，别把 720 高的屏撑破 */
+.vf-left:has(.vf-ask.on) #vf-ta { height: 104px; min-height: 104px; }
+.vf-left:has(.vf-ask.on) .vf-stage { max-height: 78px; }
+.vf-left:has(.vf-ask.on) .vf-legend { display: none; }
+
 .vf-hist-wrap { flex: 1; min-height: 0; overflow: auto; border-top: 1px solid #221a11; padding-top: 10px; }
 .vf-hist-h { font-family: var(--serif); font-size: 10.5px; letter-spacing: .26em; color: #4d4030; margin-bottom: 8px; }
 .vf-hist-row {
@@ -3038,6 +3093,15 @@ body.penetrate #app { animation: penetrate 1.1s cubic-bezier(.6, 0, .3, 1); }
 .vf-bars-idle { opacity: .5; }
 .vf-bars-idle .b-t { background: rgba(160, 130, 80, .1); }
 .vf-bars-idle .b-v { color: #57492f; }
+/* 核验中：右栏不能一直挂着「待核验」 */
+.vf-busy .vf-idle-k { color: #8a7550; }
+.vf-busy .vf-idle-tip { color: #4e3f28; }
+.vf-busy .vf-dot {
+  display: inline-block; width: 5px; height: 5px; margin-left: 9px;
+  vertical-align: middle; background: #c9a961; border-radius: 50%;
+  animation: vfPulse 1.2s ease-in-out infinite;
+}
+@keyframes vfPulse { 0%, 100% { opacity: .15; } 50% { opacity: 1; } }
 .vf-idle-tip {
   margin-top: auto; font-family: var(--serif); font-size: 12.5px; line-height: 2.1;
   letter-spacing: .08em; color: #59492f;
@@ -3071,6 +3135,77 @@ body.penetrate #app { animation: penetrate 1.1s cubic-bezier(.6, 0, .3, 1); }
 .b-t i { display: block; height: 100%; background: linear-gradient(90deg, #6b5730, #c9a961); transition: width .7s ease; }
 .b-v { font-family: var(--mono); font-size: 11px; color: #b9a67e; text-align: right; }
 .b-h { font-family: var(--mono); font-size: 9px; color: #453a28; }
+/* ---- 颗粒：五感 / 落地 / 时间线 ---- */
+.vf-grain {
+  display: flex; flex-direction: column; gap: 7px;
+  border: 1px solid #241c11; background: rgba(0, 0, 0, .22);
+  padding: 10px 12px;
+}
+.vf-g-row { display: flex; align-items: center; gap: 10px; }
+.vf-g-k {
+  font-family: var(--serif); font-size: 10px; letter-spacing: .2em;
+  color: #6b5838; flex: 0 0 30px;
+}
+.vf-g-v { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.vf-g-v em {
+  font-style: normal; font-family: var(--mono); font-size: 9.5px;
+  color: #6b5a3c; margin-left: 3px;
+}
+.vf-sn {
+  font-family: var(--serif); font-size: 10.5px; line-height: 1;
+  padding: 3px 6px; border: 1px solid #362b18; color: #5f4e34;
+  letter-spacing: .1em; transition: .3s;
+}
+.vf-sn.on {
+  color: #1a1409; background: linear-gradient(180deg, #c9a961, #9d7d3c);
+  border-color: #c9a961; box-shadow: 0 0 8px rgba(201, 169, 97, .28);
+}
+.vf-g-s b {
+  font-family: var(--mono); font-size: 10px; font-weight: 400; color: #b9a67e;
+}
+.vf-g-s b em { color: #6b5a3c; }
+.vf-g-s i { font-style: normal; color: #352b1a; margin: 0 2px; }
+.vf-g-s em { font-style: normal; font-family: var(--serif); font-size: 10.5px; color: #4a3c26; }
+.vf-tl { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; padding-left: 40px; margin-top: -2px; }
+.vf-ty {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
+  color: #b9a67e; padding: 1px 5px; border: 1px solid #3a2f1c;
+}
+.vf-ty.bad { color: #d0786a; border-color: #5a1e18; text-decoration: line-through; }
+.vf-tl i { font-style: normal; font-size: 9px; color: #4a3c26; }
+.vf-tby { font-family: var(--mono); font-size: 9px; color: #56452c; margin-left: 6px; }
+
+/* ---- 追问的回执 ---- */
+.vf-reply {
+  border-left: 2px solid #6b5220; background: rgba(180, 150, 90, .05);
+  padding: 9px 12px; display: flex; flex-direction: column; gap: 5px;
+}
+.vf-reply.skip { border-left-color: #4a1c17; background: rgba(120, 20, 14, .06); }
+.vr-q, .vr-a {
+  font-family: var(--serif); font-size: 11.5px; line-height: 1.85; letter-spacing: .04em;
+  color: #7a6a4e;
+}
+.vr-q b, .vr-a b {
+  font-weight: 600; font-size: 9.5px; letter-spacing: .22em;
+  color: #8a7550; margin-right: 8px;
+}
+.vr-a { color: #b0a084; }
+.vr-a b { color: #c9a961; }
+.vf-reply.skip .vr-a { color: #8a5a4e; }
+.vf-reply.skip .vr-a b { color: #a85a4e; }
+.vr-v { font-family: var(--mono); font-size: 9px; color: #6b5a3c; letter-spacing: .1em; }
+
+/* ---- 联网命中 ---- */
+.vf-online {
+  font-family: var(--mono); font-size: 9.5px; line-height: 1.9; color: #4a3f2c;
+  letter-spacing: .04em; padding-left: 2px;
+}
+.vf-online span {
+  display: inline-block; margin-right: 6px; padding: 1px 5px;
+  border: 1px solid #2e2517; color: #8a7756;
+}
+.vf-online.off { color: #7a5a3a; font-style: italic; }
+
 .vf-warns { display: flex; flex-direction: column; gap: 6px; }
 .vf-w {
   font-family: var(--serif); font-size: 11.5px; line-height: 1.8; letter-spacing: .04em;
@@ -6886,4 +7021,16 @@ body.egg-fx-51::after {
 @keyframes suGlow {
   0%, 100% { color: rgba(226,200,146,.2); text-shadow: 0 0 42px rgba(226,180,110,.22) }
   50% { color: rgba(240,214,160,.4); text-shadow: 0 0 60px rgba(240,190,120,.38) }
+}
+
+/* ------------------------------------------------------------
+   核验屏：矮屏（720）收一收
+   图例从三行变四行以后，720 下左栏正好差一点，把日志和图例压薄
+   ------------------------------------------------------------ */
+@media (max-height: 820px) {
+  .vf-stage { max-height: 104px; }
+  .vf-legend { padding-top: 9px; gap: 3px; }
+  .vf-l-h { font-size: 10px; margin-bottom: 0; }
+  .vf-l-row { font-size: 10.5px; line-height: 1.62; }
+  .vf-l-note { display: none; }
 }

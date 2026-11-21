@@ -44,7 +44,7 @@
       if (name === 'counter' || name === 'lock') inv.classList.add('on');
       else inv.classList.remove('on');
       // 侧边坞只在这间屋子里出现（序章、下载页、终章、卷轴里都不该有）
-      const outside = ['mail', 'download', 'login', 'contract', 'dark', 'doll', 'final', 'moyun', 'end', 'space', 'duty', 'street', 'night'];
+      const outside = ['mail', 'download', 'login', 'contract', 'dark', 'doll', 'final', 'moyun', 'end', 'space', 'duty', 'street', 'night', 'verify'];
       document.body.classList.toggle('in-game', outside.indexOf(name) < 0);
 
       // 配乐：同一首不重起，换首就交叉淡变
@@ -214,7 +214,15 @@
       const c = Verify.analyze(Verify.SAMPLES[2]);
       if (!(a.score > b.score)) throw new Error('真实样本应高于模板样本 ' + a.score + '/' + b.score);
       if (!a.detail || a.detail < 3 || a.detail > 8) throw new Error('detail ' + a.detail);
-      log.push('v=' + a.score + '/' + b.score + '/' + c.score + ' grade=' + a.grade);
+      if (!(a.senses.ch >= 3)) throw new Error('五感通道 ' + a.senses.ch);
+      if (!(b.senses.ch <= 1)) throw new Error('模板样本不该开通道 ' + b.senses.ch);
+      if (!c.timeline.conflict) throw new Error('时间线没推出冲突');
+      if (!c.ask || c.ask.indexOf('生年') < 0) throw new Error('追问没问生年');
+      if (typeof a.solid.v !== 'number') throw new Error('solid');
+      const good = Verify.scoreReply('皮是青的，一指头按下去一个坑，凉的。', c);
+      const none = Verify.scoreReply(null, c);
+      if (!(good.v > none.v)) throw new Error('答了应高于不答 ' + good.v + '/' + none.v);
+      log.push('v=' + a.score + '/' + b.score + '/' + c.score + ' 五感' + a.senses.ch + ' 追问' + good.v);
       Verify.reset();
     });
     run('Endings', () => {
