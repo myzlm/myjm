@@ -12,6 +12,17 @@
   const irnd = (a, b) => Math.floor(rnd(a, b + 1));
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
+  /* ---------- 正在写字吗 ----------
+     文本框有焦点的时候，a-z / 数字 / 空格都归文本框。
+     快捷键让路 —— 否则在记忆里打一个 m，声音就没了。 */
+  function typing(el) {
+    const a = el || (typeof document !== 'undefined' ? document.activeElement : null);
+    if (!a) return false;
+    const tag = (a.tagName || '').toUpperCase();
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+    return !!a.isContentEditable;
+  }
+
   /* ---------- 淡入淡出 ---------- */
   const Fade = {
     el: null,
@@ -212,7 +223,7 @@
   }
 
   global.G = {
-    $, $$, wait, clamp, rnd, irnd, pick,
+    $, $$, wait, clamp, rnd, irnd, pick, typing,
     Fade, Shake, Toast, Ach, CodeRain, hwFingerprint, isCodeJob, isMusicJob,
   };
 })(window);

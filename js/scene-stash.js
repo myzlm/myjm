@@ -14,8 +14,8 @@
       this.inited = true;
       $('#ps-back').addEventListener('click', () => this.close());
       document.addEventListener('keydown', (e) => {
+        if (global.G.typing(e.target)) return;
         if (e.key === 'j' || e.key === 'J') {
-          if (e.target.tagName === 'INPUT') return;
           if (App.isCurrent('stash')) this.close();
           else if (App.isCurrent('counter') && State.ch2 >= 1) this.open();
         }

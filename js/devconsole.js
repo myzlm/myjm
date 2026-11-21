@@ -311,6 +311,8 @@
       document.addEventListener('keydown', (e) => {
         const t = e.target;
         if (t && (t.id === 'dev-input' || t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+        /* 正在写字的框里，` 和 ~ 是字符，不是控制台 */
+        if ((e.key === '`' || e.key === '~') && global.G && global.G.typing(t)) return;
         if (e.key === 'F2' || e.key === '`' || e.key === '~') {
           e.preventDefault();
           this.toggle();

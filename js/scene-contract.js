@@ -173,14 +173,63 @@
 
       // 输入监听
       ['#in-name', '#in-job'].forEach((sel) => {
-        $(sel).addEventListener('input', () => this.validate());
+        $(sel).addEventListener('input', () => { this.saveDraft(); this.validate(); });
         $(sel).addEventListener('keydown', (e) => {
           e.stopPropagation();
           if (e.key === 'Enter') this.submit();
         });
       });
-      $$('input[name="sex"]').forEach((r) => r.addEventListener('change', () => this.validate()));
+      $$('input[name="sex"]').forEach((r) => r.addEventListener('change', () => { this.saveDraft(); this.validate(); }));
       $('#doc-submit').addEventListener('click', () => this.submit());
+    },
+
+    /* 写一半关掉页面：名字、职业、性别留在 sys.form 里 */
+    saveDraft() {
+      const S = global.State;
+      if (!S) return;
+      S.sys = S.sys || {};
+      const sex = $('input[name="sex"]:checked');
+      S.sys.form = {
+        name: ($('#in-name').value || '').trim(),
+        job: ($('#in-job').value || '').trim(),
+        sex: sex ? sex.value : '',
+      };
+      try { if (global.Save) global.Save.write(); } catch (e) {}
+    },
+
+    /* 回来时直接坐到桌前：登记表还摊着，填过的还在 */
+    resumeForm() {
+      this.init();
+      this.busy = false;
+      $('#ct-voice').classList.remove('on');
+      $('#voice-line').innerHTML = '';
+      $('#ct-hint').classList.remove('on');
+      $('#ct-figure').classList.remove('on');
+      $('#ct-figure-near').classList.remove('on');
+      $('#ct-room').classList.add('on');
+      $('#contract-paper').classList.add('on');
+      const paper = $('#contract-paper');
+      paper.style.transition = '';
+      paper.style.transform = '';
+      paper.style.opacity = '';
+
+      this.resetForm();
+      const S = global.State || {};
+      const d = (S.sys && S.sys.form) || {};
+      const nm = d.name || S.playerName;
+      const jb = d.job || S.job;
+      const sx = d.sex || S.sex;
+      if (nm) $('#in-name').value = nm;
+      if (jb) $('#in-job').value = jb;
+      if (sx) {
+        const r = $('input[name="sex"][value="' + sx + '"]');
+        if (r) r.checked = true;
+      }
+      $('#form-wrap').classList.add('on');
+      if (S.sys && S.sys.fpDone) this.fillFP();
+      else this.validate();
+      Snd.tone(300, 0.6, { type: 'triangle', gain: 0.05 });
+      try { if (global.Save) global.Save.write(); } catch (e) {}
     },
 
     fillFP() {
@@ -197,12 +246,15 @@
       const fpc = $('#fp-code');
       const fp = G.hwFingerprint();
       State.hwFp = fp;
+      State.sys = State.sys || {};
+      State.sys.fpDone = true;
       fpc.innerHTML =
         '指纹序列已归档<br>' +
         '<b>' + fp + '</b><br>' +
         '<span style="opacity:.65">（这不是你的指纹。这是这台机器的。）</span>';
       fpc.classList.add('on');
       this.validate();
+      try { if (global.Save) global.Save.write(); } catch (e) {}
     },
 
     validate() {

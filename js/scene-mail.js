@@ -58,11 +58,27 @@
       $('#dl-actions').style.display = '';
     },
 
+    /* 回来的时候：这条进度条已经走完了，别再走一遍 */
+    restore() {
+      this.init();
+      const S = global.State || {};
+      if (!S.downloaded && !S.dlDone) return false;
+      $('#dl-actions').style.display = 'none';
+      $('#dl-progress').classList.add('on');
+      $('#dlp-fill').style.width = '100%';
+      $('#dlp-pct').textContent = '100%';
+      const spd = $('#dlp-speed');
+      const eta = $('#dlp-eta');
+      if (spd) spd.textContent = '— 校验完成 —';
+      if (eta) eta.textContent = '';
+      $('#dl-run').classList.add('on');
+      return true;
+    },
+
     async start() {
       if (this.running) return;
       this.running = true;
       Snd.init(); Snd.click();
-
       $('#dl-actions').style.display = 'none';
       $('#dl-progress').classList.add('on');
       const fill = $('#dlp-fill');
@@ -101,6 +117,10 @@
       await wait(500);
       $('#dl-run').classList.add('on');
       Snd.ok();
+      /* 记下来：这一条进度条走完过。关掉再开，不会再让你等第二遍。 */
+      const S = global.State;
+      if (S) { S.downloaded = true; S.dlDone = true; }
+      try { if (global.Save) global.Save.write(); } catch (e) {}
       this.running = false;
     },
 

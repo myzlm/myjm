@@ -575,6 +575,7 @@
 
       document.addEventListener('keydown', (e) => {
         if (!App.isCurrent('lock')) return;
+        if (global.G.typing(e.target)) return;
         if (/^[a-zA-Z]$/.test(e.key)) { e.preventDefault(); this.press(e.key.toLowerCase()); }
         if (e.key === 'Backspace') { e.preventDefault(); this.backspace(); }
         if (e.key === 'Enter') { e.preventDefault(); this.check(); }

@@ -316,7 +316,7 @@
       /* 键盘词 */
       let buf = '';
       document.addEventListener('keydown', (e) => {
-        if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+        if (global.G.typing(e.target)) return;
         if (e.key.length === 1) {
           buf = (buf + e.key.toLowerCase()).slice(-28);
           if (/follow_the_white_rabbit$/.test(buf)) self.unlock(34);

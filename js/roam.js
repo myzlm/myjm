@@ -94,8 +94,7 @@
       });
 
       document.addEventListener('keydown', (e) => {
-        const tag = (e.target.tagName || '').toUpperCase();
-        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        if (global.G.typing(e.target)) return;
         if (e.key === 'g' || e.key === 'G') {
           e.preventDefault();
           this.toggle();

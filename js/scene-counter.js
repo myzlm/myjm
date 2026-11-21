@@ -110,8 +110,7 @@
       // L 进里间 / K 跟他对一局
       document.addEventListener('keydown', (e) => {
         if (!App.isCurrent('counter')) return;
-        const tag = (e.target && e.target.tagName) || '';
-        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        if (global.G.typing(e.target)) return;
         if (e.key === 'l' || e.key === 'L') {
           if (State.ch2 >= 1 && global.Space) { Snd.init(); global.Space.open(); }
           else this.say('（柜台后面是墙。墙后面没有东西——现在还没有。）', 2600);
@@ -466,16 +465,29 @@
       await Fade.through(() => { App.show('layer'); global.Layer.start(); });
     },
 
-    /* ---------------- 背包 ---------------- */
-    items: {},
+    /* ---------------- 背包 ----------------
+       东西存在 State.inv 里，跟着存档走。
+       以前放在模块变量上：一刷新，手里就空了。 */
+    get items() {
+      const S = global.State;
+      if (!S) return {};
+      S.inv = S.inv || {};
+      return S.inv;
+    },
     buildInventory() {
+      /* 老档里只有 hasUV / hasCrowbar 两个开关，补进来 */
+      const inv = this.items;
+      if (State.hasUV && !inv.uv) inv.uv = '紫光灯';
+      if (State.hasCrowbar && !inv.crowbar) inv.crowbar = '撬棍';
       $('#inventory').classList.add('on');
       this.renderInv();
     },
     addItem(id, name) {
-      if (this.items[id]) return;
-      this.items[id] = name;
+      const inv = this.items;
+      if (inv[id]) return;
+      inv[id] = name;
       this.renderInv();
+      try { if (global.Save) global.Save.touch(); } catch (e) {}
     },
     renderInv() {
       const box = $('#inv-items');

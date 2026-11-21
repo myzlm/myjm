@@ -33,7 +33,8 @@
       });
       document.addEventListener('keydown', (e) => {
         const t = e.target;
-        if (t && /INPUT|TEXTAREA/.test(t.tagName)) return;
+        /* 正在打字：p/k/v/t/q 都是文本，不是快捷键 */
+        if (global.G.typing(t)) return;
         if (e.key === 'p' || e.key === 'P') { e.preventDefault(); if (global.Persp) global.Persp.toggle(); }
         if (e.key === 'k' || e.key === 'K') { e.preventDefault(); if (global.Moyun) global.Moyun.show(); }
         if (e.key === 'v' || e.key === 'V') { e.preventDefault(); this.toggle(); }

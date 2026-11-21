@@ -20,6 +20,9 @@
     hasUV: false,
     hasCrowbar: false,
     selectedItem: null,
+    inv: {},                 // 手上/背包里的东西：{ id: 显示名 }，跟着存档走
+    downloaded: false,       // 下载条走完过 —— 回来不用再看一遍
+    dlDone: false,           // v2 存档用（同上，给老档兜底）
 
     pcFixed: false,
     pryOpened: false,

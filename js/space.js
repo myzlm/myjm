@@ -64,6 +64,7 @@
       if (back) back.addEventListener('click', () => this.close());
       document.addEventListener('keydown', (e) => {
         if (!App.isCurrent('space')) return;
+        if (global.G.typing(e.target)) return;
         if (e.key === 'Escape') this.close();
         if (e.key === '1') this.setView('front');
         if (e.key === '2') this.setView('side');

@@ -92,6 +92,7 @@
       document.addEventListener('keydown', (e) => {
         if (e.key !== 'Tab') return;
         if (!App.isCurrent('layer')) return;
+        if (global.G.typing(e.target)) return;
         e.preventDefault();
         $('#ly-ins').classList.toggle('on');
         Snd.click();

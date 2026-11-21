@@ -1148,15 +1148,15 @@
         }
       }, 60);
     } else if (global.Save && qs.get('fresh') !== '1' && global.Save.read()
-      && global.Save.chapterOf(global.Save.read().state) >= 2) {
-      // 上次没走完：柜台留着一张票
+      && (global.Save.read().ch >= 1 || global.Save.read().scr)) {
+      /* 上次没走完：柜台留着一张票。
+         票上有屏名，就回那一屏 —— 下载到一半关掉，不用再看一遍进度条。 */
       const sv = global.Save.read();
       global.Save.prompt(sv).then((go) => {
-        if (go) global.Save.enter(sv);
-        else {
-          global.Save.clear();
-          if (global.Chapter && !global.Chapter.off()) global.Chapter.show('ch0');
-        }
+        if (go === true) { global.Save.enter(sv); return; }
+        /* 'new' 才是撕票（票里已经问过两遍）。其余情况票留着。 */
+        if (go === 'new') global.Save.clear();
+        if (global.Chapter && !global.Chapter.off()) global.Chapter.show('ch0');
       });
     } else if (global.Chapter && !global.Chapter.off()) {
       // 正常启动：先给一张序章的票，票撕了才放进邮件
@@ -1175,7 +1175,8 @@
     // 全局静音键
     document.addEventListener('keydown', (e) => {
       if (e.key === 'm' || e.key === 'M') {
-        if (e.target.tagName === 'INPUT') return;
+        /* 正在写字：这个 m 是文本里的 m，不是静音 */
+        if (global.G.typing(e.target)) return;
         /* 锁屏的密码里有 m，静音往后排 */
         if (global.App && global.App.current === 'lock') return;
         global.Snd.muted = !global.Snd.muted;
@@ -1184,9 +1185,9 @@
       }
     });
 
-    // 阻止空格滚动
+    // 阻止空格滚动（但别挡住打字：空格在文本框里是空格）
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && e.target.tagName !== 'INPUT') e.preventDefault();
+      if (e.code === 'Space' && !global.G.typing(e.target)) e.preventDefault();
     });
   }
 
