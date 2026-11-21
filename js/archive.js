@@ -125,6 +125,7 @@
         '<div class="ar-tabs">' +
         '<button class="ar-t on" data-t="name">真名</button>' +
         '<button class="ar-t" data-t="quests">未竟</button>' +
+        '<button class="ar-t" data-t="ach">成就</button>' +
         '<button class="ar-t" data-t="eggs">彩蛋</button>' +
         '<button class="ar-t" data-t="space">里间</button>' +
         '<button class="ar-t" data-t="fus">融合</button>' +
@@ -251,6 +252,35 @@
       return h;
     },
 
+    /* 成就：本局亮，历来记 */
+    achHTML() {
+      const A = global.Ach;
+      if (!A) return '<div class="ar-empty">这本册子还没开始记。</div>';
+      const n = A.count(), all = A.total(), ever = A.everCount();
+      let h = '<div class="ar-count">本局 ' + n + ' / ' + all +
+        '　·　历来 ' + ever + ' / ' + all +
+        (n >= all ? '　·　' + all + ' 笔，齐了' : '') + '</div>' +
+        '<div class="ach-bar"><i style="width:' + Math.round((n / all) * 100) + '%"></i></div>' +
+        '<div class="ach-list">';
+      A.LIST.forEach((d, i) => {
+        const got = A.has(d.id);
+        const cat = A.CAT[d.cat] || '#6b5c44';
+        h += '<div class="ach-row' + (got ? ' on' : '') + '">' +
+          '<b class="ach-i">' + String(i + 1).padStart(2, '0') + '</b>' +
+          '<div class="ach-t">' +
+            '<span class="ach-n"><em class="ach-c" style="color:' + cat + '">' + d.cat + '</em>' +
+              (got ? d.name : '？ ？ ？') + '</span>' +
+            '<span class="ach-d">' + (got ? d.desc : d.hint) + '</span>' +
+            (got ? '<span class="ach-at">' + d.at + '</span>' : '') +
+          '</div>' +
+          '<i class="ach-s">' + (got ? '已 记' : '未 记') + '</i>' +
+        '</div>';
+      });
+      h += '</div><div class="ar-note">未记的那几行，写的是怎么记上它。<br>' +
+        '已经记上的，写的是记上它的时候，店里是什么样子。</div>';
+      return h;
+    },
+
     /* 当班：七笔，你写的那一行，和它后来变成的样子 */
     dutyHTML() {
       const S = global.State || {};
@@ -334,6 +364,8 @@
       } else if (this.tab === 'quests') {
         body.innerHTML = global.Quests ? global.Quests.listHTML()
           : '<div class="ar-empty">还没有接手过谁的事。</div>';
+      } else if (this.tab === 'ach') {
+        body.innerHTML = this.achHTML();
       } else if (this.tab === 'eggs') {
         body.innerHTML = '<div class="ar-count">彩蛋 ' + global.Eggs.count() + ' / 60　·　融合 ' +
           global.Eggs.fusionCount() + ' / 44</div>' + global.Eggs.listHTML();

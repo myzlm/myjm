@@ -179,6 +179,20 @@
     });
     run('hwFp', () => { log.push('hw=' + G.hwFingerprint()); });
 
+    run('Ach', () => {
+      const A = global.Ach;
+      if (!A) throw new Error('no Ach');
+      if (A.total() !== A.LIST.length || A.LIST.length < 12) throw new Error('list ' + A.LIST.length);
+      const ids = A.LIST.map((d) => d.id);
+      if (new Set(ids).size !== ids.length) throw new Error('dup id');
+      const bad = A.LIST.filter((d) => !d.name || !d.desc || !d.hint || !d.at || !A.CAT[d.cat]);
+      if (bad.length) throw new Error('incomplete: ' + bad.map((d) => d.id).join(','));
+      const h = global.Archive && Archive.achHTML ? Archive.achHTML() : '';
+      if (h.indexOf('本局') < 0 || h.indexOf('未 记') < 0) throw new Error('archive page');
+      if (typeof A.has('rush') !== 'boolean') throw new Error('has');
+      log.push('ach=' + A.total() + ' ever=' + A.everCount());
+    });
+
     /* ---- v11 新系统 ---- */
     run('Cipher', () => {
       const key = global.TrueName.key('base');

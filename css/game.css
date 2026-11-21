@@ -289,7 +289,7 @@
 @keyframes dollJump { 0%,100% { transform: none; } 50% { transform: scale(1.06) translate(1%, -1%); } }
 .doll-img {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; filter: contrast(1.15) saturate(.85) brightness(.92);
+  object-fit: cover; filter: contrast(1.06) saturate(.9) brightness(1.02);
   animation: dollZoom .5s cubic-bezier(.2,1,.3,1) both;
 }
 @keyframes dollZoom { from { transform: scale(1.4); } to { transform: scale(1.02); } }
@@ -1009,7 +1009,7 @@
 }
 .doll-note.on { opacity: 1; }
 .dn-doll { width: min(34vw, 300px); aspect-ratio: 3/4; overflow: hidden; flex: 0 0 auto; }
-.dn-doll img { width: 100%; height: 100%; object-fit: cover; filter: contrast(1.2) saturate(.7) brightness(.8); }
+.dn-doll img { width: 100%; height: 100%; object-fit: cover; filter: contrast(1.06) saturate(.86) brightness(.98); }
 .dn-doll.broken {
   background: radial-gradient(ellipse at 46% 32%, #e8d8c6 0%, #b89e89 55%, #4a3a30 100%);
   border-radius: 48% 48% 44% 44%;
@@ -1034,7 +1034,7 @@
    ============================================================ */
 .doll-img {
   object-position: 50% 52%;
-  filter: contrast(1.12) saturate(.8) brightness(.86);
+  filter: contrast(1.05) saturate(.92) brightness(1.0);
 }
 .doll-stage::after {
   content: ""; position: absolute; right: 0; bottom: 0;
@@ -1042,9 +1042,9 @@
   background: radial-gradient(ellipse 90% 90% at 100% 100%, #000 34%, rgba(0,0,0,.7) 58%, transparent 78%);
 }
 .cs-oldman img {
-  filter: brightness(.88) contrast(1.08) saturate(.86);
-  -webkit-mask-image: radial-gradient(ellipse 78% 76% at 50% 56%, #000 52%, rgba(0,0,0,.6) 74%, transparent 94%);
-  mask-image: radial-gradient(ellipse 78% 76% at 50% 56%, #000 52%, rgba(0,0,0,.6) 74%, transparent 94%);
+  filter: brightness(1.42) contrast(1.02) saturate(.96);
+  -webkit-mask-image: radial-gradient(ellipse 46% 44% at 50% 59%, #000 46%, rgba(0,0,0,.94) 66%, rgba(0,0,0,.5) 82%, transparent 94%);
+  mask-image: radial-gradient(ellipse 46% 44% at 50% 59%, #000 46%, rgba(0,0,0,.94) 66%, rgba(0,0,0,.5) 82%, transparent 94%);
 }
 .dn-doll img { object-position: 50% 44%; }
 .dn-doll::after {
@@ -1151,9 +1151,17 @@
 /* 老人：压掉室内背景，收紧椭圆遮罩 */
 .cs-oldman { width: min(238px, 17.5vw); bottom: 22%; }
 .cs-oldman img {
-  filter: brightness(.8) contrast(1.3) saturate(.85);
-  -webkit-mask-image: radial-gradient(ellipse 30% 33% at 50% 64%, #000 26%, rgba(0,0,0,.92) 50%, rgba(0,0,0,.35) 70%, transparent 84%);
-  mask-image: radial-gradient(ellipse 30% 33% at 50% 64%, #000 26%, rgba(0,0,0,.92) 50%, rgba(0,0,0,.35) 70%, transparent 84%);
+  filter: brightness(1.12) contrast(1.05) saturate(.94);
+  -webkit-mask-image:
+    radial-gradient(ellipse 58% 56% at 50% 48%, #000 50%, rgba(0,0,0,.9) 74%, rgba(0,0,0,.3) 90%, transparent 100%),
+    linear-gradient(90deg, transparent 0, #000 15%, #000 85%, transparent 100%),
+    linear-gradient(180deg, transparent 0, #000 10%, #000 82%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    radial-gradient(ellipse 58% 56% at 50% 48%, #000 50%, rgba(0,0,0,.9) 74%, rgba(0,0,0,.3) 90%, transparent 100%),
+    linear-gradient(90deg, transparent 0, #000 15%, #000 85%, transparent 100%),
+    linear-gradient(180deg, transparent 0, #000 10%, #000 82%, transparent 100%);
+  mask-composite: intersect;
 }
 .cs-counter-top {
   background: linear-gradient(180deg, #3f2c1c, #241810);
@@ -3647,6 +3655,49 @@ body.glitch-once #app { animation: glitchOnce .42s steps(3) 2; }
 .ar-mem span { font-family: var(--serif); font-size: 11.5px; line-height: 1.85; color: #8a7c64; }
 .ar-empty { font-family: var(--serif); font-size: 11.5px; color: #4a4136; padding: 10px 0; }
 .ar-note { margin-top: 18px; font-family: var(--serif); font-size: 10.5px; line-height: 2; color: #5c5040; letter-spacing: .06em; }
+
+/* ---- 档案册 · 成就 ---- */
+.ach-list { display: flex; flex-direction: column; }
+.ach-row {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 9px 8px; border-bottom: 1px dashed rgba(120, 96, 56, .22);
+}
+.ach-row .ach-i {
+  font-family: var(--mono); font-size: 9.5px; color: #4f4636;
+  flex: 0 0 22px; padding-top: 4px;
+}
+.ach-row .ach-t { flex: 1; min-width: 0; }
+.ach-row .ach-n {
+  font-family: var(--serif); font-size: 14px; letter-spacing: .14em;
+  color: #6d5f49; display: block;
+}
+.ach-row .ach-c {
+  font-family: var(--serif); font-size: 9.5px; letter-spacing: .2em;
+  border: 1px solid currentColor; padding: 0 4px; margin-right: 9px;
+  opacity: .55; vertical-align: 2px;
+}
+.ach-row .ach-d {
+  font-size: 10.5px; color: #4f4636; display: block; margin-top: 4px;
+  line-height: 1.75; letter-spacing: .04em;
+}
+.ach-row .ach-at {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .1em;
+  color: #3f3829; display: block; margin-top: 3px;
+}
+.ach-row .ach-s {
+  font-family: var(--serif); font-size: 9.5px; letter-spacing: .22em;
+  color: #3f3829; font-style: normal; flex: 0 0 auto; padding-top: 4px;
+}
+.ach-row.on { background: linear-gradient(90deg, rgba(201, 164, 92, .1), transparent 76%); }
+.ach-row.on .ach-n { color: #c9a45c; }
+.ach-row.on .ach-d { color: #9a8b6f; }
+.ach-row.on .ach-i, .ach-row.on .ach-at { color: #7a6a4c; }
+.ach-row.on .ach-s { color: #b8201c; }
+.ach-row.on .ach-c { opacity: .95; }
+.ach-bar {
+  height: 2px; background: #1a1510; margin: 2px 0 16px; overflow: hidden;
+}
+.ach-bar i { display: block; height: 100%; background: linear-gradient(90deg, #6d4a22, #c9a45c); }
 
 .tn-card { border: 1px solid #33291a; padding: 16px; background: rgba(60, 44, 20, .1); }
 .tn-head { display: flex; justify-content: space-between; font-family: var(--serif); font-size: 12px; letter-spacing: .16em; color: #cbb894; padding-bottom: 10px; border-bottom: 1px solid #2b2318; }
@@ -6811,15 +6862,15 @@ body.egg-fx-51::after {
     repeating-linear-gradient(0deg, rgba(255,220,170,.03) 0 6px, transparent 6px 15px);
 }
 
-/* 老人那张照片：压一层年代。太干净的脸放在暗屋子里最假 */
+/* 老人那张画：新图本身已经是暗调插画，只留一点点压边，让边缘掉进屋子里 */
 .cs-oldman img {
-  filter: sepia(.2) contrast(1.22) brightness(.82) saturate(.82);
+  filter: brightness(1.1) contrast(1.04) saturate(.92);
 }
 .cs-oldman::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background:
-    radial-gradient(ellipse 40% 46% at 50% 58%, transparent 40%, rgba(0,0,0,.55) 92%),
-    linear-gradient(180deg, rgba(20,14,8,.35), transparent 34%, rgba(10,7,4,.5));
+    radial-gradient(ellipse 44% 50% at 50% 58%, transparent 46%, rgba(0,0,0,.34) 94%),
+    linear-gradient(180deg, rgba(20,14,8,.2), transparent 40%, rgba(10,7,4,.32));
   mix-blend-mode: multiply;
 }
 

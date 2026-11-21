@@ -418,6 +418,8 @@
     },
 
     async triggerHidden() {
+      if (!State.sys) State.sys = {};
+      State.sys.pryScare = true;          /* 手抖过一次，成就就不给了 */
       const brk = $('#ov-break');
       const scr = $('#break-screen');
       const sc = $('#ov-scare');

@@ -390,7 +390,8 @@
         if (this.clicks === 70) { $('#dark-hint').style.color = '#242424'; }
         if (this.clicks >= 100 && !State.achievementRush) {
           State.achievementRush = true;
-          G.Ach.show('急也没用', '在黑暗里按了一百下。', 4600);
+          if (global.G && global.G.Ach && global.G.Ach.give) global.G.Ach.give('rush');
+          else if (global.G && global.G.Ach) global.G.Ach.show('急也没用', '在黑暗里按了一百下。', 4600);
           Snd.tone(300, 0.4, { type: 'triangle', gain: 0.04 });
         }
       };

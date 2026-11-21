@@ -471,10 +471,28 @@ body {
   transform: translateX(120%); transition: transform .6s cubic-bezier(.2,.9,.2,1);
 }
 #ov-ach.on .ach-card { transform: none; }
-.ach-badge { font-size: 26px; }
-.ach-label { font-size: 10px; letter-spacing: .3em; color: #4d7a63; margin-bottom: 4px; }
-.ach-name { font-family: var(--serif); font-size: 17px; letter-spacing: .16em; color: #e7fff2; }
-.ach-desc { font-size: 11px; color: #6f8579; margin-top: 4px; }
+.ach-badge { font-size: 26px; filter: grayscale(.2); }
+.ach-body { min-width: 0; }
+.ach-head { display: flex; align-items: center; gap: 12px; margin-bottom: 5px; }
+.ach-label { font-size: 10px; letter-spacing: .3em; color: #4d7a63; }
+.ach-prog {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .14em;
+  color: #3f6b53; opacity: .8;
+}
+.ach-name {
+  font-family: var(--serif); font-size: 17px; letter-spacing: .16em;
+  color: #e7fff2; display: flex; align-items: baseline; gap: 10px;
+}
+.ach-cat {
+  font-family: var(--serif); font-size: 11px; letter-spacing: .18em;
+  color: #c9a45c; border: 1px solid currentColor; padding: 0 5px;
+  transform: rotate(-4deg); transform-origin: left center; opacity: .95;
+}
+.ach-desc {
+  font-size: 11px; color: #7c9184; margin-top: 5px; line-height: 1.7;
+  max-width: 330px;
+}
+#ach-card[data-cat="疯"] .ach-badge { filter: grayscale(0) drop-shadow(0 0 10px rgba(184,32,28,.45)); }
 
 /* 突脸 / 花屏眼睛 */
 #ov-scare { background: #000; z-index: 9400; flex-direction: column; }
