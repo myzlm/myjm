@@ -31,16 +31,20 @@ body {
 }
 #app { position: fixed; inset: 0; overflow: hidden; }
 
-/* 屏幕扫描线 + 轻微暗角（全局） */
+/* 屏幕扫描线 + 轻微暗角（全局）
+   原来每 3px 一条 .16 的黑线，再压一层 .55 的暗角，
+   两层乘起来等于给整个画面罩了张灰网 —— 看着"糊"。
+   现在线更细更淡、周期放到 4px，暗角只压四周，中间留干净。 */
 #app::after {
   content: "";
   position: absolute; inset: 0;
   pointer-events: none; z-index: 9000;
   background:
-    repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px),
-    radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%);
+    repeating-linear-gradient(0deg, rgba(0,0,0,.09) 0 1px, transparent 1px 4px),
+    radial-gradient(ellipse 84% 78% at 50% 46%,
+      transparent 44%, rgba(0,0,0,.26) 76%, rgba(0,0,0,.54) 100%);
   mix-blend-mode: multiply;
-  opacity: .85;
+  opacity: .92;
 }
 
 /* 胶片颗粒：所有场景共用一层。没有它，纯渐变看着就是"生成"的 */

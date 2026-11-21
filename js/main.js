@@ -1153,7 +1153,15 @@
          票上有屏名，就回那一屏 —— 下载到一半关掉，不用再看一遍进度条。 */
       const sv = global.Save.read();
       global.Save.prompt(sv).then((go) => {
-        if (go === true) { global.Save.enter(sv); return; }
+        if (go === true) {
+          /* 落屏失败也得把黑幕收了，再退回柜台 —— 不能留一块点不动的板子 */
+          Promise.resolve(global.Save.enter(sv)).catch(() => {
+            if (global.Fade) global.Fade.off(0);
+            if (global.App) global.App.show('counter');
+            if (global.Counter) global.Counter.init();
+          });
+          return;
+        }
         /* 'new' 才是撕票（票里已经问过两遍）。其余情况票留着。 */
         if (go === 'new') global.Save.clear();
         if (global.Chapter && !global.Chapter.off()) global.Chapter.show('ch0');

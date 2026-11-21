@@ -28,8 +28,21 @@
         });
       });
 
-      // 下载页
-      $('#btn-dl').addEventListener('click', () => Download.start());
+      /* 下载页自己的键，交给 Download 自己绑 —— 从存档直接回到下载页时，
+         邮件屏这一屏根本没进过，绑在这儿就永远绑不上（按钮点不动）。 */
+      Download.bind();
+    },
+  };
+
+  const Download = {
+    inited: false,
+    running: false,
+
+    /* 只绑一次。谁先进下载页谁绑，不依赖邮件屏。 */
+    bind() {
+      if (this.inited) return;
+      this.inited = true;
+      $('#btn-dl').addEventListener('click', () => this.start());
       $('#btn-dl-mirror').addEventListener('click', () => {
         Snd.deny();
         Toast.show('镜像连接超时。只有主站可用。');
@@ -42,20 +55,22 @@
         });
       });
     },
-  };
 
-  const Download = {
-    inited: false,
-    running: false,
+    /* 每次进下载页都回到「还没下」的样子 */
     init() {
-      if (this.inited) return;
-      this.inited = true;
+      this.bind();
+      this.running = false;
+      this._alerted = false;
       $('#dl-actions').classList.remove('hidden');
+      $('#dl-actions').style.display = '';
       $('#dl-progress').classList.remove('on');
       $('#dl-run').classList.remove('on');
       $('#dlp-fill').style.width = '0%';
       $('#dlp-pct').textContent = '0%';
-      $('#dl-actions').style.display = '';
+      const spd = $('#dlp-speed');
+      const eta = $('#dlp-eta');
+      if (spd) spd.textContent = '—';
+      if (eta) eta.textContent = '';
     },
 
     /* 回来的时候：这条进度条已经走完了，别再走一遍 */

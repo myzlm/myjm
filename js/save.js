@@ -263,7 +263,9 @@
 
       if (TO_COUNTER.indexOf(scr) >= 0) {
         if (scr === 'space' && global.Space) { global.Space.open(); return true; }
-        if (global.Counter) { global.Counter.inited = true; global.Counter.talked = true; global.Counter.introPlayed = true; }
+        /* 只跳过开场独白。inited 千万别替它置位 ——
+           置了，init() 里的 bind() 就整个跳过，柜台上的东西全点不动。 */
+        if (global.Counter) { global.Counter.talked = true; global.Counter.introPlayed = true; }
         show('counter');
         if (global.Counter) global.Counter.init();
         if (global.Counter && global.Counter.refreshHud) global.Counter.refreshHud();
@@ -298,7 +300,7 @@
           return true;
 
         case 'counter':
-          if (global.Counter) { global.Counter.inited = true; global.Counter.talked = true; global.Counter.introPlayed = true; }
+          if (global.Counter) { global.Counter.talked = true; global.Counter.introPlayed = true; }
           show('counter');
           if (global.Counter) global.Counter.init();
           return true;
@@ -309,7 +311,12 @@
           return true;
 
         case 'stash':
-          if (global.Press) { global.Press.open(); return true; }
+          if (global.Press) {
+            /* 回来的时候上一屏可能是空的；不给它一个落脚处，关册子就关到黑里去了 */
+            global.Press.from = 'counter';
+            global.Press.open();
+            return true;
+          }
           break;
 
         case 'layer':
@@ -354,9 +361,13 @@
     /* 按章回，是退路：屏对不上时用 */
     async byChapter(ch) {
       const S = global.State;
-      if (ch <= 3) {
+      if (ch < 1) {
+        /* 序章里没有柜台：回到邮件，从前头重新读那一封 */
+        global.App.show('mail');
+        if (global.Mail) global.Mail.init();
+      } else if (ch <= 3) {
         if (ch >= 2) S.ch2 = Math.max(1, S.ch2 || 1);
-        if (global.Counter) { global.Counter.inited = true; global.Counter.talked = true; global.Counter.introPlayed = true; }
+        if (global.Counter) { global.Counter.talked = true; global.Counter.introPlayed = true; }
         global.App.show('counter');
         if (global.Counter) global.Counter.init();
       } else if (ch === 4) {
@@ -392,11 +403,15 @@
       const ch = this.chapterOf(S);
       if (global.Fade) await global.Fade.on(true);
 
-      let ok = false;
-      try { ok = await this.resumeScreen(sv.scr || '', ch); } catch (e) { ok = false; }
-      if (!ok) await this.byChapter(ch);
-
-      if (global.Fade) await global.Fade.off(700);
+      /* 不管落哪一屏、有没有出错，黑幕都得掀开 ——
+         掀不开就是一块盖住整屏、还吃点击的板子。 */
+      try {
+        let ok = false;
+        try { ok = await this.resumeScreen(sv.scr || '', ch); } catch (e) { ok = false; }
+        if (!ok) await this.byChapter(ch);
+      } finally {
+        if (global.Fade) await global.Fade.off(700);
+      }
       if (global.Toast) {
         const at = SCR[sv.scr];
         global.Toast.show(at ? ('接着上次的：' + at) : ('接着上次的：' + CH[ch]), 3600);
