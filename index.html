@@ -58,7 +58,7 @@
           <div class="folder">▢ 发件箱</div>
           <div class="folder">▢ 已发送邮件</div>
           <div class="folder">▢ 已删除邮件</div>
-          <div class="folder">▢ 草稿</div>
+          <div class="folder" id="mf-draft">▢ 草稿 <b>(1)</b></div>
           <div class="folder-gap"></div>
           <div class="folder-head">联系人</div>
           <div class="folder">▢ ？</div>
@@ -296,6 +296,14 @@
             </tr>
           </table>
           <div class="doc-agree">本人自愿登记，并同意上述信息被永久记录。</div>
+          <div class="doc-flip" id="doc-flip">（纸的背面还有一页。翻过来。）</div>
+          <div class="doc-back" id="doc-back">
+            <div class="db-title">附 则</div>
+            <p>一、押品离手，不再归还。</p>
+            <p>二、记录可被覆盖三十五次。</p>
+            <p>三、第三十六条记录，由本人填写。</p>
+            <div class="db-note">（第三条的字迹和上面两条不一样。墨也新。）</div>
+          </div>
           <button class="doc-submit" id="doc-submit" disabled>交 给 他</button>
         </div>
       </div>
@@ -853,6 +861,7 @@
       <div class="rt-list" id="rt-list"></div>
       <div class="rt-list-hint" id="rt-list-hint">（F2 可以打开控制台。有些行，用 grep 找更快。）</div>
       <button class="rt-anom" id="rt-anom">这三十七行里，有七行是假的</button>
+      <button class="rt-anom" id="rt-zero">名单底下还有一行，编号 000</button>
       <div class="rt-nar" id="rt-nar"></div>
 
       <div class="rt-detail" id="rt-detail">
@@ -1336,6 +1345,7 @@
 <script src="js/devconsole.js"></script>
 <script src="js/folklore.js"></script>
 <script src="js/story.js"></script>
+<script src="js/sides.js"></script>
 <script src="js/dialogue.js"></script>
 <script src="js/scene-mail.js"></script>
 <script src="js/scene-hall.js"></script>

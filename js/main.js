@@ -10,26 +10,28 @@
     mail: 'mail', download: 'mail',
     login: 'login',
     hall: 'hall', contract: 'hall',
-    dark: 'void', doll: 'void', soul: 'void',
-    counter: 'counter', verify: 'counter', stash: 'counter',
+    dark: 'void', doll: 'hollow', soul: 'hollow',
+    counter: 'counter', verify: 'verify', stash: 'hands',
     pry: 'counter', lock: 'counter', print: 'counter',
     ledger: 'ch2', film: 'ch2', scale: 'ch2',
     oil: 'ch2', clock: 'ch2', scratch: 'ch2',
-    hands: 'ch2',
-    street: 'final',
-    night: 'counter',
+    hands: 'hands',
+    street: 'street',
+    night: 'night',
     win98: 'ch2',
     layer: 'chase',
     rhythm: null,
-    root: 'deep', anomaly: 'deep', duty: 'counter',
+    root: 'deep', anomaly: 'hollow', duty: 'duty',
     moyun: 'moyun',
-    space: 'deep',
+    space: 'paper',
     end: 'final', final: 'final',
   };
   const TENSION_OF = {
-    chase: 0.82, deep: 0.56, root: 0.56, anomaly: 0.6,
+    chase: 0.82, deep: 0.56, root: 0.56, anomaly: 0.66,
     void: 0.62, hall: 0.34, mail: 0.45, login: 0.5,
     counter: 0.4, ch2: 0.44, moyun: 0.3, final: 0.48,
+    paper: 0.6, night: 0.32, hands: 0.36, verify: 0.56,
+    hollow: 0.68, tide: 0.44, street: 0.46, duty: 0.42,
   };
 
   const App = {
@@ -212,6 +214,37 @@
       ['lie1', 'lieCall', 'lieSelf', 'lieThey', 'lieDun', 'liePay', 'fill36', 'watchFill']
         .forEach((id) => { if (!DLG[id]) throw new Error('DLG ' + id); });
       log.push('branch combos=' + n);
+    });
+
+    /* ---- 旁支：十三条，条条要有节点，节点条条要能回到菜单 ---- */
+    run('Sides', () => {
+      const Sd = global.Sides;
+      if (!Sd) throw new Error('no Sides');
+      const L = Sd.LIST;
+      if (L.length < 10) throw new Error('sides=' + L.length);
+      const bad = [];
+      const seenNode = {};
+      L.forEach((s) => {
+        if (s.scene) return;                      // 场景型（邮件/契约/名单/街上）不走对话树
+        const n = global.DLG['sd_' + s.id];
+        if (!n) { bad.push(s.id); return; }
+        if (!n.lines && !n.choices) bad.push(s.id + ':empty');
+        if (!n.choices && n.next !== 'sd_hub' && n.next !== 'menu') bad.push(s.id + ':dead');
+      });
+      /* 每条支线底下那几个分岔，也得有去处 */
+      Object.keys(global.DLG).forEach((k) => {
+        if (k.indexOf('sd_') !== 0) return;
+        const n = global.DLG[k];
+        seenNode[k] = 1;
+        if (Array.isArray(n.choices)) {
+          n.choices.forEach((c) => {
+            if (c.to && !global.DLG[c.to]) bad.push(k + '→' + c.to);
+          });
+        }
+        if (n.next && n.next !== 'menu' && !global.DLG[n.next]) bad.push(k + '→' + n.next);
+      });
+      if (bad.length) throw new Error(bad.slice(0, 3).join(','));
+      log.push('sides=' + L.length + '/' + Object.keys(seenNode).length);
     });
 
     /* ---- v11 新系统 ---- */
@@ -813,7 +846,8 @@
 
     run('Music', () => {
       if (!global.Music) throw new Error('no Music');
-      const ids = ['mail', 'login', 'hall', 'void', 'counter', 'ch2', 'chase', 'deep', 'moyun', 'final'];
+      const ids = ['mail', 'login', 'hall', 'void', 'counter', 'ch2', 'chase', 'deep', 'moyun', 'final',
+        'paper', 'night', 'hands', 'verify', 'hollow', 'tide', 'street', 'duty'];
       const miss = ids.filter((id) => !global.Music.themes[id]);
       if (miss.length) throw new Error('missing theme ' + miss.join(','));
       const bad = [];
@@ -827,6 +861,10 @@
           c.forEach((f) => { if (!(f > 30 && f < 3000)) bad.push(id + ':freq=' + Math.round(f)); });
         });
         if (d.prog < 2) bad.push(id + ':prog');
+        // 每首都要有主旋律、有屋子、有一句动机
+        if (!d.mel || d.mel.length < 4) bad.push(id + ':nomel');
+        if (!(d.room >= 0 && d.room <= 1)) bad.push(id + ':room');
+        if (!d.motif || d.motif.length !== 3) bad.push(id + ':motif');
       });
       if (bad.length) throw new Error(bad.slice(0, 3).join(','));
       log.push('music=' + ids.length);

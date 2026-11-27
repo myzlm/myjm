@@ -244,9 +244,10 @@
       if (State.hasUV && !State.hasCrowbar) { h.textContent = '试试那台电脑'; return; }
       if (!State.hasUV) { h.textContent = '房间里还有别的东西'; return; }
       const hp = (global.Hands && global.Hands.undone) ? global.Hands.undone() : 0;
-      h.textContent = hp
-        ? '柜台底下那只木箱还有 ' + hp + ' 件 —— 按 Y'
-        : '点击画面中的物件';
+      if (hp) { h.textContent = '柜台底下那只木箱还有 ' + hp + ' 件 —— 按 Y'; return; }
+      /* 他心里那几件事，不会自己开口。提示只说一句，不点名。 */
+      const he = (global.Sides && global.Sides.hubEntry) ? global.Sides.hubEntry() : null;
+      h.textContent = he ? '他还有话没说 —— 点他，问「有些事」' : '点击画面中的物件';
     },
 
     /* ---------------- 柜子 ---------------- */

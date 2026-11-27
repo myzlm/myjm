@@ -67,6 +67,15 @@
             Fade.through(() => { global.App.show('anomaly'); global.Anomaly.start(); });
           });
         }
+        /* 第 000 行：列表底下那行小字。旁支归 sides.js 管。 */
+        const z = $('#rt-zero');
+        if (z) {
+          z.addEventListener('click', (e) => {
+            e.stopPropagation();
+            Snd.init();
+            if (global.Sides && global.Sides.rootZero) global.Sides.rootZero();
+          });
+        }
       }
       this.buildRows();
       Snd.startDrone();

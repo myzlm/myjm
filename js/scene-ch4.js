@@ -149,6 +149,11 @@
       await wait(3600);
       await this.say('他没有背面。\n\n人是需要背面的。', 0);
       await wait(4200);
+      /* 墙上有字。上一趟留下的，写给他看的。 */
+      await this.say('（墙上有一行字。是像素写的，很小，凑近了才看清：\n「这一次，别回头。」）', 0);
+      await wait(3800);
+      await this.say('（字是旧的。边角已经糊了。写的人不在了。）', 0);
+      await wait(3200);
       await this.say('（他的声音从你背后过来。你没有转身。）', 3600);
       Snd.tone(110, 1.2, { type: 'sine', gain: 0.05 });
       await wait(1800);

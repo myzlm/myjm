@@ -88,7 +88,11 @@
             : '';
       const nt = (S.sys && S.sys.night) || null;
       const passTx = nt && nt.done ? '\n\n（兜里那张纸钱硌着腿。你还想不好，把它算在谁头上。）' : '';
-      await this.say('灯芯只剩一小截了。\n\n柜台上的纸，还是那几张。' + stTx + passTx +
+      /* 你问过他的那些事，都会跟着你走到这张桌子前面 */
+      const sd = (global.Sides && global.Sides.stat) ? global.Sides.stat() : null;
+      const sideTx = sd && sd.asked >= 3
+        ? '\n\n（你问过他 ' + sd.asked + ' 件事。他一件也没答完。）' : '';
+      await this.say('灯芯只剩一小截了。\n\n柜台上的纸，还是那几张。' + stTx + passTx + sideTx +
         (flipped ? '\n\n（柜台底下那块地方，比别处暗一点。你上次把手伸进去过。）' : ''));
       await wait(2200);
       await this.say('艾把笔推过来。\n\n"这一次，"他说，"你自己写。"');

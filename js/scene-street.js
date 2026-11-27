@@ -450,8 +450,11 @@
       await this.say(T[kind], 820);
       try { if (global.Save) global.Save.touch(); } catch (e) {}
       await wait(900);
+      /* 街对面还有一扇门。门牌 06。不是那五个人的门。 */
+      const six = !(global.Sides && global.Sides.done && global.Sides.done('six'));
       $('#st-acts').innerHTML =
-        '<button class="st-a" data-st="back"><b>回 柜 台</b><i>灯还亮着</i></button>';
+        (six ? '<button class="st-a" data-st="six"><b>街 对 面</b><i>门牌 06 · 空号</i></button>' : '') +
+        '<button class="st-a' + (six ? ' ghost' : '') + '" data-st="back"><b>回 柜 台</b><i>灯还亮着</i></button>';
       $('#st-acts').querySelector('[data-st="back"]').addEventListener('click', () => this.finish());
     },
 
@@ -462,6 +465,10 @@
       const k = btn.dataset.st;
       if (k === 'go') return this.leaveStop();
       if (k === 'back') return this.finish();
+      if (k === 'six') return global.Sides && global.Sides.streetSix && global.Sides.streetSix();
+      if (k === 'six-in' || k === 'six-knock' || k === 'six-back') {
+        return global.Sides && global.Sides.streetSixAct && global.Sides.streetSixAct(k);
+      }
       if (k === 'file' || k === 'tear' || k === 'keep') return this.actGlass(k);
       return this.act(k);
     },

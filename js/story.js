@@ -297,7 +297,11 @@
           br.push({ text: '我说过要赎他们。我说话算数。', to: 'liePay', key: true });
         }
 
-        return head.concat(ghosts, br, mine, base, press, [
+        /* ---- 旁支：他自己不肯先说，得你问 ---- */
+        const hub = (global.Sides && global.Sides.hubEntry) ? global.Sides.hubEntry() : null;
+        const side = hub ? [hub] : [];
+
+        return head.concat(ghosts, br, mine, base, side, press, [
           { text: '我现在该做什么？', to: 'hint' },
           { text: '没什么了。', to: null },
         ]);

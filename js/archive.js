@@ -125,6 +125,7 @@
         '<div class="ar-tabs">' +
         '<button class="ar-t on" data-t="name">真名</button>' +
         '<button class="ar-t" data-t="quests">未竟</button>' +
+        '<button class="ar-t" data-t="sides">旁支</button>' +
         '<button class="ar-t" data-t="ach">成就</button>' +
         '<button class="ar-t" data-t="eggs">彩蛋</button>' +
         '<button class="ar-t" data-t="space">里间</button>' +
@@ -349,6 +350,30 @@
       return h;
     },
 
+    /* ---------- 旁支：十三条他没先说、得你问的事 ---------- */
+    sidesHTML() {
+      const Sd = global.Sides;
+      if (!Sd) return '<div class="ar-empty">这间屋子里没有旁的事情。</div>';
+      const L = Sd.LIST;
+      const done = L.filter((s) => Sd.done(s.id)).length;
+      const head = '<div class="ar-count">旁支 ' + done + ' / ' + L.length +
+        '　·　' + (done >= L.length ? '该问的都问过了' : '他不说，是因为没人问') + '</div>';
+      const rows = L.map((s) => {
+        const on = Sd.done(s.id);
+        return '<div class="q-row ' + (on ? 'done' : '') + '">' +
+          '<div class="q-h"><span class="q-no">' + s.no + '</span>' +
+          '<span class="q-who">' + s.title + '</span>' +
+          '<span class="q-job">' + s.where + '</span>' +
+          '<span class="q-st">' + (on ? '问过了' : '还没问') + '</span></div>' +
+          '<div class="q-brief">' + s.brief + '</div>' +
+          '</div>';
+      }).join('');
+      return head + '<div class="q-list">' + rows + '</div>' +
+        '<div class="ar-note">这些不是任务。它们不会给你钥匙，也不会让门开得更容易一点。<br>' +
+        '它们只是他压了十九年、一直没人问的那些话。<br>' +
+        '问完了，他还是那个掌柜——只是他抬头的时候，会先看你一眼。</div>';
+    },
+
     render() {
       const body = $('#ar-body');
       if (!body) return;
@@ -364,6 +389,8 @@
       } else if (this.tab === 'quests') {
         body.innerHTML = global.Quests ? global.Quests.listHTML()
           : '<div class="ar-empty">还没有接手过谁的事。</div>';
+      } else if (this.tab === 'sides') {
+        body.innerHTML = this.sidesHTML();
       } else if (this.tab === 'ach') {
         body.innerHTML = this.achHTML();
       } else if (this.tab === 'eggs') {
